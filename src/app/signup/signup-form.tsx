@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import Link from "next/link";
 import { Mail, Lock, UserRound, AlertCircle } from "lucide-react";
 import { signup, type SignupState } from "./actions";
+import { loginWithLine, loginWithGoogle } from "../login/oauth-actions";
 import { JaKo } from "@/components/ja-ko";
 
 const initialState: SignupState = {};
@@ -78,6 +79,31 @@ export function SignupForm({ acquisitionSource }: { acquisitionSource: string })
           )}
         </button>
       </form>
+
+      <div className="mt-5 flex items-center gap-3 text-xs text-muted">
+        <span className="h-px flex-1 bg-border" />
+        <JaKo ja="または" ko="또는" />
+        <span className="h-px flex-1 bg-border" />
+      </div>
+
+      <div className="mt-5 flex flex-col gap-2.5">
+        <form action={loginWithLine}>
+          <button
+            type="submit"
+            className="w-full rounded-full bg-[#06C755] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
+          >
+            <JaKo ja="LINEで登録" ko="LINE로 가입" />
+          </button>
+        </form>
+        <form action={loginWithGoogle}>
+          <button
+            type="submit"
+            className="w-full rounded-full border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground shadow-sm transition hover:bg-background"
+          >
+            <JaKo ja="Googleで登録" ko="Google로 가입" />
+          </button>
+        </form>
+      </div>
 
       <p className="mt-6 text-center text-sm text-muted">
         <JaKo ja="既にアカウントをお持ちですか？" ko="이미 계정이 있으신가요?" />{" "}
