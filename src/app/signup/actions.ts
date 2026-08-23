@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { signIn } from "@/auth";
+import { SIGNUPS_ENABLED } from "@/lib/feature-flags";
 
 const signupSchema = z.object({
   email: z
@@ -31,6 +32,10 @@ export async function signup(
   _prevState: SignupState,
   formData: FormData
 ): Promise<SignupState> {
+  if (!SIGNUPS_ENABLED) {
+    return { error: "現在、会員登録機能を準備しています。(현재 회원가입 기능을 준비하고 있습니다.)" };
+  }
+
   const parsed = signupSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),

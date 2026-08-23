@@ -4,6 +4,7 @@ import LINE from "next-auth/providers/line";
 import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { SIGNUPS_ENABLED } from "@/lib/feature-flags";
 
 // 존재하지 않는 이메일이어도 항상 bcrypt 비교를 한 번 수행해서,
 // 응답 속도로 "이 이메일이 가입되어 있는지"를 추측하지 못하게 한다.
@@ -71,6 +72,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         userId = existing?.id;
 
         if (!userId) {
+          if (!SIGNUPS_ENABLED) return false;
+
           const { data: created, error } = await supabaseAdmin
             .from("users")
             .insert({
@@ -102,6 +105,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         userId = existing?.id;
 
         if (!userId) {
+          if (!SIGNUPS_ENABLED) return false;
+
           const { data: created, error } = await supabaseAdmin
             .from("users")
             .insert({
