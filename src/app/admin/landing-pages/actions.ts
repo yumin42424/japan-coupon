@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
+import { requireAdmin } from "@/lib/admin";
 
 const VALID_CATEGORIES = new Set<string>(CATEGORIES.map((c) => c.value));
 const VALID_AREAS = new Set<string>(AREAS.map((a) => a.value));
@@ -14,6 +15,8 @@ export async function createLandingPage(
   _prevState: LandingPageFormState,
   formData: FormData
 ): Promise<LandingPageFormState> {
+  await requireAdmin();
+
   const slug = (formData.get("slug") as string)?.trim().toLowerCase();
   const utmSource = (formData.get("utmSource") as string)?.trim();
   const utmCampaign = (formData.get("utmCampaign") as string)?.trim();
@@ -58,6 +61,7 @@ export async function createLandingPage(
 }
 
 export async function deleteLandingPage(id: string) {
+  await requireAdmin();
   await supabaseAdmin.from("landing_pages").delete().eq("id", id);
   revalidatePath("/admin/landing-pages");
 }

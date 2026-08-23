@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { requireAdmin } from "@/lib/admin";
 
 export type NoticeFormState = { error?: string };
 
@@ -10,6 +11,8 @@ export async function createNotice(
   _prevState: NoticeFormState,
   formData: FormData
 ): Promise<NoticeFormState> {
+  await requireAdmin();
+
   const title = (formData.get("title") as string)?.trim();
   const body = (formData.get("body") as string)?.trim();
 
@@ -32,6 +35,8 @@ export async function updateNotice(
   _prevState: NoticeFormState,
   formData: FormData
 ): Promise<NoticeFormState> {
+  await requireAdmin();
+
   const title = (formData.get("title") as string)?.trim();
   const body = (formData.get("body") as string)?.trim();
 
@@ -53,6 +58,7 @@ export async function updateNotice(
 }
 
 export async function deleteNotice(noticeId: string) {
+  await requireAdmin();
   await supabaseAdmin.from("notices").delete().eq("id", noticeId);
   revalidatePath("/admin/notices");
   revalidatePath("/notices");

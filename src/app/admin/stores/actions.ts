@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
+import { requireAdmin } from "@/lib/admin";
 
 const VALID_CATEGORIES = new Set<string>(CATEGORIES.map((c) => c.value));
 const VALID_AREAS = new Set<string>(AREAS.map((a) => a.value));
@@ -14,6 +15,8 @@ export async function createStore(
   _prevState: StoreFormState,
   formData: FormData
 ): Promise<StoreFormState> {
+  await requireAdmin();
+
   const name = (formData.get("name") as string)?.trim();
   const category = formData.get("category") as string;
   const area = formData.get("area") as string;
@@ -56,6 +59,8 @@ export async function updateStore(
   _prevState: StoreFormState,
   formData: FormData
 ): Promise<StoreFormState> {
+  await requireAdmin();
+
   const name = (formData.get("name") as string)?.trim();
   const category = formData.get("category") as string;
   const area = formData.get("area") as string;
@@ -97,6 +102,7 @@ export async function updateStore(
 }
 
 export async function deleteStore(storeId: string) {
+  await requireAdmin();
   await supabaseAdmin.from("stores").delete().eq("id", storeId);
   revalidatePath("/admin/stores");
   revalidatePath("/admin/coupons");

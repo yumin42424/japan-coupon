@@ -1,6 +1,7 @@
 "use server";
 
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { requireAdmin } from "@/lib/admin";
 
 const POINTS_PER_USE = 10;
 
@@ -26,6 +27,8 @@ export async function processRedeem(
   _prevState: RedeemState,
   formData: FormData
 ): Promise<RedeemState> {
+  await requireAdmin();
+
   const confirm = formData.get("confirm") === "true";
 
   if (confirm) {

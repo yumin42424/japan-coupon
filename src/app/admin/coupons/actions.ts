@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { requireAdmin } from "@/lib/admin";
 
 export type CouponFormState = { error?: string };
 
@@ -10,6 +11,8 @@ export async function createCoupon(
   _prevState: CouponFormState,
   formData: FormData
 ): Promise<CouponFormState> {
+  await requireAdmin();
+
   const storeId = formData.get("storeId") as string;
   const title = (formData.get("title") as string)?.trim();
   const discountInfo = (formData.get("discountInfo") as string)?.trim();
@@ -62,6 +65,8 @@ export async function updateCoupon(
   _prevState: CouponFormState,
   formData: FormData
 ): Promise<CouponFormState> {
+  await requireAdmin();
+
   const storeId = formData.get("storeId") as string;
   const title = (formData.get("title") as string)?.trim();
   const discountInfo = (formData.get("discountInfo") as string)?.trim();
@@ -113,6 +118,7 @@ export async function updateCoupon(
 }
 
 export async function deleteCoupon(couponId: string) {
+  await requireAdmin();
   await supabaseAdmin.from("coupons").delete().eq("id", couponId);
   revalidatePath("/admin/coupons");
   revalidatePath("/coupons");
