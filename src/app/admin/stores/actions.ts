@@ -25,6 +25,10 @@ export async function createStore(
   const address = (formData.get("address") as string)?.trim();
   const businessHours = (formData.get("businessHours") as string)?.trim();
   const reservationInfo = (formData.get("reservationInfo") as string)?.trim();
+  const latitudeRaw = formData.get("latitude") as string;
+  const longitudeRaw = formData.get("longitude") as string;
+  const latitude = latitudeRaw ? Number(latitudeRaw) : null;
+  const longitude = longitudeRaw ? Number(longitudeRaw) : null;
 
   if (!name) return { error: "店舗名を入力してください。(매장명을 입력해주세요.)" };
   if (!VALID_CATEGORIES.has(category)) {
@@ -43,6 +47,8 @@ export async function createStore(
     address: address || null,
     business_hours: businessHours || null,
     reservation_info: reservationInfo || null,
+    latitude,
+    longitude,
   });
 
   if (error) {
@@ -69,6 +75,10 @@ export async function updateStore(
   const address = (formData.get("address") as string)?.trim();
   const businessHours = (formData.get("businessHours") as string)?.trim();
   const reservationInfo = (formData.get("reservationInfo") as string)?.trim();
+  const latitudeRaw = formData.get("latitude") as string;
+  const longitudeRaw = formData.get("longitude") as string;
+  const latitude = latitudeRaw ? Number(latitudeRaw) : null;
+  const longitude = longitudeRaw ? Number(longitudeRaw) : null;
 
   if (!name) return { error: "店舗名を入力してください。(매장명을 입력해주세요.)" };
   if (!VALID_CATEGORIES.has(category)) {
@@ -89,6 +99,8 @@ export async function updateStore(
       address: address || null,
       business_hours: businessHours || null,
       reservation_info: reservationInfo || null,
+      latitude,
+      longitude,
     })
     .eq("id", storeId);
 

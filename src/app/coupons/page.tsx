@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronRight, Lock, ChevronLeft, Flame } from "lucide-react";
+import { ChevronRight, Lock, ChevronLeft, Flame, LocateFixed } from "lucide-react";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
@@ -49,6 +49,14 @@ function CategoryAreaHub() {
       <p className="mt-2 text-sm text-muted">
         <JaKo ja="カテゴリまたはエリアを選んでください。" ko="카테고리 또는 지역을 선택해주세요." />
       </p>
+
+      <Link
+        href="/nearby"
+        className="mt-4 flex items-center justify-center gap-2 rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm font-bold text-primary shadow-sm transition hover:bg-primary/15"
+      >
+        <LocateFixed className="h-4 w-4" />
+        <JaKo ja="現在地から探す" ko="내 주변에서 찾기" />
+      </Link>
 
       <section className="mt-8">
         <h2 className="text-sm font-bold text-muted">

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Home, Ticket, User, Shield, LogIn, Trophy, BookOpen, Megaphone, MessagesSquare } from "lucide-react";
+import { Home, Ticket, User, Shield, LogIn, Trophy, BookOpen, Megaphone, MessagesSquare, LocateFixed } from "lucide-react";
 import { auth } from "@/auth";
 import { isAdminEmail } from "@/lib/admin";
 
@@ -26,6 +26,13 @@ export async function Nav() {
             >
               <Ticket className="h-4 w-4" strokeWidth={2.25} />
               クーポン
+            </Link>
+            <Link
+              href="/nearby"
+              className="hidden items-center gap-1.5 rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:flex lg:px-3"
+            >
+              <LocateFixed className="h-4 w-4" strokeWidth={2.25} />
+              現在地から
             </Link>
             <Link
               href="/ranking"

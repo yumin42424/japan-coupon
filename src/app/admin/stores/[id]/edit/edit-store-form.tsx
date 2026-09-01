@@ -18,6 +18,8 @@ type Store = {
   address: string | null;
   business_hours: string | null;
   reservation_info: string | null;
+  latitude: number | null;
+  longitude: number | null;
 };
 
 export function EditStoreForm({ store }: { store: Store }) {
@@ -80,6 +82,32 @@ export function EditStoreForm({ store }: { store: Store }) {
           className="rounded-lg border border-border bg-background px-3 py-2 font-normal outline-none focus:border-primary"
         />
       </label>
+
+      <div className="grid grid-cols-2 gap-3">
+        <label className="flex flex-col gap-1 text-sm font-medium">
+          <JaKo ja="緯度" ko="위도" />
+          <input
+            type="number"
+            step="any"
+            name="latitude"
+            defaultValue={store.latitude ?? ""}
+            placeholder="37.5636"
+            className="rounded-lg border border-border bg-background px-3 py-2 font-normal outline-none focus:border-primary"
+          />
+        </label>
+
+        <label className="flex flex-col gap-1 text-sm font-medium">
+          <JaKo ja="経度" ko="경도" />
+          <input
+            type="number"
+            step="any"
+            name="longitude"
+            defaultValue={store.longitude ?? ""}
+            placeholder="126.9834"
+            className="rounded-lg border border-border bg-background px-3 py-2 font-normal outline-none focus:border-primary"
+          />
+        </label>
+      </div>
 
       <label className="flex flex-col gap-1 text-sm font-medium">
         <JaKo ja="営業時間" ko="영업시간" />

@@ -80,6 +80,36 @@ export function StoreForm() {
         />
       </label>
 
+      <div className="grid grid-cols-2 gap-3">
+        <label className="flex flex-col gap-1 text-sm font-medium">
+          <JaKo ja="緯度" ko="위도" />
+          <input
+            type="number"
+            step="any"
+            name="latitude"
+            placeholder="37.5636"
+            className="rounded-lg border border-border bg-background px-3 py-2 font-normal outline-none focus:border-primary"
+          />
+        </label>
+
+        <label className="flex flex-col gap-1 text-sm font-medium">
+          <JaKo ja="経度" ko="경도" />
+          <input
+            type="number"
+            step="any"
+            name="longitude"
+            placeholder="126.9834"
+            className="rounded-lg border border-border bg-background px-3 py-2 font-normal outline-none focus:border-primary"
+          />
+        </label>
+      </div>
+      <p className="-mt-2 text-xs text-muted">
+        <JaKo
+          ja="Googleマップで店舗を検索→右クリックで座標をコピーできます。"
+          ko="구글맵에서 매장 검색 후 우클릭하면 좌표를 복사할 수 있어요."
+        />
+      </p>
+
       <label className="flex flex-col gap-1 text-sm font-medium">
         <JaKo ja="営業時間" ko="영업시간" />
         <input

@@ -13,7 +13,7 @@ export default async function EditStorePage({
   const { data: store } = await supabaseAdmin
     .from("stores")
     .select(
-      "id, name, category, area, line_available, popular_with_japanese, address, business_hours, reservation_info"
+      "id, name, category, area, line_available, popular_with_japanese, address, business_hours, reservation_info, latitude, longitude"
     )
     .eq("id", id)
     .maybeSingle();
