@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
+import { CATEGORY_IMAGES } from "@/lib/taxonomy-images";
 import { isUrgentDeadline } from "@/lib/urgency";
 import { JaKo } from "@/components/ja-ko";
 
@@ -66,16 +67,21 @@ function CategoryAreaHub() {
           {CATEGORIES.map((c) => {
             const Icon = CATEGORY_ICONS[c.value];
             return (
-              <Link
-                key={c.value}
-                href={`/coupons?category=${c.value}`}
-                className="group flex aspect-square flex-col items-center justify-center gap-1 rounded-2xl border border-border bg-card p-6 text-center shadow-sm transition duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5"
-              >
-                <span className="mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110">
-                  <Icon className="h-8 w-8" strokeWidth={2} />
-                </span>
+              <Link key={c.value} href={`/coupons?category=${c.value}`} className="group flex flex-col items-center gap-2">
+                <div className="relative w-full overflow-hidden rounded-2xl border border-border shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:border-primary/40 group-hover:shadow-xl group-hover:shadow-primary/5">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={CATEGORY_IMAGES[c.value]}
+                    alt=""
+                    className="aspect-square w-full object-cover transition duration-300 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <span className="absolute left-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-card text-primary shadow">
+                    <Icon className="h-4 w-4" strokeWidth={2.25} />
+                  </span>
+                </div>
                 <h3 className="text-[15px] font-bold leading-tight">{c.ja}</h3>
-                <p className="text-xs text-muted">({c.ko})</p>
+                <p className="-mt-1.5 text-xs text-muted">({c.ko})</p>
               </Link>
             );
           })}
