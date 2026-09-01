@@ -10,6 +10,48 @@ import { SIGNUPS_ENABLED } from "@/lib/feature-flags";
 // 응답 속도로 "이 이메일이 가입되어 있는지"를 추측하지 못하게 한다.
 const DUMMY_HASH = bcrypt.hashSync("dummy-password-for-timing-safety", 10);
 
+// 로그인 무차별 대입 공격 방어: 15분 동안 5번 틀리면 15분간 잠금.
+// 잠겼을 때도 "비밀번호가 틀렸습니다"와 동일한 메시지만 노출해서, 이 계정이
+// 실제로 존재하는지/잠겨있는지를 외부에서 구분할 수 없게 한다.
+const MAX_ATTEMPTS = 5;
+const ATTEMPT_WINDOW_MS = 15 * 60 * 1000;
+const LOCKOUT_MS = 15 * 60 * 1000;
+
+async function isLoginLocked(email: string): Promise<boolean> {
+  const { data: row } = await supabaseAdmin
+    .from("login_attempts")
+    .select("locked_until")
+    .eq("email", email)
+    .maybeSingle();
+
+  return !!row?.locked_until && new Date(row.locked_until) > new Date();
+}
+
+async function recordLoginAttempt(email: string, success: boolean): Promise<void> {
+  if (success) {
+    await supabaseAdmin.from("login_attempts").delete().eq("email", email);
+    return;
+  }
+
+  const now = new Date();
+  const { data: row } = await supabaseAdmin
+    .from("login_attempts")
+    .select("attempt_count, first_attempt_at")
+    .eq("email", email)
+    .maybeSingle();
+
+  const windowExpired =
+    !row || now.getTime() - new Date(row.first_attempt_at).getTime() > ATTEMPT_WINDOW_MS;
+  const attemptCount = windowExpired ? 1 : row.attempt_count + 1;
+
+  await supabaseAdmin.from("login_attempts").upsert({
+    email,
+    attempt_count: attemptCount,
+    first_attempt_at: windowExpired ? now.toISOString() : row.first_attempt_at,
+    locked_until: attemptCount >= MAX_ATTEMPTS ? new Date(now.getTime() + LOCKOUT_MS).toISOString() : null,
+  });
+}
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: {
     // DB 세션 대신 JWT 세션을 씀 -> 별도 세션 테이블 없이 쿠키에 토큰만 저장 (MVP 단계에 적합)
@@ -30,6 +72,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const password = credentials?.password as string | undefined;
         if (!email || !password) return null;
 
+        if (await isLoginLocked(email)) return null;
+
         const { data: user } = await supabaseAdmin
           .from("users")
           .select("id, email, nickname, password_hash")
@@ -37,7 +81,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           .maybeSingle();
 
         const isValid = await bcrypt.compare(password, user?.password_hash ?? DUMMY_HASH);
-        if (!user || !user.password_hash || !isValid) return null;
+        const success = !!user && !!user.password_hash && isValid;
+        await recordLoginAttempt(email, success);
+        if (!success || !user) return null;
 
         // last_login_at 갱신 (재방문율 지표에 쓰임)
         await supabaseAdmin
