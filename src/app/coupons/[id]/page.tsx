@@ -11,12 +11,15 @@ import {
   PhoneCall,
   Info,
   Flame,
+  Timer,
+  Users,
 } from "lucide-react";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
 import { JaKo } from "@/components/ja-ko";
+import { daysUntil, isUrgentDeadline } from "@/lib/urgency";
 import { issueCoupon, toggleFavorite } from "./actions";
 import { ViewTracker } from "./view-tracker";
 
@@ -30,6 +33,7 @@ type CouponDetail = {
   regular_price: number | null;
   discounted_price: number | null;
   usage_condition: string | null;
+  quantity_limit: number | null;
   stores: {
     id: string;
     name: string;
@@ -54,7 +58,7 @@ export default async function CouponDetailPage({
   const { data } = await supabaseAdmin
     .from("coupons")
     .select(
-      "id, title, discount_info, valid_from, valid_to, member_only, regular_price, discounted_price, usage_condition, stores(id, name, category, area, line_available, popular_with_japanese, address, business_hours, reservation_info)"
+      "id, title, discount_info, valid_from, valid_to, member_only, regular_price, discounted_price, usage_condition, quantity_limit, stores(id, name, category, area, line_available, popular_with_japanese, address, business_hours, reservation_info)"
     )
     .eq("id", id)
     .maybeSingle();
@@ -63,6 +67,20 @@ export default async function CouponDetailPage({
   const coupon = data as unknown as CouponDetail;
   const store = coupon.stores;
   const isLocked = coupon.member_only && !session?.user;
+
+  let issuedCount = 0;
+  if (coupon.quantity_limit != null) {
+    const { count } = await supabaseAdmin
+      .from("coupon_events")
+      .select("id", { count: "exact", head: true })
+      .eq("coupon_id", id)
+      .eq("event_type", "issue");
+    issuedCount = count ?? 0;
+  }
+  const remaining = coupon.quantity_limit != null ? coupon.quantity_limit - issuedCount : null;
+  const isSoldOut = remaining !== null && remaining <= 0;
+  const urgent = isUrgentDeadline(coupon.valid_to);
+  const daysLeft = daysUntil(coupon.valid_to);
 
   let alreadyIssued = false;
   let isFavorited = false;
@@ -167,6 +185,36 @@ export default async function CouponDetailPage({
           <div className="bg-primary/10 px-5 py-4">
             <p className="text-2xl font-extrabold tracking-tight text-primary">{coupon.title}</p>
             <p className="mt-0.5 text-sm font-medium text-foreground/70">{coupon.discount_info}</p>
+            {(urgent || remaining !== null) && (
+              <p className="mt-2 flex flex-wrap items-center gap-1.5">
+                {urgent && (
+                  <span className="flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-primary-foreground">
+                    <Timer className="h-3 w-3" />
+                    {daysLeft <= 0 ? (
+                      <JaKo ja="本日締切" ko="오늘 마감" />
+                    ) : (
+                      <JaKo ja={`あと${daysLeft}日`} ko={`마감 ${daysLeft}일 전`} />
+                    )}
+                  </span>
+                )}
+                {remaining !== null && (
+                  <span
+                    className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold ${
+                      isSoldOut
+                        ? "bg-border text-muted"
+                        : "bg-orange-500/15 text-orange-500"
+                    }`}
+                  >
+                    <Users className="h-3 w-3" />
+                    {isSoldOut ? (
+                      <JaKo ja="満了しました" ko="선착순 마감" />
+                    ) : (
+                      <JaKo ja={`残り${remaining}枚`} ko={`선착순 잔여 ${remaining}개`} />
+                    )}
+                  </span>
+                )}
+              </p>
+            )}
             {(coupon.regular_price || coupon.discounted_price) && (
               <p className="mt-1.5 flex items-center gap-2">
                 {coupon.regular_price && (
@@ -236,6 +284,11 @@ export default async function CouponDetailPage({
           <p className="flex items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-3.5 text-center text-sm font-medium text-muted">
             <CheckCircle2 className="h-4 w-4 text-success" />
             <JaKo ja="発行済みのクーポンです" ko="이미 발급받은 쿠폰입니다" />
+          </p>
+        ) : isSoldOut ? (
+          <p className="flex items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-3.5 text-center text-sm font-medium text-muted">
+            <Users className="h-4 w-4" />
+            <JaKo ja="先着順の受付は終了しました" ko="선착순 접수가 마감되었습니다" />
           </p>
         ) : (
           <form action={issueCoupon.bind(null, id)}>

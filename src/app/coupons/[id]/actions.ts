@@ -20,6 +20,23 @@ export async function issueCoupon(couponId: string) {
     redirect("/login");
   }
 
+  const { data: coupon } = await supabaseAdmin
+    .from("coupons")
+    .select("quantity_limit")
+    .eq("id", couponId)
+    .maybeSingle();
+
+  if (coupon?.quantity_limit != null) {
+    const { count } = await supabaseAdmin
+      .from("coupon_events")
+      .select("id", { count: "exact", head: true })
+      .eq("coupon_id", couponId)
+      .eq("event_type", "issue");
+    if ((count ?? 0) >= coupon.quantity_limit) {
+      redirect(`/coupons/${couponId}`);
+    }
+  }
+
   await supabaseAdmin.from("coupon_events").insert({
     coupon_id: couponId,
     user_id: session.user.id,

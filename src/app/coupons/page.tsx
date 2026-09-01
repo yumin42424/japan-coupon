@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { ChevronRight, Lock, ChevronLeft, Flame, LocateFixed } from "lucide-react";
+import { ChevronRight, Lock, ChevronLeft, Flame, LocateFixed, Timer } from "lucide-react";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
 import { CATEGORY_IMAGES } from "@/lib/taxonomy-images";
+import { isUrgentDeadline } from "@/lib/urgency";
 import { JaKo } from "@/components/ja-ko";
 
 type CouponListItem = {
@@ -253,6 +254,12 @@ async function FilteredCouponList({
                         <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-orange-500/10 px-1.5 py-0.5 text-[10px] font-medium text-orange-500">
                           <Flame className="h-2.5 w-2.5" />
                           <JaKo ja="日本人に人気" ko="일본인 인기" />
+                        </span>
+                      )}
+                      {isUrgentDeadline(coupon.valid_to) && (
+                        <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">
+                          <Timer className="h-2.5 w-2.5" />
+                          <JaKo ja="締切間近" ko="마감임박" />
                         </span>
                       )}
                     </span>

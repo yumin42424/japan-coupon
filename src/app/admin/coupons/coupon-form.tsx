@@ -115,6 +115,17 @@ export function CouponForm({ stores }: { stores: StoreOption[] }) {
         </label>
       </div>
 
+      <label className="flex flex-col gap-1 text-sm font-medium">
+        <JaKo ja="先着順の数量制限（任意）" ko="선착순 수량 제한 (선택)" />
+        <input
+          type="number"
+          name="quantityLimit"
+          min={1}
+          placeholder="空欄なら無制限 (비워두면 무제한)"
+          className="rounded-lg border border-border bg-background px-3 py-2 font-normal outline-none focus:border-primary"
+        />
+      </label>
+
       <label className="flex items-center gap-2 text-sm font-medium">
         <input type="checkbox" name="memberOnly" defaultChecked />
         <JaKo ja="会員限定クーポン" ko="회원 전용 쿠폰" />

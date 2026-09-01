@@ -24,6 +24,8 @@ export async function createCoupon(
   const discountedPriceRaw = formData.get("discountedPrice") as string;
   const regularPrice = regularPriceRaw ? Number(regularPriceRaw) : null;
   const discountedPrice = discountedPriceRaw ? Number(discountedPriceRaw) : null;
+  const quantityLimitRaw = formData.get("quantityLimit") as string;
+  const quantityLimit = quantityLimitRaw ? Number(quantityLimitRaw) : null;
 
   if (!storeId) return { error: "店舗を選択してください。(매장을 선택해주세요.)" };
   if (!title) return { error: "クーポン名を入力してください。(쿠폰명을 입력해주세요.)" };
@@ -38,6 +40,9 @@ export async function createCoupon(
   if ((regularPriceRaw && Number.isNaN(regularPrice)) || (discountedPriceRaw && Number.isNaN(discountedPrice))) {
     return { error: "価格は数字で入力してください。(가격은 숫자로 입력해주세요.)" };
   }
+  if (quantityLimitRaw && (Number.isNaN(quantityLimit) || (quantityLimit as number) < 1)) {
+    return { error: "数量は1以上の数字で入力してください。(수량은 1 이상의 숫자로 입력해주세요.)" };
+  }
 
   const { error } = await supabaseAdmin.from("coupons").insert({
     store_id: storeId,
@@ -49,6 +54,7 @@ export async function createCoupon(
     usage_condition: usageCondition || null,
     regular_price: regularPrice,
     discounted_price: discountedPrice,
+    quantity_limit: quantityLimit,
   });
 
   if (error) {
@@ -78,6 +84,8 @@ export async function updateCoupon(
   const discountedPriceRaw = formData.get("discountedPrice") as string;
   const regularPrice = regularPriceRaw ? Number(regularPriceRaw) : null;
   const discountedPrice = discountedPriceRaw ? Number(discountedPriceRaw) : null;
+  const quantityLimitRaw = formData.get("quantityLimit") as string;
+  const quantityLimit = quantityLimitRaw ? Number(quantityLimitRaw) : null;
 
   if (!storeId) return { error: "店舗を選択してください。(매장을 선택해주세요.)" };
   if (!title) return { error: "クーポン名を入力してください。(쿠폰명을 입력해주세요.)" };
@@ -92,6 +100,9 @@ export async function updateCoupon(
   if ((regularPriceRaw && Number.isNaN(regularPrice)) || (discountedPriceRaw && Number.isNaN(discountedPrice))) {
     return { error: "価格は数字で入力してください。(가격은 숫자로 입력해주세요.)" };
   }
+  if (quantityLimitRaw && (Number.isNaN(quantityLimit) || (quantityLimit as number) < 1)) {
+    return { error: "数量は1以上の数字で入力してください。(수량은 1 이상의 숫자로 입력해주세요.)" };
+  }
 
   const { error } = await supabaseAdmin
     .from("coupons")
@@ -105,6 +116,7 @@ export async function updateCoupon(
       usage_condition: usageCondition || null,
       regular_price: regularPrice,
       discounted_price: discountedPrice,
+      quantity_limit: quantityLimit,
     })
     .eq("id", couponId);
 
