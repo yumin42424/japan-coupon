@@ -38,37 +38,42 @@ export default async function Home() {
         <div aria-hidden className="absolute inset-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={HERO_IMAGE} alt="" className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-background/85" />
-          <div className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-primary/15 blur-[100px]" />
+          {/* 사진 위 텍스트 가독성용 스크림은 라이트/다크 테마와 무관하게 항상 어둡게 고정 */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: "linear-gradient(180deg, rgba(20,16,14,0.45) 0%, rgba(20,16,14,0.85) 100%)",
+            }}
+          />
         </div>
 
         <div className="relative flex max-w-sm flex-col items-center gap-6">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-medium text-white backdrop-blur-md">
             <Sparkles className="h-3.5 w-3.5" />
             <JaKo ja="日本人旅行者限定" ko="일본인 여행자 전용" />
           </span>
 
-          <h1 className="text-4xl font-extrabold tracking-tight">
-            K-Coupon <span className="text-primary">Japan</span>
+          <h1 className="text-4xl font-extrabold tracking-tight text-white drop-shadow-lg">
+            K-Coupon Japan
           </h1>
-          <p className="-mt-2 text-base text-muted">
+          <p className="-mt-2 text-base text-white/90">
             <JaKo ja="韓国旅行を、もっとお得に。" ko="한국여행을, 더 알뜰하게." />
           </p>
 
-          <div className="flex gap-6 text-xs text-muted">
+          <div className="flex gap-6 text-xs text-white/80">
             <span className="flex items-center gap-1.5">
-              <Ticket className="h-3.5 w-3.5 text-primary" />
+              <Ticket className="h-3.5 w-3.5" />
               <JaKo ja="限定クーポン" ko="한정 쿠폰" />
             </span>
             <span className="flex items-center gap-1.5">
-              <MapPin className="h-3.5 w-3.5 text-primary" />
+              <MapPin className="h-3.5 w-3.5" />
               <JaKo ja="エリア別検索" ko="지역별 검색" />
             </span>
           </div>
 
           {session?.user ? (
             <div className="mt-2 flex flex-col items-center gap-4">
-              <p className="text-sm">
+              <p className="text-sm text-white">
                 <JaKo ja="ようこそ、" ko="환영합니다, " />
                 <strong className="font-bold">{session.user.name}</strong>
                 <JaKo ja="さん" ko="님" />
@@ -86,7 +91,7 @@ export default async function Home() {
                   await signOut({ redirectTo: "/" });
                 }}
               >
-                <button className="text-sm text-muted underline underline-offset-4 transition hover:text-foreground">
+                <button className="text-sm text-white/80 underline underline-offset-4 transition hover:text-white">
                   <JaKo ja="ログアウト" ko="로그아웃" />
                 </button>
               </form>
@@ -101,7 +106,7 @@ export default async function Home() {
               </Link>
               <Link
                 href="/login"
-                className="rounded-full border border-border px-6 py-3 text-sm font-semibold transition hover:bg-card"
+                className="rounded-full border border-white/30 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/20"
               >
                 <JaKo ja="ログイン" ko="로그인" />
               </Link>
