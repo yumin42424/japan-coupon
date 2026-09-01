@@ -3,9 +3,9 @@
 // 각 페이지에서 ja 텍스트만 남기면 된다.
 export function JaKo({ ja, ko }: { ja: string; ko: string }) {
   return (
-    <>
+    <span className="[word-break:keep-all]">
       {ja}
       <span className="ml-1 text-muted">({ko})</span>
-    </>
+    </span>
   );
 }

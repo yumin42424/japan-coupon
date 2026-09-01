@@ -2,6 +2,9 @@ import Link from "next/link";
 import { ArrowRight, Sparkles, Ticket, MapPin, Store, Bell, Percent } from "lucide-react";
 import { auth, signOut } from "@/auth";
 import { JaKo } from "@/components/ja-ko";
+import { CATEGORIES } from "@/lib/taxonomy";
+import { CATEGORY_ICONS } from "@/lib/taxonomy-icons";
+import { CATEGORY_IMAGES, HERO_IMAGE } from "@/lib/taxonomy-images";
 
 const BENEFITS = [
   {
@@ -31,11 +34,13 @@ export default async function Home() {
 
   return (
     <>
-      <main className="relative flex min-h-[calc(100vh-65px)] flex-col items-center justify-center overflow-hidden px-6 text-center">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-primary/15 blur-[100px]"
-        />
+      <main className="relative flex flex-col items-center justify-center overflow-hidden px-6 py-16 text-center">
+        <div aria-hidden className="absolute inset-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={HERO_IMAGE} alt="" className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-background/85" />
+          <div className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-primary/15 blur-[100px]" />
+        </div>
 
         <div className="relative flex max-w-sm flex-col items-center gap-6">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
@@ -104,6 +109,42 @@ export default async function Home() {
           )}
         </div>
       </main>
+
+      <section className="border-t border-border px-6 py-12">
+        <div className="mx-auto max-w-2xl">
+          <h2 className="text-center text-xl font-extrabold tracking-tight">
+            <JaKo ja="カテゴリから探す" ko="카테고리로 찾기" />
+          </h2>
+          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {CATEGORIES.map((c) => {
+              const Icon = CATEGORY_ICONS[c.value];
+              return (
+                <Link
+                  key={c.value}
+                  href={`/coupons?category=${c.value}`}
+                  className="group flex flex-col items-center gap-2"
+                >
+                  <div className="relative w-full overflow-hidden rounded-2xl border border-border shadow-sm transition group-hover:-translate-y-0.5 group-hover:border-primary/40 group-hover:shadow-lg group-hover:shadow-primary/5">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={CATEGORY_IMAGES[c.value]}
+                      alt=""
+                      className="aspect-square w-full object-cover transition duration-300 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    <span className="absolute left-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-card text-primary shadow">
+                      <Icon className="h-4 w-4" strokeWidth={2.25} />
+                    </span>
+                  </div>
+                  <span className="text-center text-sm font-bold leading-tight">
+                    <JaKo ja={c.ja} ko={c.ko} />
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
 
       {!session?.user && (
         <section className="border-t border-border bg-card/40 px-6 py-14">

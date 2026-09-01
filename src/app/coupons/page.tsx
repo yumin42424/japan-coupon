@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
+import { CATEGORY_IMAGES } from "@/lib/taxonomy-images";
 import { JaKo } from "@/components/ja-ko";
 
 type CouponListItem = {
@@ -53,18 +54,23 @@ function CategoryAreaHub() {
         <h2 className="text-sm font-bold text-muted">
           <JaKo ja="カテゴリから探す" ko="카테고리로 찾기" />
         </h2>
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-4">
           {CATEGORIES.map((c) => {
             const Icon = CATEGORY_ICONS[c.value];
             return (
-              <Link
-                key={c.value}
-                href={`/coupons?category=${c.value}`}
-                className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
-              >
-                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <Icon className="h-6 w-6" strokeWidth={2} />
-                </span>
+              <Link key={c.value} href={`/coupons?category=${c.value}`} className="group flex flex-col items-center gap-2">
+                <div className="relative w-full overflow-hidden rounded-2xl border border-border shadow-sm transition group-hover:-translate-y-0.5 group-hover:border-primary/40 group-hover:shadow-lg group-hover:shadow-primary/5">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={CATEGORY_IMAGES[c.value]}
+                    alt=""
+                    className="aspect-square w-full object-cover transition duration-300 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <span className="absolute left-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-card text-primary shadow">
+                    <Icon className="h-4 w-4" strokeWidth={2.25} />
+                  </span>
+                </div>
                 <span className="text-center text-sm font-bold leading-tight">
                   <JaKo ja={c.ja} ko={c.ko} />
                 </span>
