@@ -4,7 +4,7 @@ import { auth, signOut } from "@/auth";
 import { JaKo } from "@/components/ja-ko";
 import { CATEGORIES } from "@/lib/taxonomy";
 import { CATEGORY_ICONS } from "@/lib/taxonomy-icons";
-import { CATEGORY_IMAGES, HERO_IMAGE } from "@/lib/taxonomy-images";
+import { HERO_IMAGE } from "@/lib/taxonomy-images";
 
 const BENEFITS = [
   {
@@ -110,35 +110,28 @@ export default async function Home() {
         </div>
       </main>
 
-      <section className="border-t border-border px-6 py-12">
+      <section className="border-t border-border px-6 py-16">
         <div className="mx-auto max-w-2xl">
-          <h2 className="text-center text-xl font-extrabold tracking-tight">
-            <JaKo ja="カテゴリから探す" ko="카테고리로 찾기" />
-          </h2>
-          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="text-center">
+            <h2 className="text-xl font-extrabold tracking-tight">
+              <JaKo ja="カテゴリから探す" ko="카테고리로 찾기" />
+            </h2>
+            <div className="mx-auto mt-3 h-1 w-16 rounded-full bg-primary" />
+          </div>
+          <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
             {CATEGORIES.map((c) => {
               const Icon = CATEGORY_ICONS[c.value];
               return (
                 <Link
                   key={c.value}
                   href={`/coupons?category=${c.value}`}
-                  className="group flex flex-col items-center gap-2"
+                  className="group flex aspect-square flex-col items-center justify-center gap-1 rounded-2xl border border-border bg-card p-6 text-center shadow-sm transition duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5"
                 >
-                  <div className="relative w-full overflow-hidden rounded-2xl border border-border shadow-sm transition group-hover:-translate-y-0.5 group-hover:border-primary/40 group-hover:shadow-lg group-hover:shadow-primary/5">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={CATEGORY_IMAGES[c.value]}
-                      alt=""
-                      className="aspect-square w-full object-cover transition duration-300 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                    <span className="absolute left-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-card text-primary shadow">
-                      <Icon className="h-4 w-4" strokeWidth={2.25} />
-                    </span>
-                  </div>
-                  <span className="text-center text-sm font-bold leading-tight">
-                    <JaKo ja={c.ja} ko={c.ko} />
+                  <span className="mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110">
+                    <Icon className="h-8 w-8" strokeWidth={2} />
                   </span>
+                  <h3 className="text-[15px] font-bold leading-tight">{c.ja}</h3>
+                  <p className="text-xs text-muted">({c.ko})</p>
                 </Link>
               );
             })}
