@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { JaKo } from "@/components/ja-ko";
+import { CouponQR } from "@/components/coupon-qr";
 
 type CouponEventItem = {
   id?: string;
@@ -245,10 +246,22 @@ function CouponListSection({
                       ) : item.id ? (
                         <div>
                           <p className="text-xs text-muted">
-                            <JaKo ja="店舗でこのコードを提示してください" ko="매장에서 이 코드를 보여주세요" />
+                            <JaKo
+                              ja="店舗でこのQRコード（またはコード）を提示してください"
+                              ko="매장에서 이 QR코드(또는 코드)를 보여주세요"
+                            />
                           </p>
-                          <p className="mt-1 select-all break-all rounded-lg bg-background px-2.5 py-1.5 font-mono text-xs">
-                            {item.id}
+                          <div className="mt-2 flex items-center gap-3">
+                            <CouponQR code={item.id} />
+                            <p className="min-w-0 select-all break-all rounded-lg bg-background px-2.5 py-1.5 font-mono text-xs">
+                              {item.id}
+                            </p>
+                          </div>
+                          <p className="mt-1.5 text-[11px] text-muted">
+                            <JaKo
+                              ja="※このページを一度開いておけば、オフラインでも表示できます。"
+                              ko="※ 이 페이지를 한 번 열어두면, 인터넷이 안 될 때도 보여드릴 수 있어요."
+                            />
                           </p>
                         </div>
                       ) : null}
