@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Mail, Lock, UserRound, AlertCircle } from "lucide-react";
 import { signup, signupWithLine, signupWithGoogle, type SignupState } from "./actions";
 
@@ -13,9 +14,16 @@ export function SignupForm({ acquisitionSource }: { acquisitionSource: string })
   const [agreePrivacy, setAgreePrivacy] = useState(false);
   const [agreeMarketing, setAgreeMarketing] = useState(false);
   const canSubmit = agreeTerms && agreePrivacy;
+  const isRateLimited = useSearchParams().get("error") === "rate_limited";
 
   return (
     <>
+      {isRateLimited && (
+        <p className="mt-4 flex items-start gap-1.5 rounded-xl border border-primary/30 bg-primary/5 p-3 text-sm text-primary" role="alert">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+          登録の試行回数が多すぎます。しばらくしてからもう一度お試しください。
+        </p>
+      )}
       <form action={formAction} className="mt-8 flex flex-col gap-4">
         <input type="hidden" name="acquisitionSource" value={acquisitionSource} />
 

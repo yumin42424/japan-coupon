@@ -3,7 +3,7 @@
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { signIn } from "@/auth";
 import { SIGNUPS_ENABLED } from "@/lib/feature-flags";
@@ -12,6 +12,51 @@ import { SIGNUPS_ENABLED } from "@/lib/feature-flags";
 // "동의 체크박스를 확인하고 눌렀다"는 사실을 auth.ts의 signIn 콜백까지 전달할 방법이
 // 마땅치 않다. 짧게 사는 쿠키에 담아 콜백에서 읽는 방식으로 우회한다.
 const CONSENT_COOKIE_MAX_AGE = 60 * 10; // 10분
+
+// 가입 어뷰징 방지: 로그인과 달리 이메일은 매번 바꿔서 시도할 수 있으므로
+// IP 기준으로 막는다. 1시간 동안 5번 넘게 시도하면 1시간 잠금.
+const MAX_SIGNUP_ATTEMPTS = 5;
+const SIGNUP_ATTEMPT_WINDOW_MS = 60 * 60 * 1000;
+const SIGNUP_LOCKOUT_MS = 60 * 60 * 1000;
+
+async function getClientIp(): Promise<string> {
+  const store = await headers();
+  return store.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+}
+
+async function isSignupLocked(ip: string): Promise<boolean> {
+  const { data: row } = await supabaseAdmin
+    .from("signup_attempts")
+    .select("locked_until")
+    .eq("ip", ip)
+    .maybeSingle();
+
+  return !!row?.locked_until && new Date(row.locked_until) > new Date();
+}
+
+async function recordSignupAttempt(ip: string): Promise<void> {
+  const now = new Date();
+  const { data: row } = await supabaseAdmin
+    .from("signup_attempts")
+    .select("attempt_count, first_attempt_at")
+    .eq("ip", ip)
+    .maybeSingle();
+
+  const windowExpired =
+    !row || now.getTime() - new Date(row.first_attempt_at).getTime() > SIGNUP_ATTEMPT_WINDOW_MS;
+  const attemptCount = windowExpired ? 1 : row.attempt_count + 1;
+
+  await supabaseAdmin.from("signup_attempts").upsert({
+    ip,
+    attempt_count: attemptCount,
+    first_attempt_at: windowExpired ? now.toISOString() : row.first_attempt_at,
+    locked_until:
+      attemptCount >= MAX_SIGNUP_ATTEMPTS ? new Date(now.getTime() + SIGNUP_LOCKOUT_MS).toISOString() : null,
+  });
+}
+
+const SIGNUP_RATE_LIMIT_ERROR =
+  "登録の試行回数が多すぎます。しばらくしてからもう一度お試しください。";
 
 async function recordOAuthConsent(formData: FormData) {
   const agreeTerms = formData.get("agreeTerms") === "on";
@@ -32,11 +77,21 @@ async function recordOAuthConsent(formData: FormData) {
 }
 
 export async function signupWithLine(formData: FormData) {
+  const ip = await getClientIp();
+  if (await isSignupLocked(ip)) {
+    redirect("/signup?error=rate_limited");
+  }
+  await recordSignupAttempt(ip);
   await recordOAuthConsent(formData);
   await signIn("line", { redirectTo: "/" });
 }
 
 export async function signupWithGoogle(formData: FormData) {
+  const ip = await getClientIp();
+  if (await isSignupLocked(ip)) {
+    redirect("/signup?error=rate_limited");
+  }
+  await recordSignupAttempt(ip);
   await recordOAuthConsent(formData);
   await signIn("google", { redirectTo: "/" });
 }
@@ -69,6 +124,12 @@ export async function signup(
   if (!SIGNUPS_ENABLED) {
     return { error: "現在、会員登録機能を準備しています。" };
   }
+
+  const ip = await getClientIp();
+  if (await isSignupLocked(ip)) {
+    return { error: SIGNUP_RATE_LIMIT_ERROR };
+  }
+  await recordSignupAttempt(ip);
 
   const parsed = signupSchema.safeParse({
     email: formData.get("email"),
