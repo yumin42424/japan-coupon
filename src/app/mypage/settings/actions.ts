@@ -1,7 +1,7 @@
 "use server";
 
 import bcrypt from "bcryptjs";
-import { auth } from "@/auth";
+import { auth, signOut } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export type SettingsState = { error?: string; success?: string };
@@ -11,14 +11,14 @@ export async function updateNickname(
   formData: FormData
 ): Promise<SettingsState> {
   const session = await auth();
-  if (!session?.user?.id) return { error: "ログインが必要です。(로그인이 필요합니다.)" };
+  if (!session?.user?.id) return { error: "ログインが必要です。" };
 
   const nickname = (formData.get("nickname") as string)?.trim();
   if (!nickname) {
-    return { error: "ニックネームを入力してください。(닉네임을 입력해주세요.)" };
+    return { error: "ニックネームを入力してください。" };
   }
   if (nickname.length > 30) {
-    return { error: "ニックネームは30文字以内で入力してください。(닉네임은 30자 이내로 입력해주세요.)" };
+    return { error: "ニックネームは30文字以内で入力してください。" };
   }
 
   const { error } = await supabaseAdmin
@@ -27,10 +27,10 @@ export async function updateNickname(
     .eq("id", session.user.id);
 
   if (error) {
-    return { error: "更新に失敗しました。(수정에 실패했습니다.)" };
+    return { error: "更新に失敗しました。" };
   }
 
-  return { success: "ニックネームを変更しました。(닉네임이 변경됐습니다.)" };
+  return { success: "ニックネームを変更しました。" };
 }
 
 export async function changePassword(
@@ -38,16 +38,16 @@ export async function changePassword(
   formData: FormData
 ): Promise<SettingsState> {
   const session = await auth();
-  if (!session?.user?.id) return { error: "ログインが必要です。(로그인이 필요합니다.)" };
+  if (!session?.user?.id) return { error: "ログインが必要です。" };
 
   const currentPassword = formData.get("currentPassword") as string;
   const newPassword = formData.get("newPassword") as string;
 
   if (!currentPassword || !newPassword) {
-    return { error: "すべての項目を入力してください。(모든 항목을 입력해주세요.)" };
+    return { error: "すべての項目を入力してください。" };
   }
   if (newPassword.length < 8) {
-    return { error: "新しいパスワードは8文字以上で入力してください。(새 비밀번호는 8자 이상 입력해주세요.)" };
+    return { error: "新しいパスワードは8文字以上で入力してください。" };
   }
 
   const { data: user } = await supabaseAdmin
@@ -58,13 +58,13 @@ export async function changePassword(
 
   if (!user?.password_hash) {
     return {
-      error: "この方法ではパスワードを設定できません。(이 방식으로는 비밀번호를 설정할 수 없습니다.)",
+      error: "この方法ではパスワードを設定できません。",
     };
   }
 
   const isValid = await bcrypt.compare(currentPassword, user.password_hash);
   if (!isValid) {
-    return { error: "現在のパスワードが正しくありません。(현재 비밀번호가 올바르지 않습니다.)" };
+    return { error: "現在のパスワードが正しくありません。" };
   }
 
   const newHash = await bcrypt.hash(newPassword, 10);
@@ -74,8 +74,35 @@ export async function changePassword(
     .eq("id", session.user.id);
 
   if (error) {
-    return { error: "更新に失敗しました。(수정에 실패했습니다.)" };
+    return { error: "更新に失敗しました。" };
   }
 
-  return { success: "パスワードを変更しました。(비밀번호가 변경됐습니다.)" };
+  return { success: "パスワードを変更しました。" };
+}
+
+export async function deleteAccount(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- useActionState always passes prevState
+  _prevState: SettingsState
+): Promise<SettingsState> {
+  const session = await auth();
+  if (!session?.user?.id) return { error: "ログインが必要です。" };
+  const userId = session.user.id;
+
+  // 개인정보처리방침 제3조: 탈퇴 시 지체 없이 파기. FK 제약 때문에
+  // 사용자를 참조하는 행들을 먼저 지우고 마지막에 users 행을 지운다.
+  await supabaseAdmin.from("coupon_events").delete().eq("user_id", userId);
+  await supabaseAdmin.from("point_events").delete().eq("user_id", userId);
+  await supabaseAdmin.from("user_interest_categories").delete().eq("user_id", userId);
+  await supabaseAdmin.from("user_interest_areas").delete().eq("user_id", userId);
+  await supabaseAdmin.from("posts").delete().eq("user_id", userId);
+  const { error } = await supabaseAdmin.from("users").delete().eq("id", userId);
+
+  if (error) {
+    return {
+      error: "退会処理に失敗しました。しばらくしてからもう一度お試しください。",
+    };
+  }
+
+  await signOut({ redirectTo: "/" });
+  return {};
 }

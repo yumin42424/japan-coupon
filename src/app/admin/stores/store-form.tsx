@@ -3,7 +3,6 @@
 import { useActionState, useRef, useEffect } from "react";
 import { AlertCircle } from "lucide-react";
 import { createStore, type StoreFormState } from "./actions";
-import { JaKo } from "@/components/ja-ko";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 
 const initialState: StoreFormState = {};
@@ -21,7 +20,7 @@ export function StoreForm() {
   return (
     <form ref={formRef} action={formAction} className="mt-3 flex flex-col gap-3">
       <label className="flex flex-col gap-1 text-sm font-medium">
-        <JaKo ja="店舗名" ko="매장명" />
+        店舗名
         <input
           type="text"
           name="name"
@@ -32,7 +31,7 @@ export function StoreForm() {
 
       <div className="grid grid-cols-2 gap-3">
         <label className="flex flex-col gap-1 text-sm font-medium">
-          <JaKo ja="カテゴリ" ko="카테고리" />
+          カテゴリ
           <select
             name="category"
             required
@@ -44,14 +43,14 @@ export function StoreForm() {
             </option>
             {CATEGORIES.map((c) => (
               <option key={c.value} value={c.value}>
-                {c.ja}({c.ko})
+                {c.ja}
               </option>
             ))}
           </select>
         </label>
 
         <label className="flex flex-col gap-1 text-sm font-medium">
-          <JaKo ja="エリア" ko="지역" />
+          エリア
           <select
             name="area"
             required
@@ -63,7 +62,7 @@ export function StoreForm() {
             </option>
             {AREAS.map((a) => (
               <option key={a.value} value={a.value}>
-                {a.ja}({a.ko})
+                {a.ja}
               </option>
             ))}
           </select>
@@ -71,7 +70,7 @@ export function StoreForm() {
       </div>
 
       <label className="flex flex-col gap-1 text-sm font-medium">
-        <JaKo ja="住所" ko="주소" />
+        住所
         <input
           type="text"
           name="address"
@@ -82,7 +81,7 @@ export function StoreForm() {
 
       <div className="grid grid-cols-2 gap-3">
         <label className="flex flex-col gap-1 text-sm font-medium">
-          <JaKo ja="緯度" ko="위도" />
+          緯度
           <input
             type="number"
             step="any"
@@ -93,7 +92,7 @@ export function StoreForm() {
         </label>
 
         <label className="flex flex-col gap-1 text-sm font-medium">
-          <JaKo ja="経度" ko="경도" />
+          経度
           <input
             type="number"
             step="any"
@@ -104,14 +103,11 @@ export function StoreForm() {
         </label>
       </div>
       <p className="-mt-2 text-xs text-muted">
-        <JaKo
-          ja="Googleマップで店舗を検索→右クリックで座標をコピーできます。"
-          ko="구글맵에서 매장 검색 후 우클릭하면 좌표를 복사할 수 있어요."
-        />
+        Googleマップで店舗を検索→右クリックで座標をコピーできます。
       </p>
 
       <label className="flex flex-col gap-1 text-sm font-medium">
-        <JaKo ja="営業時間" ko="영업시간" />
+        営業時間
         <input
           type="text"
           name="businessHours"
@@ -121,7 +117,7 @@ export function StoreForm() {
       </label>
 
       <label className="flex flex-col gap-1 text-sm font-medium">
-        <JaKo ja="予約方法" ko="예약방법" />
+        予約方法
         <input
           type="text"
           name="reservationInfo"
@@ -132,12 +128,12 @@ export function StoreForm() {
 
       <label className="flex items-center gap-2 text-sm font-medium">
         <input type="checkbox" name="lineAvailable" />
-        <JaKo ja="日本語対応可能" ko="일본어 대응 가능" />
+        日本語対応可能
       </label>
 
       <label className="flex items-center gap-2 text-sm font-medium">
         <input type="checkbox" name="popularWithJapanese" />
-        <JaKo ja="日本人に人気の店舗" ko="일본인이 많이 찾는 매장" />
+        日本人に人気の店舗
       </label>
 
       {state.error && (
@@ -152,7 +148,7 @@ export function StoreForm() {
         disabled={pending}
         className="self-start rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-90 disabled:opacity-50"
       >
-        {pending ? <JaKo ja="登録中..." ko="등록 중..." /> : <JaKo ja="登録する" ko="등록하기" />}
+        {pending ? "登録中..." : "登録する"}
       </button>
     </form>
   );

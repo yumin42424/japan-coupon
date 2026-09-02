@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Pencil } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { JaKo } from "@/components/ja-ko";
 import { CouponForm } from "./coupon-form";
 import { DeleteCouponButton } from "./delete-coupon-button";
 
@@ -29,19 +28,16 @@ export default async function AdminCouponsPage() {
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
       <h1 className="text-2xl font-extrabold tracking-tight">
-        <JaKo ja="クーポン管理" ko="쿠폰 관리" />
+        クーポン管理
       </h1>
 
       <section className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-sm">
         <h2 className="text-sm font-bold">
-          <JaKo ja="新しいクーポンを登録" ko="새 쿠폰 등록" />
+          新しいクーポンを登録
         </h2>
         {stores.length === 0 ? (
           <p className="mt-3 text-sm text-muted">
-            <JaKo
-              ja="先に店舗を登録してください。"
-              ko="먼저 매장을 등록해주세요."
-            />
+            先に店舗を登録してください。
           </p>
         ) : (
           <CouponForm stores={stores} />
@@ -50,12 +46,12 @@ export default async function AdminCouponsPage() {
 
       <section className="mt-8">
         <h2 className="text-lg font-bold">
-          <JaKo ja="登録済みクーポン" ko="등록된 쿠폰" /> ({coupons.length})
+          登録済みクーポン ({coupons.length})
         </h2>
         <ul className="mt-3 flex flex-col gap-2">
           {coupons.length === 0 && (
             <p className="text-sm text-muted">
-              <JaKo ja="まだクーポンがありません" ko="아직 쿠폰이 없습니다" />
+              まだクーポンがありません
             </p>
           )}
           {coupons.map((coupon) => (

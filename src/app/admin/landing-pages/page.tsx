@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
-import { JaKo } from "@/components/ja-ko";
 import { LandingPageForm } from "./landing-page-form";
 import { DeleteLandingPageButton } from "./delete-landing-page-button";
 
@@ -25,30 +24,27 @@ export default async function AdminLandingPagesPage() {
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
       <h1 className="text-2xl font-extrabold tracking-tight">
-        <JaKo ja="ランディングページ管理" ko="랜딩페이지 관리" />
+        ランディングページ管理
       </h1>
       <p className="mt-2 text-sm text-muted">
-        <JaKo
-          ja="広告ごとに専用ページを作って、流入経路別のCTRを測定できます。"
-          ko="광고별로 전용 페이지를 만들어서 유입경로별 전환율을 측정할 수 있어요."
-        />
+        広告ごとに専用ページを作って、流入経路別のCTRを測定できます。
       </p>
 
       <section className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-sm">
         <h2 className="text-sm font-bold">
-          <JaKo ja="新しいランディングページを作成" ko="새 랜딩페이지 만들기" />
+          新しいランディングページを作成
         </h2>
         <LandingPageForm />
       </section>
 
       <section className="mt-8">
         <h2 className="text-lg font-bold">
-          <JaKo ja="作成済み" ko="만들어진 랜딩페이지" /> ({landingPages.length})
+          作成済み ({landingPages.length})
         </h2>
         <ul className="mt-3 flex flex-col gap-2">
           {landingPages.length === 0 && (
             <p className="text-sm text-muted">
-              <JaKo ja="まだありません" ko="아직 없습니다" />
+              まだありません
             </p>
           )}
           {landingPages.map((lp) => {
@@ -70,8 +66,8 @@ export default async function AdminLandingPagesPage() {
                   </Link>
                   <p className="text-xs text-muted">
                     utm_source={lp.utm_source ?? "-"} ・ utm_campaign={lp.utm_campaign ?? "-"} ・{" "}
-                    {c ? `${c.ja}(${c.ko})` : "全カテゴリ(전체)"} ・{" "}
-                    {a ? `${a.ja}(${a.ko})` : "全エリア(전체)"}
+                    {c ? c.ja : "全カテゴリ"} ・{" "}
+                    {a ? a.ja : "全エリア"}
                   </p>
                 </div>
                 <DeleteLandingPageButton id={lp.id} />

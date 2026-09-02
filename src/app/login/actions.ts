@@ -22,7 +22,7 @@ export async function login(
     if (error instanceof AuthError) {
       return {
         error:
-          "メールアドレスまたはパスワードが正しくありません。(이메일 또는 비밀번호가 올바르지 않습니다.)",
+          "メールアドレスまたはパスワードが正しくありません。",
       };
     }
     // NextAuth의 redirectTo는 내부적으로 redirect 예외를 던져서 이동을 처리함 -> 그대로 다시 던져야 함

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Pencil } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { JaKo } from "@/components/ja-ko";
 import { NoticeForm } from "./notice-form";
 import { DeleteNoticeButton } from "./delete-notice-button";
 
@@ -21,24 +20,24 @@ export default async function AdminNoticesPage() {
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
       <h1 className="text-2xl font-extrabold tracking-tight">
-        <JaKo ja="お知らせ管理" ko="공지사항 관리" />
+        お知らせ管理
       </h1>
 
       <section className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-sm">
         <h2 className="text-sm font-bold">
-          <JaKo ja="新しいお知らせを投稿" ko="새 공지사항 작성" />
+          新しいお知らせを投稿
         </h2>
         <NoticeForm />
       </section>
 
       <section className="mt-8">
         <h2 className="text-lg font-bold">
-          <JaKo ja="投稿済み" ko="게시된 공지" /> ({notices.length})
+          投稿済み ({notices.length})
         </h2>
         <ul className="mt-3 flex flex-col gap-2">
           {notices.length === 0 && (
             <p className="text-sm text-muted">
-              <JaKo ja="まだありません" ko="아직 없습니다" />
+              まだありません
             </p>
           )}
           {notices.map((notice) => (

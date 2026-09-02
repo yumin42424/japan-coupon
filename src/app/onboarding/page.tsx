@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { CalendarHeart } from "lucide-react";
 import { auth } from "@/auth";
 import { saveOnboarding } from "./actions";
-import { JaKo } from "@/components/ja-ko";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
 
@@ -16,20 +15,17 @@ export default async function OnboardingPage() {
   return (
     <main className="mx-auto flex min-h-[calc(100vh-65px)] max-w-md flex-col justify-center px-6 py-12">
       <h1 className="text-2xl font-extrabold tracking-tight">
-        <JaKo ja="韓国旅行について教えてください" ko="한국 여행에 대해 알려주세요" />
+        韓国旅行について教えてください
       </h1>
       <p className="mt-2 text-sm text-muted">
-        <JaKo
-          ja="興味に合わせて、お得なクーポンをご紹介します。"
-          ko="관심사에 맞춰 알뜰한 쿠폰을 소개해드려요."
-        />
+        興味に合わせて、お得なクーポンをご紹介します。
       </p>
 
       <form action={saveOnboarding} className="mt-8 flex flex-col gap-8">
         <label className="flex flex-col gap-1.5 text-sm font-medium">
           <span className="flex items-center gap-1.5">
             <CalendarHeart className="h-4 w-4 text-primary" />
-            <JaKo ja="韓国旅行の予定日" ko="한국 여행 예정일" />
+            韓国旅行の予定日
           </span>
           <input
             type="date"
@@ -40,7 +36,7 @@ export default async function OnboardingPage() {
 
         <fieldset className="flex flex-col gap-3">
           <legend className="text-sm font-medium">
-            <JaKo ja="どんな情報に興味がありますか？" ko="어떤 정보에 관심 있으신가요?" />
+            どんな情報に興味がありますか？
           </legend>
           <div className="flex flex-wrap gap-2 text-sm">
             {CATEGORIES.map((category) => {
@@ -57,7 +53,7 @@ export default async function OnboardingPage() {
                     className="sr-only"
                   />
                   <Icon className="h-4 w-4" strokeWidth={2.25} />
-                  <JaKo ja={category.ja} ko={category.ko} />
+                  {category.ja}
                 </label>
               );
             })}
@@ -66,7 +62,7 @@ export default async function OnboardingPage() {
 
         <fieldset className="flex flex-col gap-3">
           <legend className="text-sm font-medium">
-            <JaKo ja="主に行きたいエリアは？" ko="주로 가고 싶은 지역은?" />
+            主に行きたいエリアは？
           </legend>
           <div className="flex flex-wrap gap-2 text-sm">
             {AREAS.map((area) => (
@@ -76,7 +72,7 @@ export default async function OnboardingPage() {
               >
                 <input type="checkbox" name="areas" value={area.value} className="sr-only" />
                 <AreaIcon className="h-4 w-4" strokeWidth={2.25} />
-                <JaKo ja={area.ja} ko={area.ko} />
+                {area.ja}
               </label>
             ))}
           </div>
@@ -87,10 +83,10 @@ export default async function OnboardingPage() {
             type="submit"
             className="w-full rounded-full bg-primary px-4 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition hover:shadow-xl hover:shadow-primary/30"
           >
-            <JaKo ja="保存する" ko="저장하기" />
+            保存する
           </button>
           <Link href="/" className="text-sm text-muted underline underline-offset-4 hover:text-foreground">
-            <JaKo ja="あとで設定する" ko="나중에 설정할게요" />
+            あとで設定する
           </Link>
         </div>
       </form>

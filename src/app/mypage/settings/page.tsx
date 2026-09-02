@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { JaKo } from "@/components/ja-ko";
-import { NicknameForm, PasswordForm } from "./settings-forms";
+import { NicknameForm, PasswordForm, DeleteAccountSection } from "./settings-forms";
 
 export default async function MyPageSettingsPage() {
   const session = await auth();
@@ -21,12 +20,13 @@ export default async function MyPageSettingsPage() {
   return (
     <main className="mx-auto max-w-md px-6 py-10">
       <h1 className="text-2xl font-extrabold tracking-tight">
-        <JaKo ja="アカウント設定" ko="계정 설정" />
+        アカウント設定
       </h1>
 
       <div className="mt-6 flex flex-col gap-6">
         <NicknameForm currentNickname={user.nickname} />
         <PasswordForm hasPassword={!!user.password_hash} />
+        <DeleteAccountSection />
       </div>
     </main>
   );

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { JaKo } from "@/components/ja-ko";
 
 const LINKS = [
   { href: "/terms", ja: "利用規約", ko: "이용약관" },
@@ -18,7 +17,7 @@ export function Footer() {
             K-Coupon <span className="text-primary">Japan</span>
           </p>
           <p className="mt-1 text-sm text-muted">
-            <JaKo ja="韓国旅行を、もっとお得に。" ko="한국여행을, 더 알뜰하게." />
+            韓国旅行を、もっとお得に。
           </p>
         </div>
 
@@ -30,7 +29,7 @@ export function Footer() {
               href={l.href}
               className="text-muted transition hover:text-foreground"
             >
-              <JaKo ja={l.ja} ko={l.ko} />
+              {l.ja}
             </Link>
           ))}
         </nav>

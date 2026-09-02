@@ -25,14 +25,14 @@ export async function createLandingPage(
 
   if (!slug || !SLUG_RE.test(slug)) {
     return {
-      error: "スラッグは半角英数字とハイフンのみ使用できます。(슬러그는 영문 소문자·숫자·하이픈만 가능합니다.)",
+      error: "スラッグは半角英数字とハイフンのみ使用できます。",
     };
   }
   if (targetCategory && !VALID_CATEGORIES.has(targetCategory)) {
-    return { error: "カテゴリが不正です。(카테고리가 올바르지 않습니다.)" };
+    return { error: "カテゴリが不正です。" };
   }
   if (targetArea && !VALID_AREAS.has(targetArea)) {
-    return { error: "エリアが不正です。(지역이 올바르지 않습니다.)" };
+    return { error: "エリアが不正です。" };
   }
 
   const { data: existing } = await supabaseAdmin
@@ -41,7 +41,7 @@ export async function createLandingPage(
     .eq("slug", slug)
     .maybeSingle();
   if (existing) {
-    return { error: "既に使われているスラッグです。(이미 사용 중인 슬러그입니다.)" };
+    return { error: "既に使われているスラッグです。" };
   }
 
   const { error } = await supabaseAdmin.from("landing_pages").insert({
@@ -53,7 +53,7 @@ export async function createLandingPage(
   });
 
   if (error) {
-    return { error: "登録に失敗しました。(등록에 실패했습니다.)" };
+    return { error: "登録に失敗しました。" };
   }
 
   revalidatePath("/admin/landing-pages");

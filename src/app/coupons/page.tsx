@@ -6,7 +6,6 @@ import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
 import { CATEGORY_IMAGES } from "@/lib/taxonomy-images";
 import { isUrgentDeadline } from "@/lib/urgency";
-import { JaKo } from "@/components/ja-ko";
 
 type CouponListItem = {
   id: string;
@@ -45,10 +44,10 @@ function CategoryAreaHub() {
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
       <h1 className="text-2xl font-extrabold tracking-tight">
-        <JaKo ja="クーポンを探す" ko="쿠폰 찾기" />
+        クーポンを探す
       </h1>
       <p className="mt-2 text-sm text-muted">
-        <JaKo ja="カテゴリまたはエリアを選んでください。" ko="카테고리 또는 지역을 선택해주세요." />
+        カテゴリまたはエリアを選んでください。
       </p>
 
       <Link
@@ -56,12 +55,12 @@ function CategoryAreaHub() {
         className="mt-4 flex items-center justify-center gap-2 rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm font-bold text-primary shadow-sm transition hover:bg-primary/15"
       >
         <LocateFixed className="h-4 w-4" />
-        <JaKo ja="現在地から探す" ko="내 주변에서 찾기" />
+        現在地から探す
       </Link>
 
       <section className="mt-8">
         <h2 className="text-sm font-bold text-muted">
-          <JaKo ja="カテゴリから探す" ko="카테고리로 찾기" />
+          カテゴリから探す
         </h2>
         <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-4">
           {CATEGORIES.map((c) => {
@@ -81,7 +80,6 @@ function CategoryAreaHub() {
                   </span>
                 </div>
                 <h3 className="text-[15px] font-bold leading-tight">{c.ja}</h3>
-                <p className="-mt-1.5 text-xs text-muted">({c.ko})</p>
               </Link>
             );
           })}
@@ -90,7 +88,7 @@ function CategoryAreaHub() {
 
       <section className="mt-10">
         <h2 className="text-sm font-bold text-muted">
-          <JaKo ja="エリアから探す" ko="지역으로 찾기" />
+          エリアから探す
         </h2>
         <div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-4">
           {AREAS.map((a) => (
@@ -101,7 +99,7 @@ function CategoryAreaHub() {
             >
               <AreaIcon className="h-5 w-5 text-primary" />
               <span className="text-center text-sm font-bold leading-tight">
-                <JaKo ja={a.ja} ko={a.ko} />
+                {a.ja}
               </span>
             </Link>
           ))}
@@ -113,7 +111,7 @@ function CategoryAreaHub() {
           href="/coupons?area=all"
           className="text-sm text-muted underline underline-offset-4 hover:text-foreground"
         >
-          <JaKo ja="すべてのクーポンを見る" ko="전체 쿠폰 보기" />
+          すべてのクーポンを見る
         </Link>
       </div>
     </main>
@@ -169,19 +167,19 @@ async function FilteredCouponList({
         className="flex items-center gap-1 text-sm text-muted hover:text-foreground"
       >
         <ChevronLeft className="h-4 w-4" />
-        <JaKo ja="カテゴリ・エリア選択に戻る" ko="카테고리·지역 선택으로" />
+        カテゴリ・エリア選択に戻る
       </Link>
 
       <h1 className="mt-3 text-2xl font-extrabold tracking-tight">
-        {currentCategory ? `${currentCategory.ja} (${currentCategory.ko})` : null}
+        {currentCategory ? currentCategory.ja : null}
         {currentCategory && currentArea ? " ・ " : null}
-        {currentArea ? `${currentArea.ja} (${currentArea.ko})` : null}
-        {!currentCategory && !currentArea && <JaKo ja="すべてのクーポン" ko="전체 쿠폰" />}
+        {currentArea ? currentArea.ja : null}
+        {!currentCategory && !currentArea && "すべてのクーポン"}
       </h1>
 
       <div className="mt-6 flex flex-wrap gap-2">
         <Link href={buildHref({ area })} className={chip(!category)}>
-          <JaKo ja="すべて" ko="전체" />
+          すべて
         </Link>
         {CATEGORIES.map((c) => {
           const Icon = CATEGORY_ICONS[c.value];
@@ -192,7 +190,7 @@ async function FilteredCouponList({
               className={chip(category === c.value)}
             >
               <Icon className="h-3.5 w-3.5" strokeWidth={2.25} />
-              <JaKo ja={c.ja} ko={c.ko} />
+              {c.ja}
             </Link>
           );
         })}
@@ -200,7 +198,7 @@ async function FilteredCouponList({
 
       <div className="mt-2 flex flex-wrap gap-2">
         <Link href={buildHref({ category })} className={chip(!area)}>
-          <JaKo ja="全エリア" ko="전체 지역" />
+          全エリア
         </Link>
         {AREAS.map((a) => (
           <Link
@@ -209,7 +207,7 @@ async function FilteredCouponList({
             className={chip(area === a.value)}
           >
             <AreaIcon className="h-3.5 w-3.5" strokeWidth={2.25} />
-            <JaKo ja={a.ja} ko={a.ko} />
+            {a.ja}
           </Link>
         ))}
       </div>
@@ -233,17 +231,17 @@ async function FilteredCouponList({
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-1 text-xs text-muted">
                       <span>
-                        {c?.ja}({c?.ko})
+                        {c?.ja}
                       </span>
                       <span>・</span>
                       <span className="flex items-center gap-0.5">
                         <AreaIcon className="h-3 w-3" />
-                        {a?.ja}({a?.ko})
+                        {a?.ja}
                       </span>
                       {coupon.member_only && (
                         <span className="ml-1 flex items-center gap-0.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-primary">
                           <Lock className="h-2.5 w-2.5" />
-                          <JaKo ja="会員限定" ko="회원 전용" />
+                          会員限定
                         </span>
                       )}
                     </span>
@@ -252,19 +250,19 @@ async function FilteredCouponList({
                       {coupon.stores.popular_with_japanese && (
                         <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-orange-500/10 px-1.5 py-0.5 text-[10px] font-medium text-orange-500">
                           <Flame className="h-2.5 w-2.5" />
-                          <JaKo ja="日本人に人気" ko="일본인 인기" />
+                          日本人に人気
                         </span>
                       )}
                       {isUrgentDeadline(coupon.valid_to) && (
                         <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">
                           <Timer className="h-2.5 w-2.5" />
-                          <JaKo ja="締切間近" ko="마감임박" />
+                          締切間近
                         </span>
                       )}
                     </span>
                     {isLocked ? (
                       <span className="mt-1 block text-sm font-medium text-muted">
-                        <JaKo ja="会員登録で内容を表示" ko="회원가입하면 내용 확인 가능" />
+                        会員登録で内容を表示
                       </span>
                     ) : (
                       <span className="mt-1 block text-lg font-bold text-primary">{coupon.title}</span>
@@ -278,7 +276,7 @@ async function FilteredCouponList({
         ) : (
           <div className="rounded-2xl border border-dashed border-border py-16 text-center">
             <p className="text-sm text-muted">
-              <JaKo ja="該当するクーポンがありません。" ko="해당하는 쿠폰이 없습니다." />
+              該当するクーポンがありません。
             </p>
           </div>
         )}

@@ -16,13 +16,13 @@ export async function createNotice(
   const title = (formData.get("title") as string)?.trim();
   const body = (formData.get("body") as string)?.trim();
 
-  if (!title) return { error: "タイトルを入力してください。(제목을 입력해주세요.)" };
-  if (!body) return { error: "本文を入力してください。(내용을 입력해주세요.)" };
+  if (!title) return { error: "タイトルを入力してください。" };
+  if (!body) return { error: "本文を入力してください。" };
 
   const { error } = await supabaseAdmin.from("notices").insert({ title, body });
 
   if (error) {
-    return { error: "登録に失敗しました。(등록에 실패했습니다.)" };
+    return { error: "登録に失敗しました。" };
   }
 
   revalidatePath("/admin/notices");
@@ -40,8 +40,8 @@ export async function updateNotice(
   const title = (formData.get("title") as string)?.trim();
   const body = (formData.get("body") as string)?.trim();
 
-  if (!title) return { error: "タイトルを入力してください。(제목을 입력해주세요.)" };
-  if (!body) return { error: "本文を入力してください。(내용을 입력해주세요.)" };
+  if (!title) return { error: "タイトルを入力してください。" };
+  if (!body) return { error: "本文を入力してください。" };
 
   const { error } = await supabaseAdmin
     .from("notices")
@@ -49,7 +49,7 @@ export async function updateNotice(
     .eq("id", noticeId);
 
   if (error) {
-    return { error: "更新に失敗しました。(수정에 실패했습니다.)" };
+    return { error: "更新に失敗しました。" };
   }
 
   revalidatePath("/admin/notices");

@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { JaKo } from "@/components/ja-ko";
 import { EditStoreForm } from "./edit-store-form";
 
 export default async function EditStorePage({
@@ -23,7 +22,7 @@ export default async function EditStorePage({
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
       <h1 className="text-2xl font-extrabold tracking-tight">
-        <JaKo ja="店舗を編集" ko="매장 수정" />
+        店舗を編集
       </h1>
       <section className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-sm">
         <EditStoreForm store={store} />

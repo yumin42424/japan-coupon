@@ -30,12 +30,12 @@ export async function createStore(
   const latitude = latitudeRaw ? Number(latitudeRaw) : null;
   const longitude = longitudeRaw ? Number(longitudeRaw) : null;
 
-  if (!name) return { error: "店舗名を入力してください。(매장명을 입력해주세요.)" };
+  if (!name) return { error: "店舗名を入力してください。" };
   if (!VALID_CATEGORIES.has(category)) {
-    return { error: "カテゴリを選択してください。(카테고리를 선택해주세요.)" };
+    return { error: "カテゴリを選択してください。" };
   }
   if (!VALID_AREAS.has(area)) {
-    return { error: "エリアを選択してください。(지역을 선택해주세요.)" };
+    return { error: "エリアを選択してください。" };
   }
 
   const { error } = await supabaseAdmin.from("stores").insert({
@@ -52,7 +52,7 @@ export async function createStore(
   });
 
   if (error) {
-    return { error: "登録に失敗しました。(등록에 실패했습니다.)" };
+    return { error: "登録に失敗しました。" };
   }
 
   revalidatePath("/admin/stores");
@@ -80,12 +80,12 @@ export async function updateStore(
   const latitude = latitudeRaw ? Number(latitudeRaw) : null;
   const longitude = longitudeRaw ? Number(longitudeRaw) : null;
 
-  if (!name) return { error: "店舗名を入力してください。(매장명을 입력해주세요.)" };
+  if (!name) return { error: "店舗名を入力してください。" };
   if (!VALID_CATEGORIES.has(category)) {
-    return { error: "カテゴリを選択してください。(카테고리를 선택해주세요.)" };
+    return { error: "カテゴリを選択してください。" };
   }
   if (!VALID_AREAS.has(area)) {
-    return { error: "エリアを選択してください。(지역을 선택해주세요.)" };
+    return { error: "エリアを選択してください。" };
   }
 
   const { error } = await supabaseAdmin
@@ -105,7 +105,7 @@ export async function updateStore(
     .eq("id", storeId);
 
   if (error) {
-    return { error: "更新に失敗しました。(수정에 실패했습니다.)" };
+    return { error: "更新に失敗しました。" };
   }
 
   revalidatePath("/admin/stores");

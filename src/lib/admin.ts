@@ -14,6 +14,6 @@ export function isAdminEmail(email: string | null | undefined): boolean {
 export async function requireAdmin() {
   const session = await auth();
   if (!isAdminEmail(session?.user?.email)) {
-    throw new Error("管理者権限が必要です。(관리자 권한이 필요합니다.)");
+    throw new Error("管理者権限が必要です。");
   }
 }

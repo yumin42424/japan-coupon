@@ -2,7 +2,6 @@ import Link from "next/link";
 import { MessagesSquare, ChevronRight, PenSquare } from "lucide-react";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { JaKo } from "@/components/ja-ko";
 
 type PostRow = {
   id: string;
@@ -27,21 +26,21 @@ export default async function BoardPage() {
       <div className="flex items-center justify-between">
         <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight">
           <MessagesSquare className="h-6 w-6 text-primary" />
-          <JaKo ja="自由掲示板" ko="자유게시판" />
+          自由掲示板
         </h1>
         <Link
           href={session?.user ? "/board/write" : "/login"}
           className="flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-90"
         >
           <PenSquare className="h-4 w-4" />
-          <JaKo ja="投稿する" ko="글쓰기" />
+          投稿する
         </Link>
       </div>
 
       <ul className="mt-8 flex flex-col gap-2">
         {posts.length === 0 && (
           <p className="text-sm text-muted">
-            <JaKo ja="まだ投稿がありません。" ko="아직 게시글이 없습니다." />
+            まだ投稿がありません。
           </p>
         )}
         {posts.map((post) => (

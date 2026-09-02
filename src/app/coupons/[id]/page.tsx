@@ -18,7 +18,6 @@ import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
-import { JaKo } from "@/components/ja-ko";
 import { daysUntil, isUrgentDeadline } from "@/lib/urgency";
 import { issueCoupon, toggleFavorite } from "./actions";
 import { ViewTracker } from "./view-tracker";
@@ -125,17 +124,17 @@ export default async function CouponDetailPage({
           <div>
             <p className="flex items-center gap-1 text-xs text-muted">
               <span>
-                {category?.ja}({category?.ko})
+                {category?.ja}
               </span>
               <span>・</span>
               <span className="flex items-center gap-0.5">
                 <AreaIcon className="h-3 w-3" />
-                {area?.ja}({area?.ko})
+                {area?.ja}
               </span>
               {coupon.member_only && (
                 <span className="ml-1 flex items-center gap-0.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-primary">
                   <Lock className="h-2.5 w-2.5" />
-                  <JaKo ja="会員限定" ko="회원 전용" />
+                  会員限定
                 </span>
               )}
             </p>
@@ -144,7 +143,7 @@ export default async function CouponDetailPage({
               {store.popular_with_japanese && (
                 <span className="flex items-center gap-0.5 rounded-full bg-orange-500/10 px-1.5 py-0.5 text-[10px] font-medium text-orange-500">
                   <Flame className="h-2.5 w-2.5" />
-                  <JaKo ja="日本人に人気" ko="일본인 인기" />
+                  日本人に人気
                 </span>
               )}
             </h1>
@@ -171,13 +170,10 @@ export default async function CouponDetailPage({
         <div className="mt-5 flex flex-col items-center gap-2 rounded-2xl border border-dashed border-primary/40 bg-primary/5 px-5 py-8 text-center">
           <Lock className="h-6 w-6 text-primary" />
           <p className="font-bold text-primary">
-            <JaKo ja="会員限定クーポンです" ko="회원 전용 쿠폰입니다" />
+            会員限定クーポンです
           </p>
           <p className="text-sm text-muted">
-            <JaKo
-              ja="無料会員登録すると、割引内容と使い方を確認できます。"
-              ko="무료 회원가입하면 할인 내용과 이용 방법을 확인할 수 있어요."
-            />
+            無料会員登録すると、割引内容と使い方を確認できます。
           </p>
         </div>
       ) : (
@@ -190,11 +186,7 @@ export default async function CouponDetailPage({
                 {urgent && (
                   <span className="flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-primary-foreground">
                     <Timer className="h-3 w-3" />
-                    {daysLeft <= 0 ? (
-                      <JaKo ja="本日締切" ko="오늘 마감" />
-                    ) : (
-                      <JaKo ja={`あと${daysLeft}日`} ko={`마감 ${daysLeft}일 전`} />
-                    )}
+                    {daysLeft <= 0 ? "本日締切" : `あと${daysLeft}日`}
                   </span>
                 )}
                 {remaining !== null && (
@@ -206,11 +198,7 @@ export default async function CouponDetailPage({
                     }`}
                   >
                     <Users className="h-3 w-3" />
-                    {isSoldOut ? (
-                      <JaKo ja="満了しました" ko="선착순 마감" />
-                    ) : (
-                      <JaKo ja={`残り${remaining}枚`} ko={`선착순 잔여 ${remaining}개`} />
-                    )}
+                    {isSoldOut ? "満了しました" : `残り${remaining}枚`}
                   </span>
                 )}
               </p>
@@ -236,7 +224,7 @@ export default async function CouponDetailPage({
           <div className="flex flex-col gap-2 px-5 py-4 text-sm">
             <p className="flex items-center gap-2 text-muted">
               <CalendarClock className="h-4 w-4 shrink-0" />
-              <JaKo ja="利用期間" ko="이용기간" />: {coupon.valid_from} 〜 {coupon.valid_to}
+              利用期間: {coupon.valid_from} 〜 {coupon.valid_to}
             </p>
             {coupon.usage_condition && (
               <p className="flex items-center gap-2 text-muted">
@@ -265,7 +253,7 @@ export default async function CouponDetailPage({
             {store.line_available && (
               <p className="flex items-center gap-2 text-success">
                 <Languages className="h-4 w-4 shrink-0" />
-                <JaKo ja="日本語対応可能" ko="일본어 대응 가능" />
+                日本語対応可能
               </p>
             )}
           </div>
@@ -278,17 +266,17 @@ export default async function CouponDetailPage({
             href="/signup?utm_source=coupon_detail"
             className="block rounded-full bg-primary px-4 py-3.5 text-center text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition hover:shadow-xl hover:shadow-primary/30"
           >
-            <JaKo ja="無料会員登録でクーポンをGET" ko="무료 회원가입하고 쿠폰 받기" />
+            無料会員登録でクーポンをGET
           </Link>
         ) : alreadyIssued ? (
           <p className="flex items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-3.5 text-center text-sm font-medium text-muted">
             <CheckCircle2 className="h-4 w-4 text-success" />
-            <JaKo ja="発行済みのクーポンです" ko="이미 발급받은 쿠폰입니다" />
+            発行済みのクーポンです
           </p>
         ) : isSoldOut ? (
           <p className="flex items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-3.5 text-center text-sm font-medium text-muted">
             <Users className="h-4 w-4" />
-            <JaKo ja="先着順の受付は終了しました" ko="선착순 접수가 마감되었습니다" />
+            先着順の受付は終了しました
           </p>
         ) : (
           <form action={issueCoupon.bind(null, id)}>
@@ -296,7 +284,7 @@ export default async function CouponDetailPage({
               type="submit"
               className="w-full rounded-full bg-primary px-4 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition hover:shadow-xl hover:shadow-primary/30"
             >
-              <JaKo ja="このクーポンをGET" ko="이 쿠폰 받기" />
+              このクーポンをGET
             </button>
           </form>
         )}

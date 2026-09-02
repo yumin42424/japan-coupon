@@ -8,7 +8,6 @@ import {
   Languages,
   ShieldCheck,
 } from "lucide-react";
-import { JaKo } from "@/components/ja-ko";
 
 const STEPS = [
   {
@@ -69,13 +68,10 @@ export default function GuidePage() {
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
       <h1 className="text-2xl font-extrabold tracking-tight">
-        <JaKo ja="初めての方へ" ko="처음 이용하시는 분께" />
+        初めての方へ
       </h1>
       <p className="mt-2 text-sm text-muted">
-        <JaKo
-          ja="K-Coupon Japanの使い方は、たったの5ステップです。"
-          ko="K-Coupon Japan 이용 방법은 단 5단계입니다."
-        />
+        K-Coupon Japanの使い方は、たったの5ステップです。
       </p>
 
       <ol className="mt-8 flex flex-col gap-4">
@@ -90,10 +86,10 @@ export default function GuidePage() {
             <div className="min-w-0">
               <p className="flex items-center gap-1.5 font-bold">
                 <step.icon className="h-4 w-4 text-primary" />
-                <JaKo ja={step.ja} ko={step.ko} />
+                {step.ja}
               </p>
               <p className="mt-1 text-sm text-muted">
-                <JaKo ja={step.descJa} ko={step.descKo} />
+                {step.descJa}
               </p>
             </div>
           </li>
@@ -101,7 +97,7 @@ export default function GuidePage() {
       </ol>
 
       <h2 className="mt-12 text-lg font-extrabold tracking-tight">
-        <JaKo ja="安心してご利用いただくために" ko="안심하고 이용하실 수 있도록" />
+        安心してご利用いただくために
       </h2>
       <div className="mt-4 flex flex-col gap-4">
         {PROMISES.map((promise) => (
@@ -111,10 +107,10 @@ export default function GuidePage() {
           >
             <p className="flex items-center gap-2 font-bold text-primary">
               <promise.icon className="h-5 w-5" />
-              <JaKo ja={promise.ja} ko={promise.ko} />
+              {promise.ja}
             </p>
             <p className="mt-1.5 text-sm text-foreground/80">
-              <JaKo ja={promise.descJa} ko={promise.descKo} />
+              {promise.descJa}
             </p>
           </div>
         ))}
@@ -125,7 +121,7 @@ export default function GuidePage() {
           href="/signup"
           className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition hover:shadow-xl hover:shadow-primary/30"
         >
-          <JaKo ja="無料会員登録はこちら" ko="무료 회원가입 하러가기" />
+          無料会員登録はこちら
         </Link>
       </div>
     </main>

@@ -4,7 +4,6 @@ import { ArrowRight } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
-import { JaKo } from "@/components/ja-ko";
 
 type LandingPageRow = {
   slug: string;
@@ -54,7 +53,6 @@ export default async function LandingPage({
   const Icon = category ? CATEGORY_ICONS[category.value] : null;
 
   const headlineJa = [category?.ja, area?.ja].filter(Boolean).join(" × ") || "韓国旅行";
-  const headlineKo = [category?.ko, area?.ko].filter(Boolean).join(" × ") || "한국여행";
 
   const signupHref = landing.utm_source
     ? `/signup?utm_source=${encodeURIComponent(landing.utm_source)}`
@@ -73,20 +71,15 @@ export default async function LandingPage({
             <Icon className="h-7 w-7" strokeWidth={2} />
           </span>
         )}
-        <h1 className="text-2xl font-extrabold tracking-tight">
-          <JaKo ja={`${headlineJa}で使えるお得なクーポン`} ko={`${headlineKo}에서 쓸 수 있는 알뜰 쿠폰`} />
-        </h1>
+        <h1 className="text-2xl font-extrabold tracking-tight">{`${headlineJa}で使えるお得なクーポン`}</h1>
         <p className="text-sm text-muted">
-          <JaKo
-            ja="無料会員登録で、今すぐクーポンをGETできます。"
-            ko="무료 회원가입하면 지금 바로 쿠폰을 받을 수 있어요."
-          />
+          無料会員登録で、今すぐクーポンをGETできます。
         </p>
         <Link
           href={signupHref}
           className="group mt-2 flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition hover:shadow-xl hover:shadow-primary/30"
         >
-          <JaKo ja="無料でクーポンをGET" ko="무료로 쿠폰 받기" />
+          無料でクーポンをGET
           <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
         </Link>
       </div>
@@ -102,12 +95,12 @@ export default async function LandingPage({
             >
               <p className="flex items-center gap-1 text-xs text-muted">
                 <span>
-                  {c?.ja}({c?.ko})
+                  {c?.ja}
                 </span>
                 <span>・</span>
                 <span className="flex items-center gap-0.5">
                   <AreaIcon className="h-3 w-3" />
-                  {a?.ja}({a?.ko})
+                  {a?.ja}
                 </span>
               </p>
               <p className="mt-1 font-medium">{coupon.stores?.name}</p>

@@ -20,8 +20,8 @@ export async function createPost(
   const title = (formData.get("title") as string)?.trim();
   const body = (formData.get("body") as string)?.trim();
 
-  if (!title) return { error: "タイトルを入力してください。(제목을 입력해주세요.)" };
-  if (!body) return { error: "本文を入力してください。(내용을 입력해주세요.)" };
+  if (!title) return { error: "タイトルを入力してください。" };
+  if (!body) return { error: "本文を入力してください。" };
 
   const { data: created, error } = await supabaseAdmin
     .from("posts")
@@ -30,7 +30,7 @@ export async function createPost(
     .single();
 
   if (error || !created) {
-    return { error: "投稿に失敗しました。(게시에 실패했습니다.)" };
+    return { error: "投稿に失敗しました。" };
   }
 
   revalidatePath("/board");

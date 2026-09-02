@@ -6,7 +6,6 @@ import { ChevronRight, Lock, LocateFixed, AlertCircle } from "lucide-react";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { distanceKm, formatDistance } from "@/lib/geo";
-import { JaKo } from "@/components/ja-ko";
 import { KakaoMap } from "./kakao-map";
 import type { NearbyCoupon } from "./page";
 
@@ -37,7 +36,7 @@ export function NearbyList({ coupons }: { coupons: NearbyCoupon[] }) {
     return (
       <div className="mt-8 flex items-center gap-2 text-sm text-muted">
         <LocateFixed className="h-4 w-4 animate-pulse" />
-        <JaKo ja="現在地を取得しています…" ko="현재 위치를 확인하는 중…" />
+        現在地を取得しています…
       </div>
     );
   }
@@ -47,16 +46,13 @@ export function NearbyList({ coupons }: { coupons: NearbyCoupon[] }) {
       <div className="mt-8 rounded-2xl border border-dashed border-border py-10 text-center">
         <AlertCircle className="mx-auto h-6 w-6 text-muted" />
         <p className="mt-3 text-sm text-muted">
-          <JaKo
-            ja="位置情報の利用が許可されていません。ブラウザの設定から許可してください。"
-            ko="위치 정보 사용이 허용되지 않았어요. 브라우저 설정에서 허용해주세요."
-          />
+          位置情報の利用が許可されていません。ブラウザの設定から許可してください。
         </p>
         <Link
           href="/coupons"
           className="mt-4 inline-block text-sm font-medium text-primary underline underline-offset-4"
         >
-          <JaKo ja="カテゴリから探す" ko="카테고리로 찾기" />
+          カテゴリから探す
         </Link>
       </div>
     );
@@ -84,7 +80,7 @@ export function NearbyList({ coupons }: { coupons: NearbyCoupon[] }) {
         {withDistance.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border py-16 text-center">
             <p className="text-sm text-muted">
-              <JaKo ja="近くにクーポンがありません。" ko="근처에 쿠폰이 없습니다." />
+              近くにクーポンがありません。
             </p>
           </div>
         ) : (
@@ -103,11 +99,11 @@ export function NearbyList({ coupons }: { coupons: NearbyCoupon[] }) {
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-1 text-xs text-muted">
-                      <span>{c?.ja}({c?.ko})</span>
+                      <span>{c?.ja}</span>
                       <span>・</span>
                       <span className="flex items-center gap-0.5">
                         <AreaIcon className="h-3 w-3" />
-                        {a?.ja}({a?.ko})
+                        {a?.ja}
                       </span>
                       <span className="ml-1 flex items-center gap-0.5 rounded-full bg-primary/10 px-1.5 py-0.5 font-semibold text-primary">
                         <LocateFixed className="h-2.5 w-2.5" />
@@ -119,7 +115,7 @@ export function NearbyList({ coupons }: { coupons: NearbyCoupon[] }) {
                       {coupon.member_only && (
                         <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] text-primary">
                           <Lock className="h-2.5 w-2.5" />
-                          <JaKo ja="会員限定" ko="회원 전용" />
+                          会員限定
                         </span>
                       )}
                     </span>

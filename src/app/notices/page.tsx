@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Megaphone, ChevronRight } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { JaKo } from "@/components/ja-ko";
 
 type NoticeRow = {
   id: string;
@@ -22,13 +21,13 @@ export default async function NoticesPage() {
     <main className="mx-auto max-w-2xl px-6 py-10">
       <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight">
         <Megaphone className="h-6 w-6 text-primary" />
-        <JaKo ja="お知らせ" ko="공지사항" />
+        お知らせ
       </h1>
 
       <ul className="mt-8 flex flex-col gap-2">
         {notices.length === 0 && (
           <p className="text-sm text-muted">
-            <JaKo ja="お知らせはまだありません。" ko="공지사항이 아직 없습니다." />
+            お知らせはまだありません。
           </p>
         )}
         {notices.map((notice) => (

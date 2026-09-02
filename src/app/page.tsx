@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Sparkles, Ticket, MapPin, Store, Bell, Percent } from "lucide-react";
 import { auth, signOut } from "@/auth";
-import { JaKo } from "@/components/ja-ko";
 import { CATEGORIES } from "@/lib/taxonomy";
 import { CATEGORY_ICONS } from "@/lib/taxonomy-icons";
 import { CATEGORY_IMAGES, HERO_IMAGE } from "@/lib/taxonomy-images";
@@ -50,39 +49,39 @@ export default async function Home() {
         <div className="relative flex max-w-sm flex-col items-center gap-6">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-medium text-white backdrop-blur-md">
             <Sparkles className="h-3.5 w-3.5" />
-            <JaKo ja="日本人旅行者限定" ko="일본인 여행자 전용" />
+            日本人旅行者限定
           </span>
 
           <h1 className="text-4xl font-extrabold tracking-tight text-white drop-shadow-lg">
             K-Coupon Japan
           </h1>
           <p className="-mt-2 text-base text-white/90">
-            <JaKo ja="韓国旅行を、もっとお得に。" ko="한국여행을, 더 알뜰하게." />
+            韓国旅行を、もっとお得に。
           </p>
 
           <div className="flex gap-6 text-xs text-white/80">
             <span className="flex items-center gap-1.5">
               <Ticket className="h-3.5 w-3.5" />
-              <JaKo ja="限定クーポン" ko="한정 쿠폰" />
+              限定クーポン
             </span>
             <span className="flex items-center gap-1.5">
               <MapPin className="h-3.5 w-3.5" />
-              <JaKo ja="エリア別検索" ko="지역별 검색" />
+              エリア別検索
             </span>
           </div>
 
           {session?.user ? (
             <div className="mt-2 flex flex-col items-center gap-4">
               <p className="text-sm text-white">
-                <JaKo ja="ようこそ、" ko="환영합니다, " />
+                ようこそ、
                 <strong className="font-bold">{session.user.name}</strong>
-                <JaKo ja="さん" ko="님" />
+                さん
               </p>
               <Link
                 href="/coupons"
                 className="group flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition hover:shadow-xl hover:shadow-primary/30"
               >
-                <JaKo ja="クーポンを見る" ko="쿠폰 보러 가기" />
+                クーポンを見る
                 <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
               </Link>
               <form
@@ -92,7 +91,7 @@ export default async function Home() {
                 }}
               >
                 <button className="text-sm text-white/80 underline underline-offset-4 transition hover:text-white">
-                  <JaKo ja="ログアウト" ko="로그아웃" />
+                  ログアウト
                 </button>
               </form>
             </div>
@@ -102,13 +101,13 @@ export default async function Home() {
                 href="/signup"
                 className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition hover:shadow-xl hover:shadow-primary/30"
               >
-                <JaKo ja="無料会員登録" ko="무료 회원가입" />
+                無料会員登録
               </Link>
               <Link
                 href="/login"
                 className="rounded-full border border-white/30 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/20"
               >
-                <JaKo ja="ログイン" ko="로그인" />
+                ログイン
               </Link>
             </div>
           )}
@@ -119,7 +118,7 @@ export default async function Home() {
         <div className="mx-auto max-w-2xl">
           <div className="text-center">
             <h2 className="text-xl font-extrabold tracking-tight">
-              <JaKo ja="カテゴリから探す" ko="카테고리로 찾기" />
+              カテゴリから探す
             </h2>
             <div className="mx-auto mt-3 h-1 w-16 rounded-full bg-primary" />
           </div>
@@ -141,7 +140,6 @@ export default async function Home() {
                     </span>
                   </div>
                   <h3 className="text-[15px] font-bold leading-tight">{c.ja}</h3>
-                  <p className="-mt-1.5 text-xs text-muted">({c.ko})</p>
                 </Link>
               );
             })}
@@ -153,7 +151,7 @@ export default async function Home() {
         <section className="border-t border-border bg-card/40 px-6 py-14">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-xl font-extrabold tracking-tight">
-              <JaKo ja="会員登録するとこんな特典" ko="회원가입하면 이런 혜택" />
+              会員登録するとこんな特典
             </h2>
             <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
               {BENEFITS.map((b) => (
@@ -165,7 +163,7 @@ export default async function Home() {
                     <b.icon className="h-5 w-5" />
                   </span>
                   <p className="text-sm font-bold leading-tight">
-                    <JaKo ja={b.ja} ko={b.ko} />
+                    {b.ja}
                   </p>
                 </div>
               ))}
@@ -174,7 +172,7 @@ export default async function Home() {
               href="/signup"
               className="mt-8 inline-block rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition hover:shadow-xl hover:shadow-primary/30"
             >
-              <JaKo ja="無料会員登録はこちら" ko="무료 회원가입 하러가기" />
+              無料会員登録はこちら
             </Link>
           </div>
         </section>

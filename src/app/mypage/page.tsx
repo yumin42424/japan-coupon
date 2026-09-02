@@ -4,7 +4,6 @@ import { Heart, Ticket, CheckCircle2, ChevronRight, Pencil, Sparkles, Settings, 
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
-import { JaKo } from "@/components/ja-ko";
 import { CouponQR } from "@/components/coupon-qr";
 
 type CouponEventItem = {
@@ -100,7 +99,7 @@ export default async function MyPage() {
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
       <h1 className="text-2xl font-extrabold tracking-tight">
-        <JaKo ja="マイページ" ko="마이페이지" />
+        マイページ
       </h1>
 
       <section className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-sm">
@@ -112,7 +111,7 @@ export default async function MyPage() {
               <Coins className="h-4 w-4" />
               {pointBalance.toLocaleString()}
               <span className="font-normal text-muted">
-                <JaKo ja="ポイント" ko="포인트" />
+                ポイント
               </span>
             </p>
           </div>
@@ -129,7 +128,7 @@ export default async function MyPage() {
               className="flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-sm font-medium transition hover:bg-background"
             >
               <Pencil className="h-3.5 w-3.5" />
-              <JaKo ja="編集" ko="수정" />
+              編集
             </Link>
           </div>
         </div>
@@ -137,29 +136,29 @@ export default async function MyPage() {
         <div className="mt-4 flex flex-col gap-2 border-t border-border pt-4 text-sm">
           <p>
             <span className="text-muted">
-              <JaKo ja="旅行予定日" ko="여행 예정일" />:{" "}
+              旅行予定日:{" "}
             </span>
             {profile?.travel_date ?? (
               <span className="text-muted">
-                <JaKo ja="未設定" ko="미설정" />
+                未設定
               </span>
             )}
           </p>
           <p>
             <span className="text-muted">
-              <JaKo ja="興味カテゴリ" ko="관심 카테고리" />:{" "}
+              興味カテゴリ:{" "}
             </span>
             {myCategories.length
-              ? myCategories.map((c) => `${c?.ja}(${c?.ko})`).join(", ")
-              : <span className="text-muted"><JaKo ja="未設定" ko="미설정" /></span>}
+              ? myCategories.map((c) => c?.ja).join(", ")
+              : <span className="text-muted">未設定</span>}
           </p>
           <p>
             <span className="text-muted">
-              <JaKo ja="関心エリア" ko="관심 지역" />:{" "}
+              関心エリア:{" "}
             </span>
             {myAreas.length
-              ? myAreas.map((a) => `${a?.ja}(${a?.ko})`).join(", ")
-              : <span className="text-muted"><JaKo ja="未設定" ko="미설정" /></span>}
+              ? myAreas.map((a) => a?.ja).join(", ")
+              : <span className="text-muted">未設定</span>}
           </p>
         </div>
       </section>
@@ -168,30 +167,18 @@ export default async function MyPage() {
         <CouponListSection
           icon={Sparkles}
           titleJa="あなたへのおすすめ"
-          titleKo="관심사 기반 추천"
           items={recommended}
         />
       )}
 
-      <CouponListSection
-        icon={Heart}
-        titleJa="お気に入りクーポン"
-        titleKo="찜한 쿠폰"
-        items={favorited}
-      />
+      <CouponListSection icon={Heart} titleJa="お気に入りクーポン" items={favorited} />
       <CouponListSection
         icon={Ticket}
         titleJa="GETしたクーポン"
-        titleKo="받은 쿠폰"
         items={issued}
         usedCouponIds={usedCouponIds}
       />
-      <CouponListSection
-        icon={CheckCircle2}
-        titleJa="使用済みクーポン"
-        titleKo="사용한 쿠폰"
-        items={used}
-      />
+      <CouponListSection icon={CheckCircle2} titleJa="使用済みクーポン" items={used} />
     </main>
   );
 }
@@ -199,13 +186,11 @@ export default async function MyPage() {
 function CouponListSection({
   icon: Icon,
   titleJa,
-  titleKo,
   items,
   usedCouponIds,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   titleJa: string;
-  titleKo: string;
   items: CouponEventItem[];
   usedCouponIds?: Set<string>;
 }) {
@@ -213,11 +198,11 @@ function CouponListSection({
     <section className="mt-8">
       <h2 className="flex items-center gap-2 text-lg font-bold">
         <Icon className="h-5 w-5 text-primary" />
-        {titleJa} ({titleKo})
+        {titleJa}
       </h2>
       {items.length === 0 ? (
         <p className="mt-2 text-sm text-muted">
-          <JaKo ja="まだありません" ko="아직 없습니다" />
+          まだありません
         </p>
       ) : (
         <ul className="mt-3 flex flex-col gap-3">
@@ -241,15 +226,12 @@ function CouponListSection({
                       {isUsed ? (
                         <p className="flex items-center gap-1.5 text-xs font-medium text-success">
                           <CheckCircle2 className="h-3.5 w-3.5" />
-                          <JaKo ja="使用済み" ko="사용완료" />
+                          使用済み
                         </p>
                       ) : item.id ? (
                         <div>
                           <p className="text-xs text-muted">
-                            <JaKo
-                              ja="店舗でこのQRコード（またはコード）を提示してください"
-                              ko="매장에서 이 QR코드(또는 코드)를 보여주세요"
-                            />
+                            店舗でこのQRコード（またはコード）を提示してください
                           </p>
                           <div className="mt-2 flex items-center gap-3">
                             <CouponQR code={item.id} />
@@ -258,10 +240,7 @@ function CouponListSection({
                             </p>
                           </div>
                           <p className="mt-1.5 text-[11px] text-muted">
-                            <JaKo
-                              ja="※このページを一度開いておけば、オフラインでも表示できます。"
-                              ko="※ 이 페이지를 한 번 열어두면, 인터넷이 안 될 때도 보여드릴 수 있어요."
-                            />
+                            ※このページを一度開いておけば、オフラインでも表示できます。
                           </p>
                         </div>
                       ) : null}

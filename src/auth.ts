@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import LINE from "next-auth/providers/line";
 import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
+import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { SIGNUPS_ENABLED } from "@/lib/feature-flags";
 
@@ -50,6 +51,17 @@ async function recordLoginAttempt(email: string, success: boolean): Promise<void
     first_attempt_at: windowExpired ? now.toISOString() : row.first_attempt_at,
     locked_until: attemptCount >= MAX_ATTEMPTS ? new Date(now.getTime() + LOCKOUT_MS).toISOString() : null,
   });
+}
+
+// signup/actions.ts의 signupWithLine/signupWithGoogle이 동의 체크박스가 확인된 경우에만
+// 남겨두는 쿠키. LINE/Google 인가 서버를 왕복하고 돌아온 이 콜백 시점에 그 흔적을 읽어서,
+// 신규 계정 생성 요청이 실제로 동의 화면을 거쳐왔는지 서버 쪽에서도 확인한다.
+async function readOAuthConsent(): Promise<{ agreed: boolean; marketing: boolean }> {
+  const store = await cookies();
+  return {
+    agreed: store.get("oauth_consent")?.value === "1",
+    marketing: store.get("oauth_consent_marketing")?.value === "1",
+  };
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -120,6 +132,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!userId) {
           if (!SIGNUPS_ENABLED) return false;
 
+          const consent = await readOAuthConsent();
+          if (!consent.agreed) return false;
+          const now = new Date().toISOString();
+
           const { data: created, error } = await supabaseAdmin
             .from("users")
             .insert({
@@ -129,6 +145,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               // (users.email이 NOT NULL이라 스키마 변경 없이 우회)
               email: profile?.email || `line_${lineUserId}@line.local`,
               acquisition_source: "line",
+              terms_agreed_at: now,
+              privacy_agreed_at: now,
+              marketing_agreed_at: consent.marketing ? now : null,
             })
             .select("id")
             .single();
@@ -153,12 +172,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!userId) {
           if (!SIGNUPS_ENABLED) return false;
 
+          const consent = await readOAuthConsent();
+          if (!consent.agreed) return false;
+          const now = new Date().toISOString();
+
           const { data: created, error } = await supabaseAdmin
             .from("users")
             .insert({
               email,
               nickname: profile?.name || "Googleユーザー",
               acquisition_source: "google",
+              terms_agreed_at: now,
+              privacy_agreed_at: now,
+              marketing_agreed_at: consent.marketing ? now : null,
             })
             .select("id")
             .single();

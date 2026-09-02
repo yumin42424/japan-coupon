@@ -5,7 +5,7 @@ export function JaKo({ ja, ko }: { ja: string; ko: string }) {
   return (
     <span className="[word-break:keep-all]">
       {ja}
-      <span className="ml-1 text-muted">({ko})</span>
+      <span className="ml-1 whitespace-nowrap text-muted">({ko})</span>
     </span>
   );
 }

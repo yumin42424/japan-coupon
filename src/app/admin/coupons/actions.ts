@@ -27,21 +27,21 @@ export async function createCoupon(
   const quantityLimitRaw = formData.get("quantityLimit") as string;
   const quantityLimit = quantityLimitRaw ? Number(quantityLimitRaw) : null;
 
-  if (!storeId) return { error: "店舗を選択してください。(매장을 선택해주세요.)" };
-  if (!title) return { error: "クーポン名を入力してください。(쿠폰명을 입력해주세요.)" };
+  if (!storeId) return { error: "店舗を選択してください。" };
+  if (!title) return { error: "クーポン名を入力してください。" };
   if (!validFrom || !validTo) {
-    return { error: "利用期間を入力してください。(이용기간을 입력해주세요.)" };
+    return { error: "利用期間を入力してください。" };
   }
   if (validFrom > validTo) {
     return {
-      error: "利用開始日は終了日より前にしてください。(시작일이 종료일보다 늦을 수 없습니다.)",
+      error: "利用開始日は終了日より前にしてください。",
     };
   }
   if ((regularPriceRaw && Number.isNaN(regularPrice)) || (discountedPriceRaw && Number.isNaN(discountedPrice))) {
-    return { error: "価格は数字で入力してください。(가격은 숫자로 입력해주세요.)" };
+    return { error: "価格は数字で入力してください。" };
   }
   if (quantityLimitRaw && (Number.isNaN(quantityLimit) || (quantityLimit as number) < 1)) {
-    return { error: "数量は1以上の数字で入力してください。(수량은 1 이상의 숫자로 입력해주세요.)" };
+    return { error: "数量は1以上の数字で入力してください。" };
   }
 
   const { error } = await supabaseAdmin.from("coupons").insert({
@@ -58,7 +58,7 @@ export async function createCoupon(
   });
 
   if (error) {
-    return { error: "登録に失敗しました。(등록에 실패했습니다.)" };
+    return { error: "登録に失敗しました。" };
   }
 
   revalidatePath("/admin/coupons");
@@ -87,21 +87,21 @@ export async function updateCoupon(
   const quantityLimitRaw = formData.get("quantityLimit") as string;
   const quantityLimit = quantityLimitRaw ? Number(quantityLimitRaw) : null;
 
-  if (!storeId) return { error: "店舗を選択してください。(매장을 선택해주세요.)" };
-  if (!title) return { error: "クーポン名を入力してください。(쿠폰명을 입력해주세요.)" };
+  if (!storeId) return { error: "店舗を選択してください。" };
+  if (!title) return { error: "クーポン名を入力してください。" };
   if (!validFrom || !validTo) {
-    return { error: "利用期間を入力してください。(이용기간을 입력해주세요.)" };
+    return { error: "利用期間を入力してください。" };
   }
   if (validFrom > validTo) {
     return {
-      error: "利用開始日は終了日より前にしてください。(시작일이 종료일보다 늦을 수 없습니다.)",
+      error: "利用開始日は終了日より前にしてください。",
     };
   }
   if ((regularPriceRaw && Number.isNaN(regularPrice)) || (discountedPriceRaw && Number.isNaN(discountedPrice))) {
-    return { error: "価格は数字で入力してください。(가격은 숫자로 입력해주세요.)" };
+    return { error: "価格は数字で入力してください。" };
   }
   if (quantityLimitRaw && (Number.isNaN(quantityLimit) || (quantityLimit as number) < 1)) {
-    return { error: "数量は1以上の数字で入力してください。(수량은 1 이상의 숫자로 입력해주세요.)" };
+    return { error: "数量は1以上の数字で入力してください。" };
   }
 
   const { error } = await supabaseAdmin
@@ -121,7 +121,7 @@ export async function updateCoupon(
     .eq("id", couponId);
 
   if (error) {
-    return { error: "更新に失敗しました。(수정에 실패했습니다.)" };
+    return { error: "更新に失敗しました。" };
   }
 
   revalidatePath("/admin/coupons");

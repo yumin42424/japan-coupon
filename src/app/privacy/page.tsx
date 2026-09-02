@@ -1,4 +1,3 @@
-import { JaKo } from "@/components/ja-ko";
 
 const SECTIONS = [
   {
@@ -24,7 +23,7 @@ const SECTIONS = [
     title: "第3条（個人情報の保有および利用期間）",
     body: [
       "原則として、会員退会時に遅滞なく破棄します。",
-      "現在、マイページ内の退会機能は準備中です。退会をご希望の場合は、下記のお問い合わせ先までご連絡ください。",
+      "マイページの「アカウント設定」＞「退会」からいつでも退会・データ削除を申請できます。",
       "関係法令により保存義務がある場合は、当該期間の経過後に破棄します。",
     ],
   },
@@ -94,13 +93,10 @@ export default function PrivacyPage() {
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
       <h1 className="text-2xl font-extrabold tracking-tight">
-        <JaKo ja="プライバシーポリシー" ko="개인정보처리방침" />
+        プライバシーポリシー
       </h1>
       <p className="mt-2 text-sm text-muted">
-        <JaKo
-          ja="K-Coupon Japan（以下「当サービス」）は、韓国の個人情報保護法に基づき、以下の通り利用者の個人情報を取り扱います。"
-          ko="K-Coupon Japan(이하 '당사')는 대한민국 개인정보보호법에 따라 다음과 같이 이용자의 개인정보를 처리합니다."
-        />
+        K-Coupon Japan（以下「当サービス」）は、韓国の個人情報保護法に基づき、以下の通り利用者の個人情報を取り扱います。
       </p>
 
       <div className="mt-8 flex flex-col gap-6">
@@ -118,7 +114,6 @@ export default function PrivacyPage() {
 
       <p className="mt-8 text-xs text-muted">
         本方針は準備中の内容を含みます。実運用開始前に法務レビューおよび第10条の担当者情報の補完が必要です。
-        (아직 준비 중인 부분이 있습니다. 실서비스 오픈 전 법률 검토 및 제10조 담당자 정보 보완이 필요합니다.)
       </p>
     </main>
   );

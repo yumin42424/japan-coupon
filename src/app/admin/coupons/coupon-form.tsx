@@ -3,7 +3,6 @@
 import { useActionState, useRef, useEffect } from "react";
 import { AlertCircle } from "lucide-react";
 import { createCoupon, type CouponFormState } from "./actions";
-import { JaKo } from "@/components/ja-ko";
 
 const initialState: CouponFormState = {};
 
@@ -22,7 +21,7 @@ export function CouponForm({ stores }: { stores: StoreOption[] }) {
   return (
     <form ref={formRef} action={formAction} className="mt-3 flex flex-col gap-3">
       <label className="flex flex-col gap-1 text-sm font-medium">
-        <JaKo ja="店舗" ko="매장" />
+        店舗
         <select
           name="storeId"
           required
@@ -41,7 +40,7 @@ export function CouponForm({ stores }: { stores: StoreOption[] }) {
       </label>
 
       <label className="flex flex-col gap-1 text-sm font-medium">
-        <JaKo ja="クーポン名" ko="쿠폰명" />
+        クーポン名
         <input
           type="text"
           name="title"
@@ -52,7 +51,7 @@ export function CouponForm({ stores }: { stores: StoreOption[] }) {
       </label>
 
       <label className="flex flex-col gap-1 text-sm font-medium">
-        <JaKo ja="割引内容" ko="할인 내용" />
+        割引内容
         <input
           type="text"
           name="discountInfo"
@@ -63,7 +62,7 @@ export function CouponForm({ stores }: { stores: StoreOption[] }) {
 
       <div className="grid grid-cols-2 gap-3">
         <label className="flex flex-col gap-1 text-sm font-medium">
-          <JaKo ja="正規価格 (円)" ko="정상가격 (엔)" />
+          正規価格 (円)
           <input
             type="number"
             name="regularPrice"
@@ -73,7 +72,7 @@ export function CouponForm({ stores }: { stores: StoreOption[] }) {
           />
         </label>
         <label className="flex flex-col gap-1 text-sm font-medium">
-          <JaKo ja="クーポン価格 (円)" ko="쿠폰가격 (엔)" />
+          クーポン価格 (円)
           <input
             type="number"
             name="discountedPrice"
@@ -85,7 +84,7 @@ export function CouponForm({ stores }: { stores: StoreOption[] }) {
       </div>
 
       <label className="flex flex-col gap-1 text-sm font-medium">
-        <JaKo ja="利用条件" ko="이용조건" />
+        利用条件
         <input
           type="text"
           name="usageCondition"
@@ -96,7 +95,7 @@ export function CouponForm({ stores }: { stores: StoreOption[] }) {
 
       <div className="grid grid-cols-2 gap-3">
         <label className="flex flex-col gap-1 text-sm font-medium">
-          <JaKo ja="開始日" ko="시작일" />
+          開始日
           <input
             type="date"
             name="validFrom"
@@ -105,7 +104,7 @@ export function CouponForm({ stores }: { stores: StoreOption[] }) {
           />
         </label>
         <label className="flex flex-col gap-1 text-sm font-medium">
-          <JaKo ja="終了日" ko="종료일" />
+          終了日
           <input
             type="date"
             name="validTo"
@@ -116,19 +115,19 @@ export function CouponForm({ stores }: { stores: StoreOption[] }) {
       </div>
 
       <label className="flex flex-col gap-1 text-sm font-medium">
-        <JaKo ja="先着順の数量制限（任意）" ko="선착순 수량 제한 (선택)" />
+        先着順の数量制限（任意）
         <input
           type="number"
           name="quantityLimit"
           min={1}
-          placeholder="空欄なら無制限 (비워두면 무제한)"
+          placeholder="空欄なら無制限"
           className="rounded-lg border border-border bg-background px-3 py-2 font-normal outline-none focus:border-primary"
         />
       </label>
 
       <label className="flex items-center gap-2 text-sm font-medium">
         <input type="checkbox" name="memberOnly" defaultChecked />
-        <JaKo ja="会員限定クーポン" ko="회원 전용 쿠폰" />
+        会員限定クーポン
       </label>
 
       {state.error && (
@@ -143,7 +142,7 @@ export function CouponForm({ stores }: { stores: StoreOption[] }) {
         disabled={pending}
         className="self-start rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-90 disabled:opacity-50"
       >
-        {pending ? <JaKo ja="登録中..." ko="등록 중..." /> : <JaKo ja="登録する" ko="등록하기" />}
+        {pending ? "登録中..." : "登録する"}
       </button>
     </form>
   );

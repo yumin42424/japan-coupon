@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Pencil } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
-import { JaKo } from "@/components/ja-ko";
 import { StoreForm } from "./store-form";
 import { DeleteStoreButton } from "./delete-store-button";
 
@@ -24,24 +23,24 @@ export default async function AdminStoresPage() {
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
       <h1 className="text-2xl font-extrabold tracking-tight">
-        <JaKo ja="店舗管理" ko="매장 관리" />
+        店舗管理
       </h1>
 
       <section className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-sm">
         <h2 className="text-sm font-bold">
-          <JaKo ja="新しい店舗を登録" ko="새 매장 등록" />
+          新しい店舗を登録
         </h2>
         <StoreForm />
       </section>
 
       <section className="mt-8">
         <h2 className="text-lg font-bold">
-          <JaKo ja="登録済み店舗" ko="등록된 매장" /> ({stores.length})
+          登録済み店舗 ({stores.length})
         </h2>
         <ul className="mt-3 flex flex-col gap-2">
           {stores.length === 0 && (
             <p className="text-sm text-muted">
-              <JaKo ja="まだ店舗がありません" ko="아직 매장이 없습니다" />
+              まだ店舗がありません
             </p>
           )}
           {stores.map((store) => {
@@ -55,10 +54,10 @@ export default async function AdminStoresPage() {
                 <div className="min-w-0">
                   <p className="truncate font-medium">{store.name}</p>
                   <p className="text-xs text-muted">
-                    {c?.ja}({c?.ko}) ・ {a?.ja}({a?.ko})
+                    {c?.ja} ・ {a?.ja}
                     {store.line_available && (
                       <span className="ml-1 text-success">
-                        ・ <JaKo ja="日本語対応可" ko="일본어 가능" />
+                        ・ 日本語対応可
                       </span>
                     )}
                   </p>

@@ -3,7 +3,6 @@
 import { useActionState } from "react";
 import { AlertCircle } from "lucide-react";
 import { updateNotice, type NoticeFormState } from "../../actions";
-import { JaKo } from "@/components/ja-ko";
 
 const initialState: NoticeFormState = {};
 
@@ -14,7 +13,7 @@ export function EditNoticeForm({ notice }: { notice: { id: string; title: string
   return (
     <form action={formAction} className="mt-3 flex flex-col gap-3">
       <label className="flex flex-col gap-1 text-sm font-medium">
-        <JaKo ja="タイトル" ko="제목" />
+        タイトル
         <input
           type="text"
           name="title"
@@ -25,7 +24,7 @@ export function EditNoticeForm({ notice }: { notice: { id: string; title: string
       </label>
 
       <label className="flex flex-col gap-1 text-sm font-medium">
-        <JaKo ja="本文" ko="내용" />
+        本文
         <textarea
           name="body"
           required
@@ -47,7 +46,7 @@ export function EditNoticeForm({ notice }: { notice: { id: string; title: string
         disabled={pending}
         className="self-start rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-90 disabled:opacity-50"
       >
-        {pending ? <JaKo ja="更新中..." ko="수정 중..." /> : <JaKo ja="更新する" ko="수정하기" />}
+        {pending ? "更新中..." : "更新する"}
       </button>
     </form>
   );

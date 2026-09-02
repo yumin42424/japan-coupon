@@ -3,7 +3,6 @@
 import { useActionState } from "react";
 import { AlertCircle } from "lucide-react";
 import { createPost, type PostFormState } from "../actions";
-import { JaKo } from "@/components/ja-ko";
 
 const initialState: PostFormState = {};
 
@@ -13,7 +12,7 @@ export function PostForm() {
   return (
     <form action={formAction} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-sm">
       <label className="flex flex-col gap-1 text-sm font-medium">
-        <JaKo ja="タイトル" ko="제목" />
+        タイトル
         <input
           type="text"
           name="title"
@@ -23,7 +22,7 @@ export function PostForm() {
       </label>
 
       <label className="flex flex-col gap-1 text-sm font-medium">
-        <JaKo ja="本文" ko="내용" />
+        本文
         <textarea
           name="body"
           required
@@ -44,7 +43,7 @@ export function PostForm() {
         disabled={pending}
         className="self-start rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-90 disabled:opacity-50"
       >
-        {pending ? <JaKo ja="投稿中..." ko="게시 중..." /> : <JaKo ja="投稿する" ko="게시하기" />}
+        {pending ? "投稿中..." : "投稿する"}
       </button>
     </form>
   );

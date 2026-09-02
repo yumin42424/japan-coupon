@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, Megaphone } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { JaKo } from "@/components/ja-ko";
 
 export default async function NoticeDetailPage({
   params,
@@ -26,7 +25,7 @@ export default async function NoticeDetailPage({
         className="flex items-center gap-1 text-sm text-muted hover:text-foreground"
       >
         <ChevronLeft className="h-4 w-4" />
-        <JaKo ja="お知らせ一覧に戻る" ko="공지사항 목록으로" />
+        お知らせ一覧に戻る
       </Link>
 
       <div className="mt-4 flex items-center gap-2 text-xs text-muted">

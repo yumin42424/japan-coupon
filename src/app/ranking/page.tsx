@@ -3,7 +3,6 @@ import { Trophy } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
-import { JaKo } from "@/components/ja-ko";
 
 type CouponRow = {
   id: string;
@@ -52,19 +51,16 @@ export default async function RankingPage() {
     <main className="mx-auto max-w-2xl px-6 py-10">
       <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight">
         <Trophy className="h-6 w-6 text-primary" />
-        <JaKo ja="人気ランキング" ko="인기 랭킹" />
+        人気ランキング
       </h1>
       <p className="mt-2 text-sm text-muted">
-        <JaKo
-          ja="会員がGETした数が多い順に表示しています。"
-          ko="회원들이 많이 받아간 순서대로 보여드려요."
-        />
+        会員がGETした数が多い順に表示しています。
       </p>
 
       <ol className="mt-8 flex flex-col gap-3">
         {ranked.length === 0 && (
           <p className="text-sm text-muted">
-            <JaKo ja="まだデータがありません。" ko="아직 데이터가 없습니다." />
+            まだデータがありません。
           </p>
         )}
         {ranked.map(({ coupon, issue }, i) => {
@@ -93,12 +89,12 @@ export default async function RankingPage() {
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-1 text-xs text-muted">
                     <span>
-                      {c?.ja}({c?.ko})
+                      {c?.ja}
                     </span>
                     <span>・</span>
                     <span className="flex items-center gap-0.5">
                       <AreaIcon className="h-3 w-3" />
-                      {a?.ja}({a?.ko})
+                      {a?.ja}
                     </span>
                   </span>
                   <span className="mt-0.5 block truncate font-medium">{coupon.stores.name}</span>
@@ -106,7 +102,7 @@ export default async function RankingPage() {
                 </span>
                 <span className="shrink-0 text-right text-xs text-muted">
                   <span className="block font-bold text-foreground">{issue}</span>
-                  <JaKo ja="GET数" ko="발급 수" />
+                  GET数
                 </span>
               </Link>
             </li>

@@ -1,9 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
-import { AlertCircle, CheckCircle2, UserRound, Lock } from "lucide-react";
-import { updateNickname, changePassword, type SettingsState } from "./actions";
-import { JaKo } from "@/components/ja-ko";
+import { useActionState, useState } from "react";
+import { AlertCircle, CheckCircle2, UserRound, Lock, UserX } from "lucide-react";
+import { updateNickname, changePassword, deleteAccount, type SettingsState } from "./actions";
 
 const initialState: SettingsState = {};
 
@@ -34,7 +33,7 @@ export function NicknameForm({ currentNickname }: { currentNickname: string }) {
     <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
       <h2 className="flex items-center gap-2 text-sm font-bold">
         <UserRound className="h-4 w-4 text-primary" />
-        <JaKo ja="ニックネーム" ko="닉네임" />
+        ニックネーム
       </h2>
       <form action={formAction} className="mt-3 flex flex-col gap-3">
         <input
@@ -51,14 +50,11 @@ export function NicknameForm({ currentNickname }: { currentNickname: string }) {
           disabled={pending}
           className="self-start rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-90 disabled:opacity-50"
         >
-          {pending ? <JaKo ja="保存中..." ko="저장 중..." /> : <JaKo ja="保存する" ko="저장하기" />}
+          {pending ? "保存中..." : "保存する"}
         </button>
       </form>
       <p className="mt-2 text-xs text-muted">
-        <JaKo
-          ja="※ ヘッダーの表示名は再ログイン後に反映されます。"
-          ko="※ 상단 표시 이름은 재로그인 후에 반영됩니다."
-        />
+        ※ ヘッダーの表示名は再ログイン後に反映されます。
       </p>
     </section>
   );
@@ -71,20 +67,17 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
     <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
       <h2 className="flex items-center gap-2 text-sm font-bold">
         <Lock className="h-4 w-4 text-primary" />
-        <JaKo ja="パスワード変更" ko="비밀번호 변경" />
+        パスワード変更
       </h2>
 
       {!hasPassword ? (
         <p className="mt-3 text-sm text-muted">
-          <JaKo
-            ja="LINEログインのアカウントのため、パスワードは設定されていません。"
-            ko="LINE 로그인 계정이라 비밀번호가 설정되어 있지 않습니다."
-          />
+          LINEログインのアカウントのため、パスワードは設定されていません。
         </p>
       ) : (
         <form action={formAction} className="mt-3 flex flex-col gap-3">
           <label className="flex flex-col gap-1 text-sm font-medium">
-            <JaKo ja="現在のパスワード" ko="현재 비밀번호" />
+            現在のパスワード
             <input
               type="password"
               name="currentPassword"
@@ -93,13 +86,13 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
             />
           </label>
           <label className="flex flex-col gap-1 text-sm font-medium">
-            <JaKo ja="新しいパスワード" ko="새 비밀번호" />
+            新しいパスワード
             <input
               type="password"
               name="newPassword"
               required
               minLength={8}
-              placeholder="8文字以上 (8자 이상)"
+              placeholder="8文字以上"
               className="rounded-lg border border-border bg-background px-3 py-2 text-sm font-normal outline-none focus:border-primary"
             />
           </label>
@@ -109,8 +102,56 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
             disabled={pending}
             className="self-start rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-90 disabled:opacity-50"
           >
-            {pending ? <JaKo ja="変更中..." ko="변경 중..." /> : <JaKo ja="変更する" ko="변경하기" />}
+            {pending ? "変更中..." : "変更する"}
           </button>
+        </form>
+      )}
+    </section>
+  );
+}
+
+export function DeleteAccountSection() {
+  const [confirming, setConfirming] = useState(false);
+  const [state, formAction, pending] = useActionState(deleteAccount, initialState);
+
+  return (
+    <section className="rounded-2xl border border-primary/30 bg-primary/5 p-5 shadow-sm">
+      <h2 className="flex items-center gap-2 text-sm font-bold text-primary">
+        <UserX className="h-4 w-4" />
+        退会
+      </h2>
+      <p className="mt-2 text-sm text-foreground/80">
+        退会すると、保有クーポン・お気に入り・ポイントなどすべてのデータが削除され、元に戻せません。
+      </p>
+
+      {!confirming ? (
+        <button
+          type="button"
+          onClick={() => setConfirming(true)}
+          className="mt-3 rounded-full border border-primary/40 px-4 py-2 text-sm font-medium text-primary transition hover:bg-primary/10"
+        >
+          退会する
+        </button>
+      ) : (
+        <form action={formAction} className="mt-3 flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <button
+              type="submit"
+              disabled={pending}
+              className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-90 disabled:opacity-50"
+            >
+              {pending ? "退会処理中..." : "本当に退会する"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirming(false)}
+              disabled={pending}
+              className="rounded-full border border-border px-4 py-2 text-sm font-medium transition hover:bg-background disabled:opacity-50"
+            >
+              キャンセル
+            </button>
+          </div>
+          <Message state={state} />
         </form>
       )}
     </section>

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Users, Eye, Ticket, CheckCircle2, CalendarHeart, Repeat, Store, Tag, Link2, TicketCheck, Megaphone } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
-import { JaKo } from "@/components/ja-ko";
 
 type UserRow = {
   id: string;
@@ -107,7 +106,7 @@ export default async function AdminPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
       <h1 className="text-2xl font-extrabold tracking-tight">
-        <JaKo ja="管理者ダッシュボード" ko="관리자 대시보드" />
+        管理者ダッシュボード
       </h1>
 
       <div className="mt-4 flex gap-2 text-sm">
@@ -116,102 +115,97 @@ export default async function AdminPage() {
           className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 font-medium transition hover:border-primary/40"
         >
           <Store className="h-3.5 w-3.5" />
-          <JaKo ja="店舗管理" ko="매장 관리" />
+          店舗管理
         </Link>
         <Link
           href="/admin/coupons"
           className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 font-medium transition hover:border-primary/40"
         >
           <Tag className="h-3.5 w-3.5" />
-          <JaKo ja="クーポン管理" ko="쿠폰 관리" />
+          クーポン管理
         </Link>
         <Link
           href="/admin/landing-pages"
           className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 font-medium transition hover:border-primary/40"
         >
           <Link2 className="h-3.5 w-3.5" />
-          <JaKo ja="LP管理" ko="랜딩페이지 관리" />
+          LP管理
         </Link>
         <Link
           href="/admin/redeem"
           className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 font-medium transition hover:border-primary/40"
         >
           <TicketCheck className="h-3.5 w-3.5" />
-          <JaKo ja="使用処理" ko="사용 처리" />
+          使用処理
         </Link>
         <Link
           href="/admin/notices"
           className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 font-medium transition hover:border-primary/40"
         >
           <Megaphone className="h-3.5 w-3.5" />
-          <JaKo ja="お知らせ管理" ko="공지 관리" />
+          お知らせ管理
         </Link>
       </div>
 
       <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
-        <StatCard icon={Users} ja="会員登録数" ko="회원가입수" value={totalUsers} />
-        <StatCard icon={Eye} ja="クーポン閲覧数" ko="쿠폰 조회수" value={viewCount} />
-        <StatCard icon={Ticket} ja="クーポン発行数" ko="쿠폰 발급수" value={issueCount} />
-        <StatCard icon={CheckCircle2} ja="クーポン使用数" ko="쿠폰 사용수" value={useCount} />
-        <StatCard
-          icon={CalendarHeart}
-          ja="旅行予定日 登録者"
-          ko="여행예정일 등록자"
-          value={withTravelDate}
-        />
-        <StatCard icon={Repeat} ja="再訪問率" ko="재방문율" value={`${revisitRate}%`} />
+        <StatCard icon={Users} ja="会員登録数" value={totalUsers} />
+        <StatCard icon={Eye} ja="クーポン閲覧数" value={viewCount} />
+        <StatCard icon={Ticket} ja="クーポン発行数" value={issueCount} />
+        <StatCard icon={CheckCircle2} ja="クーポン使用数" value={useCount} />
+        <StatCard icon={CalendarHeart} ja="旅行予定日 登録者" value={withTravelDate} />
+        <StatCard icon={Repeat} ja="再訪問率" value={`${revisitRate}%`} />
       </div>
 
-      <Section ja="流入経路" ko="유입경로">
+      <Section ja="流入経路">
         <SimpleTable
           rows={[...sourceCounts.entries()].sort((a, b) => b[1] - a[1])}
           renderLabel={(key) => key}
         />
       </Section>
 
-      <Section ja="興味カテゴリ" ko="관심 카테고리">
+      <Section ja="興味カテゴリ">
         <SimpleTable
           rows={[...categoryCounts.entries()].sort((a, b) => b[1] - a[1])}
           renderLabel={(key) => {
             const c = CATEGORIES.find((x) => x.value === key);
-            return `${c?.ja ?? key} (${c?.ko ?? key})`;
+            return c?.ja ?? key;
           }}
         />
       </Section>
 
-      <Section ja="関心エリア（地域別会員）" ko="관심 지역(지역별 회원)">
+      <Section ja="関心エリア（地域別会員）">
         <SimpleTable
           rows={[...areaCounts.entries()].sort((a, b) => b[1] - a[1])}
           renderLabel={(key) => {
             const a = AREAS.find((x) => x.value === key);
-            return `${a?.ja ?? key} (${a?.ko ?? key})`;
+            return a?.ja ?? key;
           }}
         />
       </Section>
 
-      <Section ja="旅行予定日（月別）" ko="여행예정일(월별)">
+      <Section ja="旅行予定日（月別）">
         <SimpleTable rows={sortedMonths} renderLabel={(key) => key} />
       </Section>
 
-      <Section ja="店舗別 利用状況" ko="업체별 이용현황(사용률)">
+      <Section ja="店舗別 利用状況">
         <div className="mt-2 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-left text-muted">
                 <th className="py-1 pr-4">
-                  <JaKo ja="店舗名" ko="매장명" />
+                  店舗名
                 </th>
                 <th className="py-1 pr-4">
-                  <JaKo ja="閲覧" ko="조회" />
+                  閲覧
                 </th>
                 <th className="py-1 pr-4">
-                  <JaKo ja="発行" ko="발급" />
+                  発行
                 </th>
                 <th className="py-1 pr-4">
-                  <JaKo ja="使用" ko="사용" />
+                  使用
                 </th>
                 <th className="py-1">
-                  <JaKo ja="使用率" ko="사용률" />
+                  使用率
                 </th>
               </tr>
             </thead>
@@ -219,7 +213,7 @@ export default async function AdminPage() {
               {[...storeStats.values()].length === 0 && (
                 <tr>
                   <td className="py-2 text-muted" colSpan={5}>
-                    <JaKo ja="データがありません" ko="데이터가 없습니다" />
+                    データがありません
                   </td>
                 </tr>
               )}
@@ -245,21 +239,17 @@ export default async function AdminPage() {
 function StatCard({
   icon: Icon,
   ja,
-  ko,
   value,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   ja: string;
-  ko: string;
   value: string | number;
 }) {
   return (
     <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
       <div className="flex items-center gap-1.5 text-xs text-muted">
         <Icon className="h-3.5 w-3.5" />
-        <span>
-          {ja} ({ko})
-        </span>
+        <span>{ja}</span>
       </div>
       <p className="mt-1.5 text-2xl font-extrabold tracking-tight text-primary">{value}</p>
     </div>
@@ -268,18 +258,14 @@ function StatCard({
 
 function Section({
   ja,
-  ko,
   children,
 }: {
   ja: string;
-  ko: string;
   children: React.ReactNode;
 }) {
   return (
     <section className="mt-10">
-      <h2 className="text-lg font-bold">
-        {ja} ({ko})
-      </h2>
+      <h2 className="text-lg font-bold">{ja}</h2>
       {children}
     </section>
   );
@@ -295,7 +281,7 @@ function SimpleTable({
   if (!rows.length) {
     return (
       <p className="mt-2 text-sm text-muted">
-        <JaKo ja="データがありません" ko="데이터가 없습니다" />
+        データがありません
       </p>
     );
   }

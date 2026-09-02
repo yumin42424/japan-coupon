@@ -4,7 +4,6 @@ import { ChevronLeft, Trash2 } from "lucide-react";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { isAdminEmail } from "@/lib/admin";
-import { JaKo } from "@/components/ja-ko";
 import { deletePost } from "../actions";
 
 export default async function PostDetailPage({
@@ -38,7 +37,7 @@ export default async function PostDetailPage({
     <main className="mx-auto max-w-2xl px-6 py-10">
       <Link href="/board" className="flex items-center gap-1 text-sm text-muted hover:text-foreground">
         <ChevronLeft className="h-4 w-4" />
-        <JaKo ja="掲示板に戻る" ko="게시판으로" />
+        掲示板に戻る
       </Link>
 
       <div className="mt-4 flex items-start justify-between gap-3">
