@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Mail, Lock, AlertCircle } from "lucide-react";
 import { login, type LoginState } from "./actions";
 import { loginWithLine, loginWithGoogle } from "./oauth-actions";
@@ -11,12 +12,29 @@ const initialState: LoginState = {};
 
 export default function LoginPage() {
   const [state, formAction, pending] = useActionState(login, initialState);
+  // LINE/Googleは新規会員登録なら同意チェックが必要なので、まだ登録していない
+  // アカウントでここからログインしようとすると signIn コールバックが弾いて
+  // ?error= 付きで戻ってくる。その場合だけ案内を出す。
+  const hasOAuthError = useSearchParams().has("error");
 
   return (
     <main className="mx-auto flex min-h-[calc(100vh-65px)] max-w-sm flex-col justify-center px-6 py-12">
       <h1 className="text-2xl font-extrabold tracking-tight">
         ログイン
       </h1>
+
+      {hasOAuthError && (
+        <p className="mt-4 flex items-start gap-1.5 rounded-xl border border-primary/30 bg-primary/5 p-3 text-sm text-primary" role="alert">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>
+            ログインできませんでした。初めてご利用の方は
+            <Link href="/signup" className="font-semibold underline underline-offset-2">
+              無料会員登録
+            </Link>
+            からお進みください。
+          </span>
+        </p>
+      )}
 
       <form action={formAction} className="mt-8 flex flex-col gap-4">
         <label className="flex flex-col gap-1.5 text-sm font-medium">

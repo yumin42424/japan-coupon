@@ -134,7 +134,17 @@ export function SignupForm({ acquisitionSource }: { acquisitionSource: string })
         <span className="h-px flex-1 bg-border" />
       </div>
 
-      <div className="mt-5 flex flex-col gap-2.5">
+      <p
+        className={`text-center text-xs ${
+          canSubmit ? "text-success" : "font-medium text-primary"
+        }`}
+      >
+        {canSubmit
+          ? "✓ 同意済みです。下のボタンからLINE・Google登録に進めます。"
+          : "↑ 上の必須項目（利用規約・プライバシーポリシー）に同意すると、下のLINE・Google登録ボタンが有効になります。"}
+      </p>
+
+      <div className="mt-3 flex flex-col gap-2.5">
         <form action={signupWithLine}>
           <input type="hidden" name="agreeTerms" value={agreeTerms ? "on" : ""} />
           <input type="hidden" name="agreePrivacy" value={agreePrivacy ? "on" : ""} />
@@ -159,11 +169,6 @@ export function SignupForm({ acquisitionSource }: { acquisitionSource: string })
             Googleで登録
           </button>
         </form>
-        {!canSubmit && (
-          <p className="text-center text-xs text-muted">
-            上の必須項目に同意すると、SNS登録ボタンが有効になります。
-          </p>
-        )}
       </div>
 
       <p className="mt-6 text-center text-sm text-muted">
