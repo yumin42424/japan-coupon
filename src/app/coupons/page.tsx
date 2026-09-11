@@ -94,7 +94,7 @@ function CategoryAreaHub() {
           {AREAS.map((a) => (
             <Link
               key={a.value}
-              href={`/coupons?area=${a.value}`}
+              href={`/areas/${a.value}`}
               className="flex flex-col items-center gap-1.5 rounded-2xl border border-border bg-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
             >
               <AreaIcon className="h-5 w-5 text-primary" />
