@@ -10,7 +10,7 @@ export async function Nav() {
   return (
     <>
       <header className="sticky top-0 z-10 border-b border-border/80 bg-background/80 px-4 py-3.5 backdrop-blur-md sm:px-6">
-        <div className="mx-auto flex max-w-3xl items-center justify-between">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
           <Link
             href="/"
             className="shrink-0 text-lg font-extrabold tracking-tight text-foreground transition hover:opacity-80"
@@ -22,42 +22,42 @@ export async function Nav() {
           <nav className="hidden items-center gap-0.5 text-sm md:flex">
             <Link
               href="/coupons"
-              className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:px-3"
+              className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:px-3"
             >
               <Ticket className="h-4 w-4" strokeWidth={2.25} />
               クーポン
             </Link>
             <Link
               href="/nearby"
-              className="hidden items-center gap-1.5 rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:flex lg:px-3"
+              className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:flex lg:px-3"
             >
               <LocateFixed className="h-4 w-4" strokeWidth={2.25} />
               現在地から
             </Link>
             <Link
               href="/ranking"
-              className="hidden items-center gap-1.5 rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:flex lg:px-3"
+              className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:flex lg:px-3"
             >
               <Trophy className="h-4 w-4" strokeWidth={2.25} />
               人気
             </Link>
             <Link
               href="/guide"
-              className="hidden items-center gap-1.5 rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:flex lg:px-3"
+              className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:flex lg:px-3"
             >
               <BookOpen className="h-4 w-4" strokeWidth={2.25} />
               初めての方へ
             </Link>
             <Link
               href="/notices"
-              className="hidden items-center gap-1.5 rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:flex lg:px-3"
+              className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:flex lg:px-3"
             >
               <Megaphone className="h-4 w-4" strokeWidth={2.25} />
               お知らせ
             </Link>
             <Link
               href="/board"
-              className="hidden items-center gap-1.5 rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:flex lg:px-3"
+              className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:flex lg:px-3"
             >
               <MessagesSquare className="h-4 w-4" strokeWidth={2.25} />
               Q&amp;A
@@ -66,7 +66,7 @@ export async function Nav() {
               <>
                 <Link
                   href="/mypage"
-                  className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:px-3"
+                  className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:px-3"
                 >
                   <User className="h-4 w-4" strokeWidth={2.25} />
                   マイページ
@@ -74,7 +74,7 @@ export async function Nav() {
                 {isAdmin && (
                   <Link
                     href="/admin"
-                    className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:px-3"
+                    className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:px-3"
                   >
                     <Shield className="h-4 w-4" strokeWidth={2.25} />
                     <span className="hidden lg:inline">管理者</span>
@@ -88,13 +88,13 @@ export async function Nav() {
               <>
                 <Link
                   href="/login"
-                  className="rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:px-3"
+                  className="shrink-0 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:px-3"
                 >
                   ログイン
                 </Link>
                 <Link
                   href="/signup"
-                  className="ml-1 rounded-full bg-primary px-3.5 py-1.5 font-medium text-primary-foreground shadow-sm shadow-primary/30 transition hover:opacity-90 lg:px-4"
+                  className="ml-1 shrink-0 whitespace-nowrap rounded-full bg-primary px-3.5 py-1.5 font-medium text-primary-foreground shadow-sm shadow-primary/30 transition hover:opacity-90 lg:px-4"
                 >
                   無料会員登録
                 </Link>
