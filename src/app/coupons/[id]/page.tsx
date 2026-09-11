@@ -13,13 +13,17 @@ import {
   Flame,
   Timer,
   Users,
+  Star,
+  Trash2,
 } from "lucide-react";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { isAdminEmail } from "@/lib/admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
 import { daysUntil, isUrgentDeadline } from "@/lib/urgency";
-import { issueCoupon, toggleFavorite } from "./actions";
+import { issueCoupon, toggleFavorite, deleteReview } from "./actions";
+import { ReviewForm } from "./review-form";
 import { ViewTracker } from "./view-tracker";
 
 type CouponDetail = {
@@ -83,8 +87,9 @@ export default async function CouponDetailPage({
 
   let alreadyIssued = false;
   let isFavorited = false;
+  let canReview = false;
   if (session?.user?.id) {
-    const [{ data: issuedRow }, { data: favoriteRow }] = await Promise.all([
+    const [{ data: issuedRow }, { data: favoriteRow }, { data: usedRows }] = await Promise.all([
       supabaseAdmin
         .from("coupon_events")
         .select("id")
@@ -99,10 +104,40 @@ export default async function CouponDetailPage({
         .eq("user_id", session.user.id)
         .eq("event_type", "favorite")
         .maybeSingle(),
+      supabaseAdmin
+        .from("coupon_events")
+        .select("id, coupons!inner(store_id)")
+        .eq("user_id", session.user.id)
+        .eq("event_type", "use")
+        .eq("coupons.store_id", store.id)
+        .limit(1),
     ]);
     alreadyIssued = !!issuedRow;
     isFavorited = !!favoriteRow;
+    canReview = !!usedRows && usedRows.length > 0;
   }
+
+  type ReviewRow = {
+    id: string;
+    rating: number;
+    body: string;
+    created_at: string;
+    user_id: string;
+    users: { nickname: string } | null;
+  };
+  const { data: reviewRows } = await supabaseAdmin
+    .from("reviews")
+    .select("id, rating, body, created_at, user_id, users(nickname)")
+    .eq("store_id", store.id)
+    .order("created_at", { ascending: false });
+  const reviews = (reviewRows ?? []) as unknown as ReviewRow[];
+  const avgRating =
+    reviews.length > 0
+      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+      : null;
+  const myReview = session?.user?.id
+    ? reviews.find((r) => r.user_id === session.user!.id)
+    : undefined;
 
   const category = CATEGORIES.find((c) => c.value === store.category);
   const area = AREAS.find((a) => a.value === store.area);
@@ -147,6 +182,13 @@ export default async function CouponDetailPage({
                 </span>
               )}
             </h1>
+            {avgRating !== null && (
+              <p className="mt-0.5 flex items-center gap-1 text-xs text-muted">
+                <Star className="h-3.5 w-3.5 text-primary" fill="currentColor" strokeWidth={0} />
+                <span className="font-semibold text-foreground">{avgRating.toFixed(1)}</span>
+                <span>({reviews.length}件の口コミ)</span>
+              </p>
+            )}
           </div>
         </div>
         {session?.user && (
@@ -287,6 +329,61 @@ export default async function CouponDetailPage({
               このクーポンをGET
             </button>
           </form>
+        )}
+      </div>
+
+      <div className="mt-8 flex flex-col gap-3">
+        <h2 className="flex items-center gap-1.5 text-sm font-bold">
+          口コミ
+          <span className="text-muted">({reviews.length})</span>
+        </h2>
+
+        {canReview && <ReviewForm storeId={store.id} couponId={id} initialRating={myReview?.rating} initialBody={myReview?.body} />}
+
+        {reviews.length === 0 ? (
+          <p className="rounded-2xl border border-dashed border-border px-4 py-6 text-center text-xs text-muted">
+            まだ口コミはありません。
+          </p>
+        ) : (
+          <ul className="flex flex-col gap-2.5">
+            {reviews.map((review) => {
+              const canDelete =
+                session?.user?.id === review.user_id || isAdminEmail(session?.user?.email);
+              return (
+                <li key={review.id} className="rounded-2xl border border-border bg-card p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <Star
+                          key={n}
+                          className={`h-3.5 w-3.5 ${n <= review.rating ? "text-primary" : "text-border"}`}
+                          fill={n <= review.rating ? "currentColor" : "none"}
+                          strokeWidth={0}
+                        />
+                      ))}
+                    </div>
+                    {canDelete && (
+                      <form action={deleteReview.bind(null, review.id, id)}>
+                        <button
+                          type="submit"
+                          aria-label="delete review"
+                          className="text-muted transition hover:text-primary"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </form>
+                    )}
+                  </div>
+                  <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">{review.body}</p>
+                  <p className="mt-2 flex items-center gap-1 text-[11px] text-muted">
+                    <span>{review.users?.nickname ?? "会員"}</span>
+                    <span>・</span>
+                    <span>{new Date(review.created_at).toISOString().slice(0, 10)}</span>
+                  </p>
+                </li>
+              );
+            })}
+          </ul>
         )}
       </div>
     </main>
