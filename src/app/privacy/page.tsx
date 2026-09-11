@@ -101,7 +101,7 @@ export default function PrivacyPage() {
 
       <div className="mt-8 flex flex-col gap-6">
         {SECTIONS.map((section) => (
-          <section key={section.title} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <section key={section.title} className="rounded-2xl border border-border bg-card p-5 shadow-card">
             <h2 className="font-bold">{section.title}</h2>
             <ul className="mt-2 flex flex-col gap-1.5 text-sm text-foreground/80">
               {section.body.map((line, i) => (

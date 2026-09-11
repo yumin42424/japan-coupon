@@ -68,7 +68,7 @@ export default async function PostDetailPage({
         )}
       </div>
 
-      <div className="mt-6 whitespace-pre-wrap rounded-2xl border border-border bg-card p-5 text-sm leading-relaxed shadow-sm">
+      <div className="mt-6 whitespace-pre-wrap rounded-2xl border border-border bg-card p-5 text-sm leading-relaxed shadow-card">
         {post.body}
       </div>
     </main>

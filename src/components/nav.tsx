@@ -115,7 +115,7 @@ export async function Nav() {
             ) : (
               <Link
                 href="/signup"
-                className="rounded-full bg-primary px-3.5 py-1.5 text-xs font-semibold text-primary-foreground shadow-sm shadow-primary/30"
+                className="btn-glossy rounded-full px-3.5 py-1.5 text-xs font-bold text-primary-foreground"
               >
                 無料登録
               </Link>

@@ -92,7 +92,7 @@ export default function LoginPage() {
             <form action={loginWithLine}>
               <button
                 type="submit"
-                className="w-full rounded-full bg-[#06C755] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
+                className="w-full rounded-full bg-[#06C755] px-4 py-3 text-sm font-semibold text-white shadow-card transition hover:opacity-90"
               >
                 LINEでログイン
               </button>
@@ -100,7 +100,7 @@ export default function LoginPage() {
             <form action={loginWithGoogle}>
               <button
                 type="submit"
-                className="w-full rounded-full border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground shadow-sm transition hover:bg-background"
+                className="w-full rounded-full border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground shadow-card transition hover:bg-background"
               >
                 Googleでログイン
               </button>

@@ -12,7 +12,7 @@ export function PostForm() {
   const [category, setCategory] = useState<BoardCategory>(DEFAULT_BOARD_CATEGORY);
 
   return (
-    <form action={formAction} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <form action={formAction} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-card">
       <input type="hidden" name="category" value={category} />
 
       <div className="flex flex-col gap-1.5">
@@ -25,7 +25,7 @@ export function PostForm() {
               onClick={() => setCategory(c.value)}
               className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
                 category === c.value
-                  ? "bg-primary text-primary-foreground"
+                  ? "btn-glossy border-transparent text-primary-foreground"
                   : "border border-border bg-background text-muted hover:border-primary/40 hover:text-foreground"
               }`}
             >
@@ -65,7 +65,7 @@ export function PostForm() {
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-90 disabled:opacity-50"
+        className="btn-glossy self-start rounded-full px-5 py-2.5 text-sm font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
       >
         {pending ? "投稿中..." : "投稿する"}
       </button>

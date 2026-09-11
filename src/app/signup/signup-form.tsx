@@ -160,7 +160,7 @@ export function SignupForm({ acquisitionSource }: { acquisitionSource: string })
           <button
             type="submit"
             disabled={!canSubmit}
-            className="w-full rounded-full bg-[#06C755] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-40"
+            className="w-full rounded-full bg-[#06C755] px-4 py-3 text-sm font-semibold text-white shadow-card transition hover:opacity-90 disabled:opacity-40"
           >
             LINEで登録
           </button>
@@ -172,7 +172,7 @@ export function SignupForm({ acquisitionSource }: { acquisitionSource: string })
           <button
             type="submit"
             disabled={!canSubmit}
-            className="w-full rounded-full border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground shadow-sm transition hover:bg-background disabled:opacity-40"
+            className="w-full rounded-full border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground shadow-card transition hover:bg-background disabled:opacity-40"
           >
             Googleで登録
           </button>

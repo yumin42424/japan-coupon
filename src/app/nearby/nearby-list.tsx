@@ -92,7 +92,7 @@ export function NearbyList({ coupons }: { coupons: NearbyCoupon[] }) {
               <li key={coupon.id}>
                 <Link
                   href={`/coupons/${coupon.id}`}
-                  className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
+                  className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-elevated"
                 >
                   <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                     {Icon && <Icon className="h-6 w-6" strokeWidth={2} />}

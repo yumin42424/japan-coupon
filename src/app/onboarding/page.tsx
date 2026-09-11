@@ -81,7 +81,7 @@ export default async function OnboardingPage() {
         <div className="flex flex-col items-center gap-3">
           <button
             type="submit"
-            className="w-full rounded-full bg-primary px-4 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition hover:shadow-xl hover:shadow-primary/30"
+            className="btn-glossy w-full rounded-full px-4 py-3.5 text-sm font-bold text-primary-foreground transition hover:brightness-105"
           >
             保存する
           </button>

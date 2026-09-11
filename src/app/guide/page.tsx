@@ -78,7 +78,7 @@ export default function GuidePage() {
         {STEPS.map((step, i) => (
           <li
             key={step.ja}
-            className="flex items-start gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm"
+            className="flex items-start gap-4 rounded-2xl border border-border bg-card p-4 shadow-card"
           >
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-extrabold text-primary">
               {i + 1}
@@ -119,7 +119,7 @@ export default function GuidePage() {
       <div className="mt-10 flex justify-center">
         <Link
           href="/signup"
-          className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition hover:shadow-xl hover:shadow-primary/30"
+          className="btn-glossy rounded-full px-6 py-3 text-sm font-bold text-primary-foreground transition hover:brightness-105"
         >
           無料会員登録はこちら
         </Link>

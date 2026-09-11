@@ -43,7 +43,7 @@ export default async function BoardPage({
         </h1>
         <Link
           href={session?.user ? "/board/write" : "/login"}
-          className="flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-90"
+          className="btn-glossy flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold text-primary-foreground transition hover:brightness-105"
         >
           <PenSquare className="h-4 w-4" />
           投稿する
@@ -55,7 +55,7 @@ export default async function BoardPage({
           href="/board"
           className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
             !activeCategory
-              ? "bg-primary text-primary-foreground"
+              ? "btn-glossy border-transparent text-primary-foreground"
               : "border border-border bg-card text-muted hover:border-primary/40 hover:text-foreground"
           }`}
         >
@@ -67,7 +67,7 @@ export default async function BoardPage({
             href={`/board?category=${c.value}`}
             className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
               activeCategory === c.value
-                ? "bg-primary text-primary-foreground"
+                ? "btn-glossy border-transparent text-primary-foreground"
                 : "border border-border bg-card text-muted hover:border-primary/40 hover:text-foreground"
             }`}
           >
@@ -88,7 +88,7 @@ export default async function BoardPage({
             <li key={post.id}>
               <Link
                 href={`/board/${post.id}`}
-                className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
+                className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-elevated"
               >
                 <span className="min-w-0">
                   <span className="flex items-center gap-1.5">

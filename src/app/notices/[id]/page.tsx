@@ -34,7 +34,7 @@ export default async function NoticeDetailPage({
       </div>
       <h1 className="mt-1 text-xl font-extrabold tracking-tight">{notice.title}</h1>
 
-      <div className="mt-6 whitespace-pre-wrap rounded-2xl border border-border bg-card p-5 text-sm leading-relaxed shadow-sm">
+      <div className="mt-6 whitespace-pre-wrap rounded-2xl border border-border bg-card p-5 text-sm leading-relaxed shadow-card">
         {notice.body}
       </div>
     </main>

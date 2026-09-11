@@ -30,7 +30,7 @@ export function NicknameForm({ currentNickname }: { currentNickname: string }) {
   const [state, formAction, pending] = useActionState(updateNickname, initialState);
 
   return (
-    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
       <h2 className="flex items-center gap-2 text-sm font-bold">
         <UserRound className="h-4 w-4 text-primary" />
         ニックネーム
@@ -48,7 +48,7 @@ export function NicknameForm({ currentNickname }: { currentNickname: string }) {
         <button
           type="submit"
           disabled={pending}
-          className="self-start rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-90 disabled:opacity-50"
+          className="btn-glossy self-start rounded-full px-4 py-2 text-sm font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
         >
           {pending ? "保存中..." : "保存する"}
         </button>
@@ -64,7 +64,7 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
   const [state, formAction, pending] = useActionState(changePassword, initialState);
 
   return (
-    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
       <h2 className="flex items-center gap-2 text-sm font-bold">
         <Lock className="h-4 w-4 text-primary" />
         パスワード変更
@@ -100,7 +100,7 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
           <button
             type="submit"
             disabled={pending}
-            className="self-start rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-90 disabled:opacity-50"
+            className="btn-glossy self-start rounded-full px-4 py-2 text-sm font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
           >
             {pending ? "変更中..." : "変更する"}
           </button>
@@ -115,7 +115,7 @@ export function DeleteAccountSection() {
   const [state, formAction, pending] = useActionState(deleteAccount, initialState);
 
   return (
-    <section className="rounded-2xl border border-primary/30 bg-primary/5 p-5 shadow-sm">
+    <section className="rounded-2xl border border-primary/30 bg-primary/5 p-5 shadow-card">
       <h2 className="flex items-center gap-2 text-sm font-bold text-primary">
         <UserX className="h-4 w-4" />
         退会
@@ -138,7 +138,7 @@ export function DeleteAccountSection() {
             <button
               type="submit"
               disabled={pending}
-              className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-90 disabled:opacity-50"
+              className="btn-glossy rounded-full px-4 py-2 text-sm font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
             >
               {pending ? "退会処理中..." : "本当に退会する"}
             </button>

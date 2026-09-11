@@ -77,7 +77,7 @@ export default async function LandingPage({
         </p>
         <Link
           href={signupHref}
-          className="group mt-2 flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition hover:shadow-xl hover:shadow-primary/30"
+          className="btn-glossy group mt-2 flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold text-primary-foreground transition hover:brightness-105"
         >
           無料でクーポンをGET
           <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
@@ -91,7 +91,7 @@ export default async function LandingPage({
           return (
             <div
               key={coupon.id}
-              className="rounded-2xl border border-border bg-card p-4 text-left shadow-sm"
+              className="rounded-2xl border border-border bg-card p-4 text-left shadow-card"
             >
               <p className="flex items-center gap-1 text-xs text-muted">
                 <span>

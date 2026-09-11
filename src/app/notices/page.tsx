@@ -34,7 +34,7 @@ export default async function NoticesPage() {
           <li key={notice.id}>
             <Link
               href={`/notices/${notice.id}`}
-              className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
+              className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-elevated"
             >
               <span className="min-w-0">
                 <span className="block text-xs text-muted">
