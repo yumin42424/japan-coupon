@@ -60,7 +60,7 @@ export async function Nav() {
               className="hidden items-center gap-1.5 rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:flex lg:px-3"
             >
               <MessagesSquare className="h-4 w-4" strokeWidth={2.25} />
-              掲示板
+              Q&amp;A
             </Link>
             {session?.user ? (
               <>

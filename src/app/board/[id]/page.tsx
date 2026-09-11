@@ -4,6 +4,7 @@ import { ChevronLeft, Trash2 } from "lucide-react";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { isAdminEmail } from "@/lib/admin";
+import { BOARD_CATEGORIES } from "@/lib/board-categories";
 import { deletePost } from "../actions";
 
 export default async function PostDetailPage({
@@ -16,7 +17,7 @@ export default async function PostDetailPage({
 
   const { data } = await supabaseAdmin
     .from("posts")
-    .select("id, title, body, created_at, user_id, users(nickname)")
+    .select("id, title, body, category, created_at, user_id, users(nickname)")
     .eq("id", id)
     .maybeSingle();
 
@@ -25,11 +26,13 @@ export default async function PostDetailPage({
     id: string;
     title: string;
     body: string;
+    category: string;
     created_at: string;
     user_id: string;
     users: { nickname: string } | null;
   };
 
+  const category = BOARD_CATEGORIES.find((c) => c.value === post.category);
   const canDelete =
     session?.user?.id === post.user_id || isAdminEmail(session?.user?.email);
 
@@ -37,11 +40,16 @@ export default async function PostDetailPage({
     <main className="mx-auto max-w-2xl px-6 py-10">
       <Link href="/board" className="flex items-center gap-1 text-sm text-muted hover:text-foreground">
         <ChevronLeft className="h-4 w-4" />
-        掲示板に戻る
+        Q&amp;Aに戻る
       </Link>
 
       <div className="mt-4 flex items-start justify-between gap-3">
         <div>
+          {category && (
+            <span className="mb-1.5 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+              {category.ja}
+            </span>
+          )}
           <h1 className="text-xl font-extrabold tracking-tight">{post.title}</h1>
           <p className="mt-1 text-xs text-muted">
             {post.users?.nickname} ・ {new Date(post.created_at).toISOString().slice(0, 10)}

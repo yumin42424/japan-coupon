@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { isAdminEmail } from "@/lib/admin";
+import { isBoardCategory, DEFAULT_BOARD_CATEGORY } from "@/lib/board-categories";
 
 export type PostFormState = { error?: string };
 
@@ -19,13 +20,15 @@ export async function createPost(
 
   const title = (formData.get("title") as string)?.trim();
   const body = (formData.get("body") as string)?.trim();
+  const categoryInput = formData.get("category");
+  const category = isBoardCategory(categoryInput) ? categoryInput : DEFAULT_BOARD_CATEGORY;
 
   if (!title) return { error: "タイトルを入力してください。" };
   if (!body) return { error: "本文を入力してください。" };
 
   const { data: created, error } = await supabaseAdmin
     .from("posts")
-    .insert({ user_id: session.user.id, title, body })
+    .insert({ user_id: session.user.id, title, body, category })
     .select("id")
     .single();
 

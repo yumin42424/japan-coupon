@@ -1,16 +1,40 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { AlertCircle } from "lucide-react";
 import { createPost, type PostFormState } from "../actions";
+import { BOARD_CATEGORIES, DEFAULT_BOARD_CATEGORY, type BoardCategory } from "@/lib/board-categories";
 
 const initialState: PostFormState = {};
 
 export function PostForm() {
   const [state, formAction, pending] = useActionState(createPost, initialState);
+  const [category, setCategory] = useState<BoardCategory>(DEFAULT_BOARD_CATEGORY);
 
   return (
     <form action={formAction} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <input type="hidden" name="category" value={category} />
+
+      <div className="flex flex-col gap-1.5">
+        <span className="text-sm font-medium">カテゴリ</span>
+        <div className="flex flex-wrap gap-1.5">
+          {BOARD_CATEGORIES.map((c) => (
+            <button
+              key={c.value}
+              type="button"
+              onClick={() => setCategory(c.value)}
+              className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+                category === c.value
+                  ? "bg-primary text-primary-foreground"
+                  : "border border-border bg-background text-muted hover:border-primary/40 hover:text-foreground"
+              }`}
+            >
+              {c.ja}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <label className="flex flex-col gap-1 text-sm font-medium">
         タイトル
         <input
