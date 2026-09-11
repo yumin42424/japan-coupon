@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { ArrowRight, Sparkles, Ticket, MapPin, Store, Bell, Percent } from "lucide-react";
+import { ArrowRight, Sparkles, Ticket, MapPin, Store, Bell, Percent, Star, ShieldCheck } from "lucide-react";
 import { auth, signOut } from "@/auth";
 import { CATEGORIES } from "@/lib/taxonomy";
 import { CATEGORY_ICONS } from "@/lib/taxonomy-icons";
 import { CATEGORY_IMAGES, HERO_IMAGE } from "@/lib/taxonomy-images";
+import { TiltCard } from "@/components/tilt-card";
 
 const BENEFITS = [
   {
@@ -33,33 +34,34 @@ export default async function Home() {
 
   return (
     <>
-      <main className="relative flex flex-col items-center justify-center overflow-hidden px-6 py-16 text-center">
+      <main className="relative flex flex-col items-center justify-center overflow-hidden px-6 pb-24 pt-16 text-center">
         <div aria-hidden className="absolute inset-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={HERO_IMAGE} alt="" className="h-full w-full object-cover" />
-          {/* 사진 위 텍스트 가독성용 스크림은 라이트/다크 테마와 무관하게 항상 어둡게 고정 */}
+          <img src={HERO_IMAGE} alt="" className="h-full w-full scale-105 object-cover" />
+          {/* 사진 위 텍스트 가독성용 스크림 + 브랜드 컬러 그라데이션 메쉬로 색감 입체감 추가 */}
           <div
             className="absolute inset-0"
             style={{
-              background: "linear-gradient(180deg, rgba(20,16,14,0.45) 0%, rgba(20,16,14,0.85) 100%)",
+              background: "linear-gradient(180deg, rgba(20,16,14,0.5) 0%, rgba(20,16,14,0.88) 100%)",
             }}
           />
+          <div aria-hidden className="grain-mesh absolute inset-0 opacity-70 mix-blend-plus-lighter" />
         </div>
 
         <div className="relative flex max-w-sm flex-col items-center gap-6">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-medium text-white backdrop-blur-md">
+          <span className="surface-glass inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium text-white">
             <Sparkles className="h-3.5 w-3.5" />
             日本人旅行者限定
           </span>
 
-          <h1 className="text-4xl font-extrabold tracking-tight text-white drop-shadow-lg">
-            K-Coupon Japan
+          <h1 className="font-display text-balance text-5xl font-black leading-[1.05] tracking-tight text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.35)]">
+            K-Coupon <span className="text-primary">Japan</span>
           </h1>
-          <p className="-mt-2 text-base text-white/90">
+          <p className="-mt-2 text-base font-medium text-white/90">
             韓国旅行を、もっとお得に。
           </p>
 
-          <div className="flex gap-6 text-xs text-white/80">
+          <div className="flex gap-6 text-xs font-medium text-white/85">
             <span className="flex items-center gap-1.5">
               <Ticket className="h-3.5 w-3.5" />
               限定クーポン
@@ -79,7 +81,7 @@ export default async function Home() {
               </p>
               <Link
                 href="/coupons"
-                className="group flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition hover:shadow-xl hover:shadow-primary/30"
+                className="btn-glossy group flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold text-primary-foreground transition hover:brightness-105 active:scale-[0.98]"
               >
                 クーポンを見る
                 <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
@@ -99,47 +101,79 @@ export default async function Home() {
             <div className="mt-2 flex gap-3">
               <Link
                 href="/signup"
-                className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition hover:shadow-xl hover:shadow-primary/30"
+                className="btn-glossy rounded-full px-7 py-3.5 text-sm font-bold text-primary-foreground transition hover:brightness-105 active:scale-[0.98]"
               >
                 無料会員登録
               </Link>
               <Link
                 href="/login"
-                className="rounded-full border border-white/30 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/20"
+                className="surface-glass rounded-full px-7 py-3.5 text-sm font-bold text-white transition hover:bg-white/20"
               >
                 ログイン
               </Link>
             </div>
           )}
         </div>
+
+        {/* 히어로 위에 살짝 떠 있는 유리질감 카드 — 사진 콜라주처럼 깊이감을 준다 */}
+        <TiltCard
+          max={5}
+          className="animate-float-slow surface-glass absolute bottom-10 right-4 hidden w-44 flex-col gap-1.5 rounded-2xl p-3.5 text-left shadow-elevated sm:flex"
+        >
+          <div className="flex items-center gap-1 text-primary">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <Star key={i} className="h-3 w-3" fill="currentColor" strokeWidth={0} />
+            ))}
+          </div>
+          <p className="text-[11px] font-bold leading-tight text-white">
+            日本人利用者の
+            <br />
+            口コミで安心
+          </p>
+        </TiltCard>
+        <div className="animate-float-slow surface-glass absolute left-4 top-24 hidden items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold text-white sm:flex" style={{ animationDelay: "1.2s" }}>
+          <ShieldCheck className="h-3.5 w-3.5 text-success" />
+          日本語対応の店舗多数
+        </div>
       </main>
 
       <section className="border-t border-border px-6 py-16">
         <div className="mx-auto max-w-2xl">
           <div className="text-center">
-            <h2 className="text-xl font-extrabold tracking-tight">
+            <h2 className="font-display text-2xl font-black tracking-tight">
               カテゴリから探す
             </h2>
-            <div className="mx-auto mt-3 h-1 w-16 rounded-full bg-primary" />
+            <div className="mx-auto mt-3 h-1.5 w-16 rounded-full btn-glossy" />
           </div>
           <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
             {CATEGORIES.map((c) => {
               const Icon = CATEGORY_ICONS[c.value];
               return (
-                <Link key={c.value} href={`/coupons?category=${c.value}`} className="group flex flex-col items-center gap-2">
-                  <div className="relative w-full overflow-hidden rounded-2xl border border-border shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:border-primary/40 group-hover:shadow-xl group-hover:shadow-primary/5">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={CATEGORY_IMAGES[c.value]}
-                      alt=""
-                      className="aspect-square w-full object-cover transition duration-300 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                    <span className="absolute left-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-card text-primary shadow">
-                      <Icon className="h-4 w-4" strokeWidth={2.25} />
-                    </span>
-                  </div>
-                  <h3 className="text-[15px] font-bold leading-tight">{c.ja}</h3>
+                <Link key={c.value} href={`/coupons?category=${c.value}`} className="group">
+                  <TiltCard
+                    max={6}
+                    className="relative w-full overflow-hidden rounded-2xl shadow-card transition-shadow duration-300 group-hover:shadow-elevated"
+                  >
+                    <div className="relative aspect-square w-full">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={CATEGORY_IMAGES[c.value]}
+                        alt=""
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
+                        loading="lazy"
+                      />
+                      <div
+                        className="absolute inset-0"
+                        style={{ background: "linear-gradient(180deg, rgba(20,16,14,0) 45%, rgba(20,16,14,0.75) 100%)" }}
+                      />
+                      <span className="btn-glossy absolute left-2.5 top-2.5 flex h-9 w-9 items-center justify-center rounded-full text-primary-foreground">
+                        <Icon className="h-4 w-4" strokeWidth={2.25} />
+                      </span>
+                      <h3 className="absolute inset-x-0 bottom-2.5 px-2.5 text-[15px] font-bold leading-tight text-white">
+                        {c.ja}
+                      </h3>
+                    </div>
+                  </TiltCard>
                 </Link>
               );
             })}
@@ -148,18 +182,18 @@ export default async function Home() {
       </section>
 
       {!session?.user && (
-        <section className="border-t border-border bg-card/40 px-6 py-14">
+        <section className="border-t border-border bg-card/60 px-6 py-14">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-xl font-extrabold tracking-tight">
+            <h2 className="font-display text-2xl font-black tracking-tight">
               会員登録するとこんな特典
             </h2>
             <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
               {BENEFITS.map((b) => (
                 <div
                   key={b.ja}
-                  className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-4 shadow-sm"
+                  className="flex flex-col items-center gap-2.5 rounded-2xl border border-border bg-card p-4 shadow-card transition duration-300 hover:-translate-y-1 hover:shadow-elevated"
                 >
-                  <span className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <span className="btn-glossy flex h-11 w-11 items-center justify-center rounded-full text-primary-foreground">
                     <b.icon className="h-5 w-5" />
                   </span>
                   <p className="text-sm font-bold leading-tight">
@@ -170,7 +204,7 @@ export default async function Home() {
             </div>
             <Link
               href="/signup"
-              className="mt-8 inline-block rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition hover:shadow-xl hover:shadow-primary/30"
+              className="btn-glossy mt-8 inline-block rounded-full px-7 py-3.5 text-sm font-bold text-primary-foreground transition hover:brightness-105 active:scale-[0.98]"
             >
               無料会員登録はこちら
             </Link>

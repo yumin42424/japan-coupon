@@ -1,12 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fbf8ff;
-  --foreground: #1a1b22;
+  --background: #fcfaf9;
+  --foreground: #1c1416;
   --card: #ffffff;
-  --border: #e5bdbe;
-  --muted: #5c3f40;
-  --primary: #b80035;
+  --border: #ece1de;
+  --muted: #8a7672;
+  --primary: #e23a52;
+  --primary-dark: #b8243b;
   --primary-foreground: #ffffff;
   --success: #16a34a;
 }
@@ -18,14 +19,70 @@
   --color-border: var(--border);
   --color-muted: var(--muted);
   --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
   --color-primary-foreground: var(--primary-foreground);
   --color-success: var(--success);
-  --font-sans: var(--font-geist-sans);
+
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
   --font-mono: var(--font-geist-mono);
+
+  /* 레이어드 그림자 — 단일 그림자 대신 넓은 앰비언트 + 가까운 그림자를 겹쳐서 실제 입체감을 만든다 */
+  --shadow-soft: 0 1px 2px rgba(28, 16, 14, 0.04), 0 2px 6px rgba(28, 16, 14, 0.04);
+  --shadow-card: 0 2px 6px rgba(28, 16, 14, 0.05), 0 8px 20px -6px rgba(28, 16, 14, 0.08);
+  --shadow-elevated: 0 8px 16px -4px rgba(28, 16, 14, 0.10), 0 24px 48px -12px rgba(28, 16, 14, 0.16);
+  --shadow-glow: 0 12px 28px -6px rgba(226, 58, 82, 0.4);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), "Noto Sans JP", sans-serif;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display), var(--font-body), sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* 광택 있는 그라데이션 버튼 — 위쪽 하이라이트로 살짝 볼록해 보이게 */
+  .btn-glossy {
+    background-image:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 45%),
+      linear-gradient(135deg, #ff6b6f 0%, var(--primary) 55%, var(--primary-dark) 100%);
+    box-shadow: var(--shadow-glow), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  }
+
+  .surface-glass {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+  }
+
+  .grain-mesh {
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(255, 107, 111, 0.35), transparent 45%),
+      radial-gradient(circle at 85% 15%, rgba(184, 36, 59, 0.3), transparent 40%),
+      radial-gradient(circle at 50% 90%, rgba(255, 180, 120, 0.25), transparent 50%);
+  }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -14px, 0); }
+}
+
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float-slow {
+    animation: none;
+  }
 }

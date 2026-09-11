@@ -10,7 +10,7 @@ export async function Nav() {
   return (
     <>
       <header className="sticky top-0 z-10 border-b border-border/80 bg-background/80 px-4 py-3.5 backdrop-blur-md sm:px-6">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
+        <div className="mx-auto flex max-w-6xl items-center gap-4">
           <Link
             href="/"
             className="shrink-0 text-lg font-extrabold tracking-tight text-foreground transition hover:opacity-80"
@@ -18,8 +18,8 @@ export async function Nav() {
             K-Coupon <span className="text-primary">Japan</span>
           </Link>
 
-          {/* 데스크탑: 아이콘+짧은 일본어 라벨 (한글 병기는 문서 텍스트에서만, 네비는 항목 수가 늘어도 안 깨지게 압축 유지) */}
-          <nav className="hidden items-center gap-0.5 text-sm md:flex">
+          {/* 데스크탑 중앙 내비 — 로고/우측 액션 사이에 남는 공간을 채워서 오른쪽으로 쏠리지 않게 가운데 정렬 */}
+          <nav className="hidden flex-1 items-center justify-center gap-0.5 text-sm md:flex">
             <Link
               href="/coupons"
               className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:px-3"
@@ -57,11 +57,15 @@ export async function Nav() {
             </Link>
             <Link
               href="/board"
-              className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:flex lg:px-3"
+              className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:px-3"
             >
               <MessagesSquare className="h-4 w-4" strokeWidth={2.25} />
               Q&amp;A
             </Link>
+          </nav>
+
+          {/* 데스크탑 우측 액션 (로그인/가입 또는 마이페이지/유저) — 항상 오른쪽 끝에 고정 */}
+          <div className="hidden shrink-0 items-center gap-0.5 text-sm md:flex">
             {session?.user ? (
               <>
                 <Link
@@ -94,16 +98,16 @@ export async function Nav() {
                 </Link>
                 <Link
                   href="/signup"
-                  className="ml-1 shrink-0 whitespace-nowrap rounded-full bg-primary px-3.5 py-1.5 font-medium text-primary-foreground shadow-sm shadow-primary/30 transition hover:opacity-90 lg:px-4"
+                  className="btn-glossy ml-1 shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 font-medium text-primary-foreground transition hover:brightness-105 lg:px-4"
                 >
                   無料会員登録
                 </Link>
               </>
             )}
-          </nav>
+          </div>
 
           {/* 모바일: 로그인 상태만 압축해서 표시, 나머지는 하단 탭바가 담당 */}
-          <div className="flex items-center gap-2 md:hidden">
+          <div className="ml-auto flex items-center gap-2 md:hidden">
             {session?.user ? (
               <span className="max-w-[7rem] truncate text-xs font-medium text-muted">
                 {session.user.name}
