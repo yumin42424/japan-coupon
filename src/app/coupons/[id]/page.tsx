@@ -219,7 +219,7 @@ export default async function CouponDetailPage({
           </p>
         </div>
       ) : (
-        <div className="mt-5 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+        <div className="mt-5 overflow-hidden rounded-2xl border border-border bg-card shadow-elevated">
           <div className="bg-primary/10 px-5 py-4">
             <p className="text-2xl font-extrabold tracking-tight text-primary">{coupon.title}</p>
             <p className="mt-0.5 text-sm font-medium text-foreground/70">{coupon.discount_info}</p>
@@ -306,7 +306,7 @@ export default async function CouponDetailPage({
         {!session?.user ? (
           <Link
             href="/signup?utm_source=coupon_detail"
-            className="block rounded-full bg-primary px-4 py-3.5 text-center text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition hover:shadow-xl hover:shadow-primary/30"
+            className="block rounded-full btn-glossy px-4 py-3.5 text-center text-sm font-bold text-primary-foreground transition hover:brightness-105 active:scale-[0.99]"
           >
             無料会員登録でクーポンをGET
           </Link>
@@ -324,7 +324,7 @@ export default async function CouponDetailPage({
           <form action={issueCoupon.bind(null, id)}>
             <button
               type="submit"
-              className="w-full rounded-full bg-primary px-4 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition hover:shadow-xl hover:shadow-primary/30"
+              className="btn-glossy w-full rounded-full px-4 py-3.5 text-sm font-bold text-primary-foreground transition hover:brightness-105 active:scale-[0.99]"
             >
               このクーポンをGET
             </button>

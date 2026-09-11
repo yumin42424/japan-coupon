@@ -23,14 +23,16 @@ export default async function SignupPage({
 
   return (
     <main className="mx-auto flex min-h-[calc(100vh-65px)] max-w-sm flex-col justify-center px-6 py-12">
-      <h1 className="text-2xl font-extrabold tracking-tight">
-        無料会員登録
-      </h1>
-      <p className="mt-2 text-sm text-muted">
-        会員登録すると、会員限定クーポンをGETできます。
-      </p>
+      <div className="rounded-3xl border border-border bg-card p-7 shadow-elevated sm:p-8">
+        <h1 className="text-2xl font-black tracking-tight">
+          無料会員登録
+        </h1>
+        <p className="mt-2 text-sm text-muted">
+          会員登録すると、会員限定クーポンをGETできます。
+        </p>
 
-      <SignupForm acquisitionSource={utm_source ?? "direct"} />
+        <SignupForm acquisitionSource={utm_source ?? "direct"} />
+      </div>
     </main>
   );
 }

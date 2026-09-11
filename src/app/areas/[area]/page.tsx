@@ -115,7 +115,7 @@ export default async function AreaPage({
         <MapPin className="h-3.5 w-3.5" />
         エリアから探す
       </p>
-      <h1 className="mt-1 text-2xl font-extrabold tracking-tight">
+      <h1 className="font-display mt-1 text-2xl font-black tracking-tight">
         {area.ja} 日本人におすすめ
       </h1>
       <p className="mt-2 text-sm text-muted">
@@ -148,9 +148,9 @@ export default async function AreaPage({
               <li key={store.id}>
                 <Link
                   href={`/coupons/${couponId}`}
-                  className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
+                  className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-elevated"
                 >
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <span className="btn-glossy flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-primary-foreground">
                     {Icon && <Icon className="h-6 w-6" strokeWidth={2} />}
                   </span>
                   <span className="min-w-0 flex-1">

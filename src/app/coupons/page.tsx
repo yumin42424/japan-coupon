@@ -6,6 +6,7 @@ import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
 import { CATEGORY_IMAGES } from "@/lib/taxonomy-images";
 import { isUrgentDeadline } from "@/lib/urgency";
+import { TiltCard } from "@/components/tilt-card";
 
 type CouponListItem = {
   id: string;
@@ -43,7 +44,7 @@ export default async function CouponsPage({
 function CategoryAreaHub() {
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
-      <h1 className="text-2xl font-extrabold tracking-tight">
+      <h1 className="font-display text-2xl font-black tracking-tight">
         クーポンを探す
       </h1>
       <p className="mt-2 text-sm text-muted">
@@ -52,7 +53,7 @@ function CategoryAreaHub() {
 
       <Link
         href="/nearby"
-        className="mt-4 flex items-center justify-center gap-2 rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm font-bold text-primary shadow-sm transition hover:bg-primary/15"
+        className="mt-4 flex items-center justify-center gap-2 rounded-2xl border border-primary/25 bg-primary/5 px-4 py-3 text-sm font-bold text-primary shadow-card transition hover:-translate-y-0.5 hover:shadow-elevated"
       >
         <LocateFixed className="h-4 w-4" />
         現在地から探す
@@ -66,20 +67,28 @@ function CategoryAreaHub() {
           {CATEGORIES.map((c) => {
             const Icon = CATEGORY_ICONS[c.value];
             return (
-              <Link key={c.value} href={`/coupons?category=${c.value}`} className="group flex flex-col items-center gap-2">
-                <div className="relative w-full overflow-hidden rounded-2xl border border-border shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:border-primary/40 group-hover:shadow-xl group-hover:shadow-primary/5">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={CATEGORY_IMAGES[c.value]}
-                    alt=""
-                    className="aspect-square w-full object-cover transition duration-300 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                  <span className="absolute left-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-card text-primary shadow">
-                    <Icon className="h-4 w-4" strokeWidth={2.25} />
-                  </span>
-                </div>
-                <h3 className="text-[15px] font-bold leading-tight">{c.ja}</h3>
+              <Link key={c.value} href={`/coupons?category=${c.value}`} className="group">
+                <TiltCard max={6} className="relative w-full overflow-hidden rounded-2xl shadow-card transition-shadow duration-300 group-hover:shadow-elevated">
+                  <div className="relative aspect-square w-full">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={CATEGORY_IMAGES[c.value]}
+                      alt=""
+                      className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
+                      loading="lazy"
+                    />
+                    <div
+                      className="absolute inset-0"
+                      style={{ background: "linear-gradient(180deg, rgba(20,16,14,0) 45%, rgba(20,16,14,0.75) 100%)" }}
+                    />
+                    <span className="btn-glossy absolute left-2.5 top-2.5 flex h-9 w-9 items-center justify-center rounded-full text-primary-foreground">
+                      <Icon className="h-4 w-4" strokeWidth={2.25} />
+                    </span>
+                    <h3 className="absolute inset-x-0 bottom-2.5 px-2.5 text-[15px] font-bold leading-tight text-white">
+                      {c.ja}
+                    </h3>
+                  </div>
+                </TiltCard>
               </Link>
             );
           })}
@@ -95,9 +104,11 @@ function CategoryAreaHub() {
             <Link
               key={a.value}
               href={`/areas/${a.value}`}
-              className="flex flex-col items-center gap-1.5 rounded-2xl border border-border bg-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
+              className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-elevated"
             >
-              <AreaIcon className="h-5 w-5 text-primary" />
+              <span className="btn-glossy flex h-9 w-9 items-center justify-center rounded-full text-primary-foreground">
+                <AreaIcon className="h-4 w-4" />
+              </span>
               <span className="text-center text-sm font-bold leading-tight">
                 {a.ja}
               </span>
@@ -153,7 +164,7 @@ async function FilteredCouponList({
   const chip = (active: boolean) =>
     `flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition ${
       active
-        ? "border-primary bg-primary/10 text-primary"
+        ? "btn-glossy border-transparent text-primary-foreground"
         : "border-border text-muted hover:border-foreground/30 hover:text-foreground"
     }`;
 
@@ -170,7 +181,7 @@ async function FilteredCouponList({
         カテゴリ・エリア選択に戻る
       </Link>
 
-      <h1 className="mt-3 text-2xl font-extrabold tracking-tight">
+      <h1 className="font-display mt-3 text-2xl font-black tracking-tight">
         {currentCategory ? currentCategory.ja : null}
         {currentCategory && currentArea ? " ・ " : null}
         {currentArea ? currentArea.ja : null}
@@ -223,9 +234,9 @@ async function FilteredCouponList({
               <li key={coupon.id}>
                 <Link
                   href={`/coupons/${coupon.id}`}
-                  className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
+                  className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-elevated"
                 >
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <span className="btn-glossy flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-primary-foreground">
                     {Icon && <Icon className="h-6 w-6" strokeWidth={2} />}
                   </span>
                   <span className="min-w-0 flex-1">

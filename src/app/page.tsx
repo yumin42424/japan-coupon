@@ -115,25 +115,30 @@ export default async function Home() {
           )}
         </div>
 
-        {/* 히어로 위에 살짝 떠 있는 유리질감 카드 — 사진 콜라주처럼 깊이감을 준다 */}
-        <TiltCard
-          max={5}
-          className="animate-float-slow surface-glass absolute bottom-10 right-4 hidden w-44 flex-col gap-1.5 rounded-2xl p-3.5 text-left shadow-elevated sm:flex"
-        >
-          <div className="flex items-center gap-1 text-primary">
-            {[0, 1, 2, 3, 4].map((i) => (
-              <Star key={i} className="h-3 w-3" fill="currentColor" strokeWidth={0} />
-            ))}
+        {/* 히어로 위에 떠 있는 유리질감 카드들 — 양쪽에 흩어놓지 않고 왼쪽으로 모아서 정돈된 느낌으로 */}
+        <div className="absolute bottom-10 left-4 hidden flex-col items-start gap-3 sm:flex">
+          <div
+            className="animate-float-slow surface-glass flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold text-white"
+            style={{ animationDelay: "1.2s" }}
+          >
+            <ShieldCheck className="h-3.5 w-3.5 text-success" />
+            日本語対応の店舗多数
           </div>
-          <p className="text-[11px] font-bold leading-tight text-white">
-            日本人利用者の
-            <br />
-            口コミで安心
-          </p>
-        </TiltCard>
-        <div className="animate-float-slow surface-glass absolute left-4 top-24 hidden items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold text-white sm:flex" style={{ animationDelay: "1.2s" }}>
-          <ShieldCheck className="h-3.5 w-3.5 text-success" />
-          日本語対応の店舗多数
+          <TiltCard
+            max={5}
+            className="animate-float-slow surface-glass flex w-44 flex-col gap-1.5 rounded-2xl p-3.5 text-left shadow-elevated"
+          >
+            <div className="flex items-center gap-1 text-primary">
+              {[0, 1, 2, 3, 4].map((i) => (
+                <Star key={i} className="h-3 w-3" fill="currentColor" strokeWidth={0} />
+              ))}
+            </div>
+            <p className="text-[11px] font-bold leading-tight text-white">
+              日本人利用者の
+              <br />
+              口コミで安心
+            </p>
+          </TiltCard>
         </div>
       </main>
 

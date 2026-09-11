@@ -19,7 +19,8 @@ export default function LoginPage() {
 
   return (
     <main className="mx-auto flex min-h-[calc(100vh-65px)] max-w-sm flex-col justify-center px-6 py-12">
-      <h1 className="text-2xl font-extrabold tracking-tight">
+      <div className="rounded-3xl border border-border bg-card p-7 shadow-elevated sm:p-8">
+      <h1 className="text-2xl font-black tracking-tight">
         ログイン
       </h1>
 
@@ -73,7 +74,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={pending}
-          className="mt-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition hover:shadow-xl hover:shadow-primary/30 disabled:opacity-50 disabled:shadow-none"
+          className="btn-glossy mt-2 rounded-full px-4 py-3 text-sm font-bold text-primary-foreground transition hover:brightness-105 active:scale-[0.99] disabled:opacity-50"
         >
           {pending ? "ログイン中..." : "ログイン"}
         </button>
@@ -116,6 +117,7 @@ export default function LoginPage() {
           </Link>
         </p>
       )}
+      </div>
     </main>
   );
 }

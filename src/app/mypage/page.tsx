@@ -102,7 +102,7 @@ export default async function MyPage() {
         マイページ
       </h1>
 
-      <section className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-elevated">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-lg font-bold">{profile?.nickname}</p>
@@ -212,7 +212,7 @@ function CouponListSection({
             const isUsed = usedCouponIds?.has(coupon.id);
             return (
               <li key={`${coupon.id}-${i}`}>
-                <div className="rounded-2xl border border-border bg-card p-4 shadow-sm transition hover:border-primary/40">
+                <div className="rounded-2xl border border-border bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-elevated">
                   <Link href={`/coupons/${coupon.id}`} className="flex items-center justify-between gap-3">
                     <span className="min-w-0">
                       <span className="block truncate text-xs text-muted">{coupon.stores?.name}</span>

@@ -130,7 +130,7 @@ export function SignupForm({ acquisitionSource }: { acquisitionSource: string })
         <button
           type="submit"
           disabled={pending || !canSubmit}
-          className="mt-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition hover:shadow-xl hover:shadow-primary/30 disabled:opacity-50 disabled:shadow-none"
+          className="btn-glossy mt-2 rounded-full px-4 py-3 text-sm font-bold text-primary-foreground transition hover:brightness-105 active:scale-[0.99] disabled:opacity-50 disabled:shadow-none"
         >
           {pending ? "登録中..." : "無料会員登録"}
         </button>
