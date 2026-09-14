@@ -328,6 +328,16 @@ export default async function CouponDetailPage({
           </div>
         </div>
 
+      {store.category === "medical" && (
+        <div className="mt-4 flex gap-2 rounded-2xl border border-border bg-card px-4 py-3.5 text-xs leading-relaxed text-muted">
+          <Info className="h-4 w-4 shrink-0 text-primary" />
+          <p>
+            <span className="block font-bold text-foreground">医療サービスについて</span>
+            掲載情報は、特定の診断・治療・施術を医学的に推奨するものではありません。施術の効果・リスク・副作用・適応には個人差があります。施術を受ける前に、医療機関から十分な説明を受けてください。
+          </p>
+        </div>
+      )}
+
       {/* モバイルでは画面下部に固定して常に見える状態にする（店頭で提示する導線を優先） */}
       <div className="sticky bottom-16 z-10 -mx-6 mt-6 border-t border-border bg-background/95 px-6 py-3 backdrop-blur-md md:static md:mx-0 md:mt-6 md:border-0 md:bg-transparent md:px-0 md:py-0 md:backdrop-blur-none">
         <div className="flex items-center gap-3 md:block">

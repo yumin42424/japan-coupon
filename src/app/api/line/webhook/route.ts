@@ -186,7 +186,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "invalid signature" }, { status: 401 });
   }
 
-  const body = JSON.parse(rawBody) as { events: LineEvent[] };
+  let body: { events: LineEvent[] };
+  try {
+    body = JSON.parse(rawBody) as { events: LineEvent[] };
+  } catch {
+    return NextResponse.json({ error: "invalid body" }, { status: 400 });
+  }
+
   await Promise.all(body.events.map((event) => handleEvent(event)));
 
   return NextResponse.json({});

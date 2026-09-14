@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import { SignupForm } from "./signup-form";
 import { SIGNUPS_ENABLED } from "@/lib/feature-flags";
+
+export const metadata: Metadata = {
+  title: "無料会員登録",
+  description: "K-Coupon Japanに無料で会員登録して、韓国旅行で使えるクーポンをGETしよう。",
+};
 
 export default async function SignupPage({
   searchParams,

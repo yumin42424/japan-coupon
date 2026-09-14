@@ -39,7 +39,7 @@ export async function Nav() {
               className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:flex lg:px-3"
             >
               <Trophy className="h-4 w-4" strokeWidth={2.25} />
-              人気
+              おすすめ
             </Link>
             <Link
               href="/guide"
@@ -132,7 +132,7 @@ export async function Nav() {
         >
           <TabItem href="/" icon={Home} label="ホーム" />
           <TabItem href="/coupons" icon={Ticket} label="クーポン" />
-          <TabItem href="/ranking" icon={Trophy} label="人気" />
+          <TabItem href="/ranking" icon={Trophy} label="おすすめ" />
           {session?.user ? (
             <TabItem href="/mypage" icon={User} label="マイページ" />
           ) : (

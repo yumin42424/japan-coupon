@@ -2,6 +2,7 @@
 
 import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
+import { safeRedirectPath } from "@/lib/safe-redirect";
 
 export type LoginState = {
   error?: string;
@@ -12,7 +13,7 @@ export async function login(
   formData: FormData
 ): Promise<LoginState> {
   try {
-    const callbackUrl = (formData.get("callbackUrl") as string) || "/";
+    const callbackUrl = safeRedirectPath(formData.get("callbackUrl"));
     await signIn("credentials", {
       email: formData.get("email"),
       password: formData.get("password"),

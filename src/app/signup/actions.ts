@@ -7,6 +7,7 @@ import { cookies, headers } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { signIn } from "@/auth";
 import { SIGNUPS_ENABLED } from "@/lib/feature-flags";
+import { safeRedirectPath } from "@/lib/safe-redirect";
 
 // LINE/Google은 인가 서버로 리다이렉트했다가 콜백으로 돌아오는 구조라, 그 사이에
 // "동의 체크박스를 확인하고 눌렀다"는 사실을 auth.ts의 signIn 콜백까지 전달할 방법이
@@ -83,7 +84,7 @@ export async function signupWithLine(formData: FormData) {
   }
   await recordSignupAttempt(ip);
   await recordOAuthConsent(formData);
-  const callbackUrl = (formData.get("callbackUrl") as string) || "/";
+  const callbackUrl = safeRedirectPath(formData.get("callbackUrl"));
   await signIn("line", { redirectTo: callbackUrl });
 }
 
@@ -94,7 +95,7 @@ export async function signupWithGoogle(formData: FormData) {
   }
   await recordSignupAttempt(ip);
   await recordOAuthConsent(formData);
-  const callbackUrl = (formData.get("callbackUrl") as string) || "/";
+  const callbackUrl = safeRedirectPath(formData.get("callbackUrl"));
   await signIn("google", { redirectTo: callbackUrl });
 }
 
@@ -193,6 +194,6 @@ export async function signup(
     redirect: false,
   });
 
-  const callbackUrl = formData.get("callbackUrl") as string | null;
+  const callbackUrl = safeRedirectPath(formData.get("callbackUrl"), "");
   redirect(callbackUrl ? `/onboarding?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/onboarding");
 }

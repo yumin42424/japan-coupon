@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronRight, Lock, ChevronLeft, Flame, LocateFixed, Timer } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
@@ -5,6 +6,12 @@ import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
 import { CATEGORY_IMAGES } from "@/lib/taxonomy-images";
 import { isUrgentDeadline } from "@/lib/urgency";
+
+export const metadata: Metadata = {
+  title: "クーポンを探す",
+  description:
+    "明洞・弘大・江南・聖水など韓国の人気エリア、グルメ・美容・ショッピングなどのカテゴリからクーポンを検索できます。",
+};
 
 type CouponListItem = {
   id: string;

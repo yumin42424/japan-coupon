@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { saveOnboarding } from "./actions";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
+import { safeRedirectPath } from "@/lib/safe-redirect";
 
 export default async function OnboardingPage({
   searchParams,
@@ -15,7 +16,8 @@ export default async function OnboardingPage({
   if (!session?.user) {
     redirect("/login");
   }
-  const { callbackUrl } = await searchParams;
+  const { callbackUrl: rawCallbackUrl } = await searchParams;
+  const callbackUrl = safeRedirectPath(rawCallbackUrl, "");
 
   return (
     <main className="mx-auto flex min-h-[calc(100vh-65px)] max-w-md flex-col justify-center px-6 py-12">

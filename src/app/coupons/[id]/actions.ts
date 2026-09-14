@@ -21,6 +21,18 @@ export async function issueCoupon(couponId: string) {
     redirect(`/login?callbackUrl=${encodeURIComponent(`/coupons/${couponId}`)}`);
   }
 
+  const { data: existingIssue } = await supabaseAdmin
+    .from("coupon_events")
+    .select("id")
+    .eq("coupon_id", couponId)
+    .eq("user_id", session.user.id)
+    .eq("event_type", "issue")
+    .maybeSingle();
+
+  if (existingIssue) {
+    redirect(`/coupons/${couponId}`);
+  }
+
   const { data: coupon } = await supabaseAdmin
     .from("coupons")
     .select("quantity_limit")

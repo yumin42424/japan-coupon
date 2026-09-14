@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
+import { safeRedirectPath } from "@/lib/safe-redirect";
 
 const VALID_CATEGORIES = new Set<string>(CATEGORIES.map((c) => c.value));
 const VALID_AREAS = new Set<string>(AREAS.map((a) => a.value));
@@ -46,6 +47,6 @@ export async function saveOnboarding(formData: FormData) {
       .insert(areas.map((area) => ({ user_id: userId, area })));
   }
 
-  const callbackUrl = formData.get("callbackUrl") as string | null;
-  redirect(callbackUrl || "/");
+  const callbackUrl = safeRedirectPath(formData.get("callbackUrl"));
+  redirect(callbackUrl);
 }
