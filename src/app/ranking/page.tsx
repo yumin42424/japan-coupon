@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Trophy } from "lucide-react";
+import { Trophy, ChevronRight } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
@@ -16,12 +16,6 @@ type CouponRow = {
     area: string;
   } | null;
 };
-
-const MEDAL_STYLES = [
-  "bg-yellow-400/15 text-yellow-500 border-yellow-400/40",
-  "bg-slate-400/15 text-slate-400 border-slate-400/40",
-  "bg-amber-700/15 text-amber-600 border-amber-700/40",
-];
 
 export default async function RankingPage() {
   const today = new Date().toISOString().slice(0, 10);
@@ -51,10 +45,10 @@ export default async function RankingPage() {
     <main className="mx-auto max-w-2xl px-6 py-10">
       <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight">
         <Trophy className="h-6 w-6 text-primary" />
-        人気ランキング
+        おすすめクーポン
       </h1>
       <p className="mt-2 text-sm text-muted">
-        会員がGETした数が多い順に表示しています。
+        日本人旅行者に人気のエリア・カテゴリのクーポンをピックアップしました。
       </p>
 
       <ol className="mt-8 flex flex-col gap-3">
@@ -63,12 +57,11 @@ export default async function RankingPage() {
             まだデータがありません。
           </p>
         )}
-        {ranked.map(({ coupon, issue }, i) => {
+        {ranked.map(({ coupon }) => {
           if (!coupon.stores) return null;
           const c = CATEGORIES.find((x) => x.value === coupon.stores!.category);
           const a = AREAS.find((x) => x.value === coupon.stores!.area);
           const Icon = c ? CATEGORY_ICONS[c.value] : null;
-          const medal = MEDAL_STYLES[i];
 
           return (
             <li key={coupon.id}>
@@ -76,13 +69,6 @@ export default async function RankingPage() {
                 href={`/coupons/${coupon.id}`}
                 className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-elevated"
               >
-                <span
-                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-sm font-extrabold ${
-                    medal ?? "border-border bg-background text-muted"
-                  }`}
-                >
-                  {i + 1}
-                </span>
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   {Icon && <Icon className="h-6 w-6" strokeWidth={2} />}
                 </span>
@@ -100,10 +86,7 @@ export default async function RankingPage() {
                   <span className="mt-0.5 block truncate font-medium">{coupon.stores.name}</span>
                   <span className="mt-1 block text-lg font-bold text-primary">{coupon.title}</span>
                 </span>
-                <span className="shrink-0 text-right text-xs text-muted">
-                  <span className="block font-bold text-foreground">{issue}</span>
-                  GET数
-                </span>
+                <ChevronRight className="h-5 w-5 shrink-0 text-muted" />
               </Link>
             </li>
           );

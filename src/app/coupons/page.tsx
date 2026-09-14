@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { ChevronRight, Lock, ChevronLeft, Flame, LocateFixed, Timer } from "lucide-react";
-import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
 import { CATEGORY_IMAGES } from "@/lib/taxonomy-images";
 import { isUrgentDeadline } from "@/lib/urgency";
-import { TiltCard } from "@/components/tilt-card";
 
 type CouponListItem = {
   id: string;
@@ -67,28 +65,30 @@ function CategoryAreaHub() {
           {CATEGORIES.map((c) => {
             const Icon = CATEGORY_ICONS[c.value];
             return (
-              <Link key={c.value} href={`/coupons?category=${c.value}`} className="group">
-                <TiltCard max={6} className="relative w-full overflow-hidden rounded-2xl shadow-card transition-shadow duration-300 group-hover:shadow-elevated">
-                  <div className="relative aspect-square w-full">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={CATEGORY_IMAGES[c.value]}
-                      alt=""
-                      className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
-                      loading="lazy"
-                    />
-                    <div
-                      className="absolute inset-0"
-                      style={{ background: "linear-gradient(180deg, rgba(20,16,14,0) 45%, rgba(20,16,14,0.75) 100%)" }}
-                    />
-                    <span className="btn-glossy absolute left-2.5 top-2.5 flex h-9 w-9 items-center justify-center rounded-full text-primary-foreground">
-                      <Icon className="h-4 w-4" strokeWidth={2.25} />
-                    </span>
-                    <h3 className="absolute inset-x-0 bottom-2.5 px-2.5 text-[15px] font-bold leading-tight text-white">
-                      {c.ja}
-                    </h3>
-                  </div>
-                </TiltCard>
+              <Link
+                key={c.value}
+                href={`/coupons?category=${c.value}`}
+                className="group relative block w-full overflow-hidden rounded-2xl shadow-card transition-shadow duration-300 hover:shadow-elevated"
+              >
+                <div className="relative aspect-square w-full">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={CATEGORY_IMAGES[c.value]}
+                    alt=""
+                    className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+                    loading="lazy"
+                  />
+                  <div
+                    className="absolute inset-0"
+                    style={{ background: "linear-gradient(180deg, rgba(20,16,14,0) 50%, rgba(20,16,14,0.65) 100%)" }}
+                  />
+                  <span className="absolute left-2.5 top-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-primary">
+                    <Icon className="h-4 w-4" strokeWidth={2.25} />
+                  </span>
+                  <h3 className="absolute inset-x-0 bottom-2.5 px-2.5 text-[15px] font-bold leading-tight text-white">
+                    {c.ja}
+                  </h3>
+                </div>
               </Link>
             );
           })}
@@ -136,7 +136,6 @@ async function FilteredCouponList({
   category?: string;
   area?: string;
 }) {
-  const session = await auth();
   const area = areaParam === "all" ? undefined : areaParam;
 
   let query = supabaseAdmin
@@ -229,7 +228,6 @@ async function FilteredCouponList({
             const c = CATEGORIES.find((x) => x.value === coupon.stores.category);
             const a = AREAS.find((x) => x.value === coupon.stores.area);
             const Icon = c ? CATEGORY_ICONS[c.value] : null;
-            const isLocked = coupon.member_only && !session?.user;
             return (
               <li key={coupon.id}>
                 <Link
@@ -271,13 +269,7 @@ async function FilteredCouponList({
                         </span>
                       )}
                     </span>
-                    {isLocked ? (
-                      <span className="mt-1 block text-sm font-medium text-muted">
-                        会員登録で内容を表示
-                      </span>
-                    ) : (
-                      <span className="mt-1 block text-lg font-bold text-primary">{coupon.title}</span>
-                    )}
+                    <span className="mt-1 block text-lg font-bold text-primary">{coupon.title}</span>
                   </span>
                   <ChevronRight className="h-5 w-5 shrink-0 text-muted transition group-hover:translate-x-0.5 group-hover:text-primary" />
                 </Link>

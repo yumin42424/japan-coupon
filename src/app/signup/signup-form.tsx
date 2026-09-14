@@ -8,7 +8,13 @@ import { signup, signupWithLine, signupWithGoogle, type SignupState } from "./ac
 
 const initialState: SignupState = {};
 
-export function SignupForm({ acquisitionSource }: { acquisitionSource: string }) {
+export function SignupForm({
+  acquisitionSource,
+  callbackUrl,
+}: {
+  acquisitionSource: string;
+  callbackUrl?: string;
+}) {
   const [state, formAction, pending] = useActionState(signup, initialState);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [agreePrivacy, setAgreePrivacy] = useState(false);
@@ -26,6 +32,7 @@ export function SignupForm({ acquisitionSource }: { acquisitionSource: string })
       )}
       <form action={formAction} className="mt-8 flex flex-col gap-4">
         <input type="hidden" name="acquisitionSource" value={acquisitionSource} />
+        {callbackUrl && <input type="hidden" name="callbackUrl" value={callbackUrl} />}
 
         <label className="flex flex-col gap-1.5 text-sm font-medium">
           <span className="flex items-center gap-1.5">
@@ -102,7 +109,7 @@ export function SignupForm({ acquisitionSource }: { acquisitionSource: string })
               <Link href="/privacy" target="_blank" className="underline underline-offset-2">
                 プライバシーポリシー
               </Link>
-              に同意します。
+              を確認しました。
             </span>
           </label>
           <label className="flex items-start gap-2">
@@ -157,6 +164,7 @@ export function SignupForm({ acquisitionSource }: { acquisitionSource: string })
           <input type="hidden" name="agreeTerms" value={agreeTerms ? "on" : ""} />
           <input type="hidden" name="agreePrivacy" value={agreePrivacy ? "on" : ""} />
           <input type="hidden" name="agreeMarketing" value={agreeMarketing ? "on" : ""} />
+          {callbackUrl && <input type="hidden" name="callbackUrl" value={callbackUrl} />}
           <button
             type="submit"
             disabled={!canSubmit}
@@ -169,6 +177,7 @@ export function SignupForm({ acquisitionSource }: { acquisitionSource: string })
           <input type="hidden" name="agreeTerms" value={agreeTerms ? "on" : ""} />
           <input type="hidden" name="agreePrivacy" value={agreePrivacy ? "on" : ""} />
           <input type="hidden" name="agreeMarketing" value={agreeMarketing ? "on" : ""} />
+          {callbackUrl && <input type="hidden" name="callbackUrl" value={callbackUrl} />}
           <button
             type="submit"
             disabled={!canSubmit}
@@ -181,7 +190,10 @@ export function SignupForm({ acquisitionSource }: { acquisitionSource: string })
 
       <p className="mt-6 text-center text-sm text-muted">
         既にアカウントをお持ちですか？{" "}
-        <Link href="/login" className="font-medium text-primary underline underline-offset-4">
+        <Link
+          href={callbackUrl ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/login"}
+          className="font-medium text-primary underline underline-offset-4"
+        >
           ログイン
         </Link>
       </p>

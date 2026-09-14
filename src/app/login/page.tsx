@@ -15,7 +15,10 @@ export default function LoginPage() {
   // LINE/Googleは新規会員登録なら同意チェックが必要なので、まだ登録していない
   // アカウントでここからログインしようとすると signIn コールバックが弾いて
   // ?error= 付きで戻ってくる。その場合だけ案内を出す。
-  const hasOAuthError = useSearchParams().has("error");
+  const searchParams = useSearchParams();
+  const hasOAuthError = searchParams.has("error");
+  const callbackUrl = searchParams.get("callbackUrl") ?? undefined;
+  const signupHref = callbackUrl ? `/signup?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/signup";
 
   return (
     <main className="mx-auto flex min-h-[calc(100vh-65px)] max-w-sm flex-col justify-center px-6 py-12">
@@ -29,7 +32,7 @@ export default function LoginPage() {
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <span>
             ログインできませんでした。初めてご利用の方は
-            <Link href="/signup" className="font-semibold underline underline-offset-2">
+            <Link href={signupHref} className="font-semibold underline underline-offset-2">
               無料会員登録
             </Link>
             からお進みください。
@@ -38,6 +41,7 @@ export default function LoginPage() {
       )}
 
       <form action={formAction} className="mt-8 flex flex-col gap-4">
+        {callbackUrl && <input type="hidden" name="callbackUrl" value={callbackUrl} />}
         <label className="flex flex-col gap-1.5 text-sm font-medium">
           <span className="flex items-center gap-1.5">
             <Mail className="h-4 w-4 text-primary" />
@@ -90,6 +94,7 @@ export default function LoginPage() {
 
           <div className="mt-5 flex flex-col gap-2.5">
             <form action={loginWithLine}>
+              {callbackUrl && <input type="hidden" name="callbackUrl" value={callbackUrl} />}
               <button
                 type="submit"
                 className="w-full rounded-full bg-[#06C755] px-4 py-3 text-sm font-semibold text-white shadow-card transition hover:opacity-90"
@@ -98,6 +103,7 @@ export default function LoginPage() {
               </button>
             </form>
             <form action={loginWithGoogle}>
+              {callbackUrl && <input type="hidden" name="callbackUrl" value={callbackUrl} />}
               <button
                 type="submit"
                 className="w-full rounded-full border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground shadow-card transition hover:bg-background"
@@ -112,7 +118,7 @@ export default function LoginPage() {
       {SIGNUPS_ENABLED && (
         <p className="mt-6 text-center text-sm text-muted">
           アカウントをお持ちでないですか？{" "}
-          <Link href="/signup" className="font-medium text-primary underline underline-offset-4">
+          <Link href={signupHref} className="font-medium text-primary underline underline-offset-4">
             無料会員登録
           </Link>
         </p>

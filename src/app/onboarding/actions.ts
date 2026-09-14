@@ -46,5 +46,6 @@ export async function saveOnboarding(formData: FormData) {
       .insert(areas.map((area) => ({ user_id: userId, area })));
   }
 
-  redirect("/");
+  const callbackUrl = formData.get("callbackUrl") as string | null;
+  redirect(callbackUrl || "/");
 }

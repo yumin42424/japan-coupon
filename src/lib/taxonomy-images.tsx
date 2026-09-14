@@ -22,3 +22,11 @@ export const CATEGORY_IMAGES: Record<string, string> = {
 // 홈페이지 히어로 배너용 대표 이미지 (경복궁 야경/한복 컨셉).
 export const HERO_IMAGE =
   "https://commons.wikimedia.org/wiki/Special:FilePath/Gyeongbokgung_Palace,_Seoul,_1395_(88)_(40418692334).jpg?width=1600";
+
+// 인기 에리어 카드용 대표 이미지 (Wikimedia Commons CC 라이선스).
+export const AREA_IMAGES: Partial<Record<string, string>> = {
+  myeongdong: "https://commons.wikimedia.org/wiki/Special:FilePath/Myeongdong%20at%20night.jpg?width=600",
+  hongdae: "https://commons.wikimedia.org/wiki/Special:FilePath/Hongdae_Street.jpg?width=600",
+  gangnam: "https://commons.wikimedia.org/wiki/Special:FilePath/Gangnam%20from%20Yeoksam%201.jpg?width=600",
+  seongsu: "https://commons.wikimedia.org/wiki/Special:FilePath/Seongsu-dong%20storefronts.jpg?width=600",
+};

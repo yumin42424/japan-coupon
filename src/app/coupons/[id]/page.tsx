@@ -1,5 +1,5 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import {
   Heart,
   Languages,
@@ -50,6 +50,45 @@ type CouponDetail = {
   };
 };
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+
+  const { data } = await supabaseAdmin
+    .from("coupons")
+    .select("title, discount_info, regular_price, discounted_price, stores(name, category, area)")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (!data) return {};
+  const coupon = data as unknown as Pick<CouponDetail, "title" | "discount_info" | "regular_price" | "discounted_price"> & {
+    stores: CouponDetail["stores"] | null;
+  };
+  const store = coupon.stores;
+  const category = store ? CATEGORIES.find((c) => c.value === store.category) : undefined;
+  const area = store ? AREAS.find((a) => a.value === store.area) : undefined;
+  const discountRate =
+    coupon.regular_price && coupon.discounted_price
+      ? Math.round((1 - coupon.discounted_price / coupon.regular_price) * 100)
+      : null;
+
+  const title = store
+    ? `${store.name}｜${coupon.title}${discountRate !== null ? `（${discountRate}%OFF）` : ""}`
+    : coupon.title;
+  const description = [store && area && category ? `${area.ja}・${category.ja}の${store.name}` : null, coupon.discount_info]
+    .filter(Boolean)
+    .join(" ");
+
+  return {
+    title,
+    description: description || undefined,
+    openGraph: { title, description: description || undefined },
+  };
+}
+
 export default async function CouponDetailPage({
   params,
 }: {
@@ -69,7 +108,6 @@ export default async function CouponDetailPage({
   if (!data) notFound();
   const coupon = data as unknown as CouponDetail;
   const store = coupon.stores;
-  const isLocked = coupon.member_only && !session?.user;
 
   let issuedCount = 0;
   if (coupon.quantity_limit != null) {
@@ -208,18 +246,7 @@ export default async function CouponDetailPage({
         )}
       </div>
 
-      {isLocked ? (
-        <div className="mt-5 flex flex-col items-center gap-2 rounded-2xl border border-dashed border-primary/40 bg-primary/5 px-5 py-8 text-center">
-          <Lock className="h-6 w-6 text-primary" />
-          <p className="font-bold text-primary">
-            会員限定クーポンです
-          </p>
-          <p className="text-sm text-muted">
-            無料会員登録すると、割引内容と使い方を確認できます。
-          </p>
-        </div>
-      ) : (
-        <div className="mt-5 overflow-hidden rounded-2xl border border-border bg-card shadow-elevated">
+      <div className="mt-5 overflow-hidden rounded-2xl border border-border bg-card shadow-elevated">
           <div className="bg-primary/10 px-5 py-4">
             <p className="text-2xl font-extrabold tracking-tight text-primary">{coupon.title}</p>
             <p className="mt-0.5 text-sm font-medium text-foreground/70">{coupon.discount_info}</p>
@@ -300,36 +327,38 @@ export default async function CouponDetailPage({
             )}
           </div>
         </div>
-      )}
 
-      <div className="mt-6">
-        {!session?.user ? (
-          <Link
-            href="/signup?utm_source=coupon_detail"
-            className="block rounded-full btn-glossy px-4 py-3.5 text-center text-sm font-bold text-primary-foreground transition hover:brightness-105 active:scale-[0.99]"
-          >
-            無料会員登録でクーポンをGET
-          </Link>
-        ) : alreadyIssued ? (
-          <p className="flex items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-3.5 text-center text-sm font-medium text-muted">
-            <CheckCircle2 className="h-4 w-4 text-success" />
-            発行済みのクーポンです
-          </p>
-        ) : isSoldOut ? (
-          <p className="flex items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-3.5 text-center text-sm font-medium text-muted">
-            <Users className="h-4 w-4" />
-            先着順の受付は終了しました
-          </p>
-        ) : (
-          <form action={issueCoupon.bind(null, id)}>
-            <button
-              type="submit"
-              className="btn-glossy w-full rounded-full px-4 py-3.5 text-sm font-bold text-primary-foreground transition hover:brightness-105 active:scale-[0.99]"
-            >
-              このクーポンをGET
-            </button>
-          </form>
-        )}
+      {/* モバイルでは画面下部に固定して常に見える状態にする（店頭で提示する導線を優先） */}
+      <div className="sticky bottom-16 z-10 -mx-6 mt-6 border-t border-border bg-background/95 px-6 py-3 backdrop-blur-md md:static md:mx-0 md:mt-6 md:border-0 md:bg-transparent md:px-0 md:py-0 md:backdrop-blur-none">
+        <div className="flex items-center gap-3 md:block">
+          {discountRate !== null && (
+            <span className="shrink-0 text-lg font-extrabold text-primary md:hidden">
+              -{discountRate}%
+            </span>
+          )}
+          <div className="min-w-0 flex-1">
+            {alreadyIssued ? (
+              <p className="flex items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-3 text-center text-sm font-medium text-muted md:py-3.5">
+                <CheckCircle2 className="h-4 w-4 text-success" />
+                GET済み
+              </p>
+            ) : isSoldOut ? (
+              <p className="flex items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-3 text-center text-sm font-medium text-muted md:py-3.5">
+                <Users className="h-4 w-4" />
+                先着順の受付は終了しました
+              </p>
+            ) : (
+              <form action={issueCoupon.bind(null, id)}>
+                <button
+                  type="submit"
+                  className="w-full rounded-full bg-primary px-4 py-3 text-sm font-bold text-primary-foreground shadow-card transition hover:brightness-105 active:scale-[0.99] md:py-3.5"
+                >
+                  無料でGET
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
       </div>
 
       <div className="mt-8 flex flex-col gap-3">

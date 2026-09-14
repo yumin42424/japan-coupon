@@ -83,7 +83,8 @@ export async function signupWithLine(formData: FormData) {
   }
   await recordSignupAttempt(ip);
   await recordOAuthConsent(formData);
-  await signIn("line", { redirectTo: "/" });
+  const callbackUrl = (formData.get("callbackUrl") as string) || "/";
+  await signIn("line", { redirectTo: callbackUrl });
 }
 
 export async function signupWithGoogle(formData: FormData) {
@@ -93,7 +94,8 @@ export async function signupWithGoogle(formData: FormData) {
   }
   await recordSignupAttempt(ip);
   await recordOAuthConsent(formData);
-  await signIn("google", { redirectTo: "/" });
+  const callbackUrl = (formData.get("callbackUrl") as string) || "/";
+  await signIn("google", { redirectTo: callbackUrl });
 }
 
 const signupSchema = z.object({
@@ -191,5 +193,6 @@ export async function signup(
     redirect: false,
   });
 
-  redirect("/onboarding");
+  const callbackUrl = formData.get("callbackUrl") as string | null;
+  redirect(callbackUrl ? `/onboarding?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/onboarding");
 }

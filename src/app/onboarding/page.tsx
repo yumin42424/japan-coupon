@@ -6,11 +6,16 @@ import { saveOnboarding } from "./actions";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
 
-export default async function OnboardingPage() {
+export default async function OnboardingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ callbackUrl?: string }>;
+}) {
   const session = await auth();
   if (!session?.user) {
     redirect("/login");
   }
+  const { callbackUrl } = await searchParams;
 
   return (
     <main className="mx-auto flex min-h-[calc(100vh-65px)] max-w-md flex-col justify-center px-6 py-12">
@@ -22,6 +27,7 @@ export default async function OnboardingPage() {
       </p>
 
       <form action={saveOnboarding} className="mt-8 flex flex-col gap-8">
+        {callbackUrl && <input type="hidden" name="callbackUrl" value={callbackUrl} />}
         <label className="flex flex-col gap-1.5 text-sm font-medium">
           <span className="flex items-center gap-1.5">
             <CalendarHeart className="h-4 w-4 text-primary" />
@@ -85,7 +91,10 @@ export default async function OnboardingPage() {
           >
             保存する
           </button>
-          <Link href="/" className="text-sm text-muted underline underline-offset-4 hover:text-foreground">
+          <Link
+            href={callbackUrl || "/"}
+            className="text-sm text-muted underline underline-offset-4 hover:text-foreground"
+          >
             あとで設定する
           </Link>
         </div>

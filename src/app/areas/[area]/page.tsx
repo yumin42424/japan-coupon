@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ChevronRight, Flame, Lock, Star, MapPin } from "lucide-react";
-import { auth } from "@/auth";
+import { ChevronRight, Flame, Star, MapPin } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { AREAS, CATEGORIES, type AreaValue } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
@@ -49,8 +48,6 @@ export default async function AreaPage({
   const area = AREAS.find((a) => a.value === areaParam) as { value: AreaValue; ja: string; ko: string } | undefined;
   if (!area) notFound();
 
-  const session = await auth();
-
   const { data: couponRows } = await supabaseAdmin
     .from("coupons")
     .select(
@@ -65,7 +62,7 @@ export default async function AreaPage({
   // 매장당 대표 쿠폰 하나만 남긴다 (가장 최근 등록된 것) — 지역 페이지는 매장 단위로 보여준다.
   const storeMap = new Map<
     string,
-    { store: CouponRow["stores"]; couponId: string; couponTitle: string; isLocked: boolean }
+    { store: CouponRow["stores"]; couponId: string; couponTitle: string }
   >();
   for (const coupon of coupons) {
     if (!storeMap.has(coupon.stores.id)) {
@@ -73,7 +70,6 @@ export default async function AreaPage({
         store: coupon.stores,
         couponId: coupon.id,
         couponTitle: coupon.title,
-        isLocked: coupon.member_only && !session?.user,
       });
     }
   }
@@ -140,7 +136,7 @@ export default async function AreaPage({
 
       <ul className="mt-8 flex flex-col gap-3">
         {entries.length ? (
-          entries.map(({ store, couponId, couponTitle, isLocked }) => {
+          entries.map(({ store, couponId, couponTitle }) => {
             const category = CATEGORIES.find((c) => c.value === store.category);
             const Icon = category ? CATEGORY_ICONS[category.value] : null;
             const rating = ratingByStore.get(store.id);
@@ -181,14 +177,7 @@ export default async function AreaPage({
                         </span>
                       )}
                     </span>
-                    {isLocked ? (
-                      <span className="mt-1 flex items-center gap-1 text-sm font-medium text-muted">
-                        <Lock className="h-3 w-3" />
-                        会員登録で内容を表示
-                      </span>
-                    ) : (
-                      <span className="mt-1 block truncate text-sm font-bold text-primary">{couponTitle}</span>
-                    )}
+                    <span className="mt-1 block truncate text-sm font-bold text-primary">{couponTitle}</span>
                   </span>
                   <ChevronRight className="h-5 w-5 shrink-0 text-muted transition group-hover:translate-x-0.5 group-hover:text-primary" />
                 </Link>

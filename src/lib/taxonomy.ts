@@ -4,7 +4,7 @@
 export const CATEGORIES = [
   { value: "gourmet", ja: "グルメ", ko: "맛집" },
   { value: "beauty", ja: "美容", ko: "뷰티" },
-  { value: "medical", ja: "医療", ko: "의료" },
+  { value: "medical", ja: "美容医療・クリニック", ko: "의료" },
   { value: "shopping", ja: "ショッピング", ko: "쇼핑" },
   { value: "cafe", ja: "カフェ", ko: "카페" },
   { value: "tour", ja: "観光", ko: "관광" },

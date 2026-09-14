@@ -12,10 +12,11 @@ export async function login(
   formData: FormData
 ): Promise<LoginState> {
   try {
+    const callbackUrl = (formData.get("callbackUrl") as string) || "/";
     await signIn("credentials", {
       email: formData.get("email"),
       password: formData.get("password"),
-      redirectTo: "/",
+      redirectTo: callbackUrl,
     });
     return {};
   } catch (error) {

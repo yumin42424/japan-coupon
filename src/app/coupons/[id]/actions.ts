@@ -18,7 +18,7 @@ export async function recordView(couponId: string) {
 export async function issueCoupon(couponId: string) {
   const session = await auth();
   if (!session?.user?.id) {
-    redirect("/login");
+    redirect(`/login?callbackUrl=${encodeURIComponent(`/coupons/${couponId}`)}`);
   }
 
   const { data: coupon } = await supabaseAdmin

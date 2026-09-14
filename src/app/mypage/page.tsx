@@ -177,6 +177,7 @@ export default async function MyPage() {
         titleJa="GETしたクーポン"
         items={issued}
         usedCouponIds={usedCouponIds}
+        today={today}
       />
       <CouponListSection icon={CheckCircle2} titleJa="使用済みクーポン" items={used} />
     </main>
@@ -188,11 +189,13 @@ function CouponListSection({
   titleJa,
   items,
   usedCouponIds,
+  today,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   titleJa: string;
   items: CouponEventItem[];
   usedCouponIds?: Set<string>;
+  today?: string;
 }) {
   return (
     <section className="mt-8">
@@ -210,6 +213,7 @@ function CouponListSection({
             const coupon = item.coupons;
             if (!coupon) return null;
             const isUsed = usedCouponIds?.has(coupon.id);
+            const isExpired = !isUsed && !!today && coupon.valid_to < today;
             return (
               <li key={`${coupon.id}-${i}`}>
                 <div className="rounded-2xl border border-border bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-elevated">
@@ -226,11 +230,18 @@ function CouponListSection({
                       {isUsed ? (
                         <p className="flex items-center gap-1.5 text-xs font-medium text-success">
                           <CheckCircle2 className="h-3.5 w-3.5" />
-                          使用済み
+                          利用済み
+                        </p>
+                      ) : isExpired ? (
+                        <p className="flex items-center gap-1.5 text-xs font-medium text-muted">
+                          期限切れ
                         </p>
                       ) : item.id ? (
                         <div>
-                          <p className="text-xs text-muted">
+                          <p className="flex items-center gap-1.5 text-xs font-medium text-primary">
+                            利用可能
+                          </p>
+                          <p className="mt-1.5 text-xs text-muted">
                             店舗でこのQRコード（またはコード）を提示してください
                           </p>
                           <div className="mt-2 flex items-center gap-3">

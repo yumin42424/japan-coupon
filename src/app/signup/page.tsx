@@ -4,9 +4,9 @@ import { SIGNUPS_ENABLED } from "@/lib/feature-flags";
 export default async function SignupPage({
   searchParams,
 }: {
-  searchParams: Promise<{ utm_source?: string }>;
+  searchParams: Promise<{ utm_source?: string; callbackUrl?: string }>;
 }) {
-  const { utm_source } = await searchParams;
+  const { utm_source, callbackUrl } = await searchParams;
 
   if (!SIGNUPS_ENABLED) {
     return (
@@ -31,7 +31,7 @@ export default async function SignupPage({
           会員登録すると、会員限定クーポンをGETできます。
         </p>
 
-        <SignupForm acquisitionSource={utm_source ?? "direct"} />
+        <SignupForm acquisitionSource={utm_source ?? "direct"} callbackUrl={callbackUrl} />
       </div>
     </main>
   );
