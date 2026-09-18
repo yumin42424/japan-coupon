@@ -24,6 +24,8 @@ export default async function NearbyPage() {
     .select(
       "id, title, discount_info, member_only, stores!inner(id, name, category, area, latitude, longitude)"
     )
+    .eq("is_active", true)
+    .eq("stores.is_active", true)
     .gte("valid_to", today)
     .not("stores.latitude", "is", null)
     .not("stores.longitude", "is", null);

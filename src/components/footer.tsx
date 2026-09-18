@@ -12,7 +12,6 @@ const MENU_LINKS = [
 const LEGAL_LINKS = [
   { href: "/terms", ja: "利用規約" },
   { href: "/privacy", ja: "プライバシーポリシー" },
-  { href: "/about", ja: "運営者情報" },
 ];
 
 export function Footer() {

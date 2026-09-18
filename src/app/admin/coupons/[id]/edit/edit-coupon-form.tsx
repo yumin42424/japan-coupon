@@ -15,6 +15,7 @@ type Coupon = {
   valid_from: string;
   valid_to: string;
   member_only: boolean;
+  is_active: boolean;
   usage_condition: string | null;
   regular_price: number | null;
   discounted_price: number | null;
@@ -135,6 +136,11 @@ export function EditCouponForm({ coupon, stores }: { coupon: Coupon; stores: Sto
       <label className="flex items-center gap-2 text-sm font-medium">
         <input type="checkbox" name="memberOnly" defaultChecked={coupon.member_only} />
         会員限定クーポン
+      </label>
+
+      <label className="flex items-center gap-2 text-sm font-medium">
+        <input type="checkbox" name="isActive" defaultChecked={coupon.is_active} />
+        掲載を有効にする（オフにすると一時停止し非公開になります）
       </label>
 
       {state.error && (

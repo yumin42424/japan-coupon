@@ -158,6 +158,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       } else if (account?.provider === "google") {
         const email = profile?.email;
         if (!email) return false;
+        // Google이 검증되지 않은 이메일을 내려주는 예외적인 경우, 그 이메일로
+        // 기존 비밀번호 계정에 자동 연결되면 계정 탈취로 이어질 수 있어 명시적으로 막는다.
+        if (profile?.email_verified !== true) return false;
 
         // 구글은 이메일을 항상 검증된 상태로 주기 때문에 email로 매칭한다.
         // 이메일/비밀번호로 이미 가입한 계정이 있으면 그 계정에 그대로 연결된다.

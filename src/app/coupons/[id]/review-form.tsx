@@ -42,9 +42,14 @@ export function ReviewForm({
           </button>
         ))}
       </div>
+      <label className="sr-only" htmlFor="review-body">
+        口コミ内容
+      </label>
       <textarea
+        id="review-body"
         name="body"
         required
+        maxLength={2000}
         defaultValue={initialBody}
         rows={3}
         placeholder="日本語対応や実際に行ってみた感想を書いてください"

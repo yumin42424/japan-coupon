@@ -79,6 +79,7 @@ export async function updateCoupon(
   const validFrom = formData.get("validFrom") as string;
   const validTo = formData.get("validTo") as string;
   const memberOnly = formData.get("memberOnly") === "on";
+  const isActive = formData.get("isActive") === "on";
   const usageCondition = (formData.get("usageCondition") as string)?.trim();
   const regularPriceRaw = formData.get("regularPrice") as string;
   const discountedPriceRaw = formData.get("discountedPrice") as string;
@@ -113,6 +114,7 @@ export async function updateCoupon(
       valid_from: validFrom,
       valid_to: validTo,
       member_only: memberOnly,
+      is_active: isActive,
       usage_condition: usageCondition || null,
       regular_price: regularPrice,
       discounted_price: discountedPrice,

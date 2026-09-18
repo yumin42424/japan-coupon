@@ -23,7 +23,9 @@ export default async function RankingPage() {
   const [couponsRes, eventsRes] = await Promise.all([
     supabaseAdmin
       .from("coupons")
-      .select("id, title, discount_info, valid_to, stores(id, name, category, area)")
+      .select("id, title, discount_info, valid_to, stores!inner(id, name, category, area)")
+      .eq("is_active", true)
+      .eq("stores.is_active", true)
       .gte("valid_to", today),
     supabaseAdmin.from("coupon_events").select("coupon_id, event_type").in("event_type", ["issue", "view"]),
   ]);
@@ -48,7 +50,7 @@ export default async function RankingPage() {
         おすすめクーポン
       </h1>
       <p className="mt-2 text-sm text-muted">
-        日本人旅行者に人気のエリア・カテゴリのクーポンをピックアップしました。
+        GET数・閲覧数をもとに、人気のクーポンをピックアップしました。
       </p>
 
       <ol className="mt-8 flex flex-col gap-3">

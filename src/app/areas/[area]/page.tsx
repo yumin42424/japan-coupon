@@ -34,7 +34,7 @@ export async function generateMetadata({
   if (!area) return {};
 
   return {
-    title: `${area.ja} 日本人におすすめの韓国旅行スポット・限定クーポン | K-Coupon Japan`,
+    title: `${area.ja} 日本人におすすめの韓国旅行スポット・限定クーポン`,
     description: `${area.ja}エリアで日本語対応・日本人に人気の飲食店/美容室/カフェなどを口コミ評価順にチェック。会員限定クーポンも配布中。`,
   };
 }
@@ -54,6 +54,8 @@ export default async function AreaPage({
       "id, title, member_only, created_at, stores!inner(id, name, category, line_available, popular_with_japanese)"
     )
     .eq("stores.area", area.value)
+    .eq("is_active", true)
+    .eq("stores.is_active", true)
     .gte("valid_to", new Date().toISOString().slice(0, 10))
     .order("created_at", { ascending: false });
 
@@ -190,6 +192,12 @@ export default async function AreaPage({
             <p className="mt-2 text-sm text-muted">
               このエリアのクーポンは準備中です。
             </p>
+            <Link
+              href="/coupons"
+              className="mt-4 inline-block text-sm font-medium text-primary underline underline-offset-4"
+            >
+              他のエリア・カテゴリを見る
+            </Link>
           </div>
         )}
       </ul>

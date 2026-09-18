@@ -61,6 +61,8 @@ async function findNearbyCoupons(lat: number, lng: number) {
       "id, title, discount_info, stores!inner(id, name, category, latitude, longitude)"
     )
     .eq("member_only", false)
+    .eq("is_active", true)
+    .eq("stores.is_active", true)
     .gte("valid_to", today)
     .not("stores.latitude", "is", null)
     .not("stores.longitude", "is", null);

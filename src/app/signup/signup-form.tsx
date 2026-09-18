@@ -30,7 +30,42 @@ export function SignupForm({
           登録の試行回数が多すぎます。しばらくしてからもう一度お試しください。
         </p>
       )}
-      <form action={formAction} className="mt-8 flex flex-col gap-4">
+      <div className="mt-6 flex flex-col gap-2.5">
+        <form action={signupWithLine}>
+          <input type="hidden" name="agreeTerms" value={agreeTerms ? "on" : ""} />
+          <input type="hidden" name="agreePrivacy" value={agreePrivacy ? "on" : ""} />
+          <input type="hidden" name="agreeMarketing" value={agreeMarketing ? "on" : ""} />
+          {callbackUrl && <input type="hidden" name="callbackUrl" value={callbackUrl} />}
+          <button
+            type="submit"
+            disabled={!canSubmit}
+            className="w-full rounded-full bg-[#06C755] px-4 py-3 text-sm font-semibold text-white shadow-card transition hover:opacity-90 disabled:opacity-40"
+          >
+            LINEで続ける
+          </button>
+        </form>
+        <form action={signupWithGoogle}>
+          <input type="hidden" name="agreeTerms" value={agreeTerms ? "on" : ""} />
+          <input type="hidden" name="agreePrivacy" value={agreePrivacy ? "on" : ""} />
+          <input type="hidden" name="agreeMarketing" value={agreeMarketing ? "on" : ""} />
+          {callbackUrl && <input type="hidden" name="callbackUrl" value={callbackUrl} />}
+          <button
+            type="submit"
+            disabled={!canSubmit}
+            className="w-full rounded-full border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground shadow-card transition hover:bg-background disabled:opacity-40"
+          >
+            Googleで続ける
+          </button>
+        </form>
+      </div>
+
+      <div className="mt-5 flex items-center gap-3 text-xs text-muted">
+        <span className="h-px flex-1 bg-border" />
+        または
+        <span className="h-px flex-1 bg-border" />
+      </div>
+
+      <form action={formAction} className="mt-5 flex flex-col gap-4">
         <input type="hidden" name="acquisitionSource" value={acquisitionSource} />
         {callbackUrl && <input type="hidden" name="callbackUrl" value={callbackUrl} />}
 
@@ -127,6 +162,12 @@ export function SignupForm({
           </label>
         </div>
 
+        {!canSubmit && (
+          <p className="text-center text-xs font-medium text-primary">
+            利用規約・プライバシーポリシーに同意すると、上のLINE・Google登録ボタンも有効になります。
+          </p>
+        )}
+
         {state.error && (
           <p className="flex items-center gap-1.5 text-sm text-primary" role="alert">
             <AlertCircle className="h-4 w-4 shrink-0" />
@@ -142,51 +183,6 @@ export function SignupForm({
           {pending ? "登録中..." : "無料会員登録"}
         </button>
       </form>
-
-      <div className="mt-5 flex items-center gap-3 text-xs text-muted">
-        <span className="h-px flex-1 bg-border" />
-        または
-        <span className="h-px flex-1 bg-border" />
-      </div>
-
-      <p
-        className={`text-center text-xs ${
-          canSubmit ? "text-success" : "font-medium text-primary"
-        }`}
-      >
-        {canSubmit
-          ? "✓ 同意済みです。下のボタンからLINE・Google登録に進めます。"
-          : "↑ 上の必須項目（利用規約・プライバシーポリシー）に同意すると、下のLINE・Google登録ボタンが有効になります。"}
-      </p>
-
-      <div className="mt-3 flex flex-col gap-2.5">
-        <form action={signupWithLine}>
-          <input type="hidden" name="agreeTerms" value={agreeTerms ? "on" : ""} />
-          <input type="hidden" name="agreePrivacy" value={agreePrivacy ? "on" : ""} />
-          <input type="hidden" name="agreeMarketing" value={agreeMarketing ? "on" : ""} />
-          {callbackUrl && <input type="hidden" name="callbackUrl" value={callbackUrl} />}
-          <button
-            type="submit"
-            disabled={!canSubmit}
-            className="w-full rounded-full bg-[#06C755] px-4 py-3 text-sm font-semibold text-white shadow-card transition hover:opacity-90 disabled:opacity-40"
-          >
-            LINEで登録
-          </button>
-        </form>
-        <form action={signupWithGoogle}>
-          <input type="hidden" name="agreeTerms" value={agreeTerms ? "on" : ""} />
-          <input type="hidden" name="agreePrivacy" value={agreePrivacy ? "on" : ""} />
-          <input type="hidden" name="agreeMarketing" value={agreeMarketing ? "on" : ""} />
-          {callbackUrl && <input type="hidden" name="callbackUrl" value={callbackUrl} />}
-          <button
-            type="submit"
-            disabled={!canSubmit}
-            className="w-full rounded-full border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground shadow-card transition hover:bg-background disabled:opacity-40"
-          >
-            Googleで登録
-          </button>
-        </form>
-      </div>
 
       <p className="mt-6 text-center text-sm text-muted">
         既にアカウントをお持ちですか？{" "}

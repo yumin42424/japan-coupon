@@ -150,6 +150,8 @@ async function FilteredCouponList({
     .select(
       "id, title, discount_info, valid_to, member_only, stores!inner(id, name, category, area, line_available, popular_with_japanese)"
     )
+    .eq("is_active", true)
+    .eq("stores.is_active", true)
     .gte("valid_to", new Date().toISOString().slice(0, 10))
     .order("created_at", { ascending: false });
 
@@ -288,6 +290,12 @@ async function FilteredCouponList({
             <p className="text-sm text-muted">
               該当するクーポンがありません。
             </p>
+            <Link
+              href="/coupons"
+              className="mt-4 inline-block text-sm font-medium text-primary underline underline-offset-4"
+            >
+              すべてのクーポンを見る
+            </Link>
           </div>
         )}
       </ul>

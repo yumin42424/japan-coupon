@@ -32,7 +32,7 @@ export default function AboutPage() {
             <ShieldCheck className="h-4 w-4" />
           </span>
           <p className="text-sm text-foreground/80">
-            掲載店舗は日本語対応や日本人旅行者向けの受け入れ実績を確認した上でご紹介しています。
+            掲載店舗は運営者が個別に確認のうえ、日本語対応状況などの情報とあわせてご紹介しています。
           </p>
         </div>
       </div>

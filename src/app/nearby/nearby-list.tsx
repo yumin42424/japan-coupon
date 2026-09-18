@@ -9,7 +9,13 @@ import { distanceKm, formatDistance } from "@/lib/geo";
 import { KakaoMap } from "./kakao-map";
 import type { NearbyCoupon } from "./page";
 
-type Status = "loading" | "granted" | "denied" | "error";
+type Status = "loading" | "granted" | "denied" | "unsupported" | "error";
+
+const STATUS_MESSAGE: Record<"denied" | "unsupported" | "error", string> = {
+  denied: "位置情報の利用が許可されていません。ブラウザの設定から位置情報を許可してください。",
+  unsupported: "このブラウザでは位置情報を利用できません。",
+  error: "現在地を取得できませんでした。もう一度お試しください。",
+};
 
 export function NearbyList({ coupons }: { coupons: NearbyCoupon[] }) {
   // 서버 렌더링 시점엔 navigator가 없으므로, 하이드레이션 불일치를 피하기 위해
@@ -19,7 +25,7 @@ export function NearbyList({ coupons }: { coupons: NearbyCoupon[] }) {
 
   useEffect(() => {
     if (!navigator.geolocation) {
-      const timer = setTimeout(() => setStatus("error"), 0);
+      const timer = setTimeout(() => setStatus("unsupported"), 0);
       return () => clearTimeout(timer);
     }
     navigator.geolocation.getCurrentPosition(
@@ -27,7 +33,7 @@ export function NearbyList({ coupons }: { coupons: NearbyCoupon[] }) {
         setPos({ lat: p.coords.latitude, lng: p.coords.longitude });
         setStatus("granted");
       },
-      () => setStatus("denied"),
+      (err) => setStatus(err.code === err.PERMISSION_DENIED ? "denied" : "error"),
       { enableHighAccuracy: true, timeout: 8000 }
     );
   }, []);
@@ -41,13 +47,11 @@ export function NearbyList({ coupons }: { coupons: NearbyCoupon[] }) {
     );
   }
 
-  if (status === "denied" || status === "error") {
+  if (status === "denied" || status === "unsupported" || status === "error") {
     return (
       <div className="mt-8 rounded-2xl border border-dashed border-border py-10 text-center">
         <AlertCircle className="mx-auto h-6 w-6 text-muted" />
-        <p className="mt-3 text-sm text-muted">
-          位置情報の利用が許可されていません。ブラウザの設定から許可してください。
-        </p>
+        <p className="mt-3 text-sm text-muted">{STATUS_MESSAGE[status]}</p>
         <Link
           href="/coupons"
           className="mt-4 inline-block text-sm font-medium text-primary underline underline-offset-4"

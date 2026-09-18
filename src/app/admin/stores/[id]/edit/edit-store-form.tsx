@@ -14,6 +14,7 @@ type Store = {
   area: string;
   line_available: boolean;
   popular_with_japanese: boolean;
+  is_active: boolean;
   address: string | null;
   business_hours: string | null;
   reservation_info: string | null;
@@ -140,6 +141,11 @@ export function EditStoreForm({ store }: { store: Store }) {
           defaultChecked={store.popular_with_japanese}
         />
         日本人に人気の店舗
+      </label>
+
+      <label className="flex items-center gap-2 text-sm font-medium">
+        <input type="checkbox" name="isActive" defaultChecked={store.is_active} />
+        掲載を有効にする（オフにすると一時停止し、この店舗のクーポンは非公開になります）
       </label>
 
       {state.error && (

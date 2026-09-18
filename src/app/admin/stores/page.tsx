@@ -11,12 +11,13 @@ type StoreRow = {
   category: string;
   area: string;
   line_available: boolean;
+  is_active: boolean;
 };
 
 export default async function AdminStoresPage() {
   const { data } = await supabaseAdmin
     .from("stores")
-    .select("id, name, category, area, line_available")
+    .select("id, name, category, area, line_available, is_active")
     .order("created_at", { ascending: false });
   const stores = (data ?? []) as StoreRow[];
 
@@ -52,7 +53,14 @@ export default async function AdminStoresPage() {
                 className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3"
               >
                 <div className="min-w-0">
-                  <p className="truncate font-medium">{store.name}</p>
+                  <p className="flex items-center gap-1.5 truncate font-medium">
+                    {store.name}
+                    {!store.is_active && (
+                      <span className="shrink-0 rounded-full bg-border px-1.5 py-0.5 text-[10px] font-normal text-muted">
+                        停止中
+                      </span>
+                    )}
+                  </p>
                   <p className="text-xs text-muted">
                     {c?.ja} ・ {a?.ja}
                     {store.line_available && (

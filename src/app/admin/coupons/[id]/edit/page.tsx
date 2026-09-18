@@ -13,7 +13,7 @@ export default async function EditCouponPage({
     supabaseAdmin
       .from("coupons")
       .select(
-        "id, store_id, title, discount_info, valid_from, valid_to, member_only, usage_condition, regular_price, discounted_price, quantity_limit"
+        "id, store_id, title, discount_info, valid_from, valid_to, member_only, is_active, usage_condition, regular_price, discounted_price, quantity_limit"
       )
       .eq("id", id)
       .maybeSingle(),

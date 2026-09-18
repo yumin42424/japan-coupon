@@ -72,6 +72,7 @@ export async function updateStore(
   const area = formData.get("area") as string;
   const lineAvailable = formData.get("lineAvailable") === "on";
   const popularWithJapanese = formData.get("popularWithJapanese") === "on";
+  const isActive = formData.get("isActive") === "on";
   const address = (formData.get("address") as string)?.trim();
   const businessHours = (formData.get("businessHours") as string)?.trim();
   const reservationInfo = (formData.get("reservationInfo") as string)?.trim();
@@ -96,6 +97,7 @@ export async function updateStore(
       area,
       line_available: lineAvailable,
       popular_with_japanese: popularWithJapanese,
+      is_active: isActive,
       address: address || null,
       business_hours: businessHours || null,
       reservation_info: reservationInfo || null,

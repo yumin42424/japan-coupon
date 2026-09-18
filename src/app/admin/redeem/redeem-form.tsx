@@ -80,6 +80,18 @@ export function RedeemForm() {
           コードが見つかりません。
         </p>
       )}
+      {state.step === "expired" && (
+        <p className="flex items-center gap-1.5 text-sm text-primary">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          このクーポンは有効期限が終了しています。
+        </p>
+      )}
+      {state.step === "unavailable" && (
+        <p className="flex items-center gap-1.5 text-sm text-primary">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          このクーポンまたは店舗は現在停止中です。
+        </p>
+      )}
 
       <button
         type="submit"

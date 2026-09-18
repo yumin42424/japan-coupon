@@ -14,6 +14,7 @@ type CouponEventItem = {
     title: string;
     discount_info: string | null;
     valid_to: string;
+    usage_condition: string | null;
     stores: { name: string } | null;
   } | null;
 };
@@ -33,25 +34,27 @@ export default async function MyPage() {
       supabaseAdmin.from("user_interest_areas").select("area").eq("user_id", userId),
       supabaseAdmin
         .from("coupon_events")
-        .select("created_at, coupons(id, title, discount_info, valid_to, stores(name))")
+        .select("created_at, coupons(id, title, discount_info, valid_to, usage_condition, stores(name))")
         .eq("user_id", userId)
         .eq("event_type", "favorite")
         .order("created_at", { ascending: false }),
       supabaseAdmin
         .from("coupon_events")
-        .select("id, created_at, coupons(id, title, discount_info, valid_to, stores(name))")
+        .select("id, created_at, coupons(id, title, discount_info, valid_to, usage_condition, stores(name))")
         .eq("user_id", userId)
         .eq("event_type", "issue")
         .order("created_at", { ascending: false }),
       supabaseAdmin
         .from("coupon_events")
-        .select("created_at, coupons(id, title, discount_info, valid_to, stores(name))")
+        .select("created_at, coupons(id, title, discount_info, valid_to, usage_condition, stores(name))")
         .eq("user_id", userId)
         .eq("event_type", "use")
         .order("created_at", { ascending: false }),
       supabaseAdmin
         .from("coupons")
-        .select("id, title, discount_info, valid_to, stores(id, name, category, area)")
+        .select("id, title, discount_info, valid_to, usage_condition, stores!inner(id, name, category, area)")
+        .eq("is_active", true)
+        .eq("stores.is_active", true)
         .gte("valid_to", today),
       supabaseAdmin.from("point_events").select("points").eq("user_id", userId),
     ]);
@@ -83,6 +86,7 @@ export default async function MyPage() {
     title: string;
     discount_info: string | null;
     valid_to: string;
+    usage_condition: string | null;
     stores: { id: string; name: string; category: string; area: string } | null;
   };
   const allCoupons = (allCouponsRes.data ?? []) as unknown as RecommendedCoupon[];
@@ -222,6 +226,14 @@ function CouponListSection({
                       <span className="block truncate text-xs text-muted">{coupon.stores?.name}</span>
                       <span className="mt-0.5 block truncate font-bold text-primary">{coupon.title}</span>
                       <span className="block truncate text-sm text-muted">{coupon.discount_info}</span>
+                      <span className="mt-1 block text-xs text-muted">
+                        利用期間: {coupon.valid_to}まで
+                      </span>
+                      {coupon.usage_condition && (
+                        <span className="mt-0.5 block text-xs text-muted">
+                          {coupon.usage_condition}
+                        </span>
+                      )}
                     </span>
                     <ChevronRight className="h-5 w-5 shrink-0 text-muted" />
                   </Link>

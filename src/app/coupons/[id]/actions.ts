@@ -1,6 +1,6 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
@@ -35,11 +35,25 @@ export async function issueCoupon(couponId: string) {
 
   const { data: coupon } = await supabaseAdmin
     .from("coupons")
-    .select("quantity_limit")
+    .select("valid_to, quantity_limit, is_active, stores(is_active)")
     .eq("id", couponId)
     .maybeSingle();
 
-  if (coupon?.quantity_limit != null) {
+  if (!coupon) {
+    notFound();
+  }
+
+  const store = coupon.stores as unknown as { is_active: boolean } | null;
+  if (!coupon.is_active || !store?.is_active) {
+    redirect(`/coupons/${couponId}`);
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+  if (coupon.valid_to < today) {
+    redirect(`/coupons/${couponId}`);
+  }
+
+  if (coupon.quantity_limit != null) {
     const { count } = await supabaseAdmin
       .from("coupon_events")
       .select("id", { count: "exact", head: true })
@@ -124,6 +138,9 @@ export async function submitReview(
   }
   if (!body) {
     return { error: "口コミ内容を入力してください。" };
+  }
+  if (body.length > 2000) {
+    return { error: "口コミ内容は2000文字以内で入力してください。" };
   }
 
   const eligible = await hasUsedCouponAtStore(session.user.id, storeId);

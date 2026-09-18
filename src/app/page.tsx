@@ -78,12 +78,16 @@ export default async function Home() {
       .select(
         "id, title, discount_info, valid_to, regular_price, discounted_price, stores!inner(name, category, area)"
       )
+      .eq("is_active", true)
+      .eq("stores.is_active", true)
       .gte("valid_to", new Date().toISOString().slice(0, 10))
       .order("created_at", { ascending: false })
       .limit(6),
     supabaseAdmin
       .from("coupons")
       .select("stores!inner(area)")
+      .eq("is_active", true)
+      .eq("stores.is_active", true)
       .gte("valid_to", new Date().toISOString().slice(0, 10)),
   ]);
 
@@ -224,7 +228,7 @@ export default async function Home() {
       {recommended.length > 0 && (
         <section className="border-t border-border bg-card/40 px-6 py-14">
           <div className="mx-auto max-w-2xl">
-            <h2 className="font-display text-xl font-black tracking-tight">今おすすめのクーポン</h2>
+            <h2 className="font-display text-xl font-black tracking-tight">新着クーポン</h2>
             <div className="mt-6 flex flex-col gap-3">
               {recommended.map((coupon) => {
                 const category = CATEGORIES.find((c) => c.value === coupon.stores.category);

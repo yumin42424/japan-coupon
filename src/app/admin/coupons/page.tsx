@@ -10,6 +10,7 @@ type CouponRow = {
   discount_info: string | null;
   valid_from: string;
   valid_to: string;
+  is_active: boolean;
   stores: { name: string } | null;
 };
 
@@ -17,7 +18,7 @@ export default async function AdminCouponsPage() {
   const [couponsRes, storesRes] = await Promise.all([
     supabaseAdmin
       .from("coupons")
-      .select("id, title, discount_info, valid_from, valid_to, stores(name)")
+      .select("id, title, discount_info, valid_from, valid_to, is_active, stores(name)")
       .order("created_at", { ascending: false }),
     supabaseAdmin.from("stores").select("id, name").order("name"),
   ]);
@@ -61,7 +62,14 @@ export default async function AdminCouponsPage() {
             >
               <div className="min-w-0">
                 <p className="truncate text-xs text-muted">{coupon.stores?.name}</p>
-                <p className="truncate font-bold text-primary">{coupon.title}</p>
+                <p className="flex items-center gap-1.5 truncate font-bold text-primary">
+                  {coupon.title}
+                  {!coupon.is_active && (
+                    <span className="shrink-0 rounded-full bg-border px-1.5 py-0.5 text-[10px] font-normal text-muted">
+                      停止中
+                    </span>
+                  )}
+                </p>
                 <p className="text-xs text-muted">
                   {coupon.discount_info} ・ {coupon.valid_from} 〜 {coupon.valid_to}
                 </p>

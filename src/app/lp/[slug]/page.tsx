@@ -38,6 +38,8 @@ export default async function LandingPage({
   let couponQuery = supabaseAdmin
     .from("coupons")
     .select("id, title, discount_info, stores!inner(name, category, area)")
+    .eq("is_active", true)
+    .eq("stores.is_active", true)
     .gte("valid_to", new Date().toISOString().slice(0, 10))
     .order("created_at", { ascending: false })
     .limit(6);
