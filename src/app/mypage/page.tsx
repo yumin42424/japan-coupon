@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { Heart, Ticket, CheckCircle2, ChevronRight, Pencil, Sparkles, Settings, Coins } from "lucide-react";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { CATEGORIES, AREAS } from "@/lib/taxonomy";
+import { CATEGORIES, AREAS, type CategoryValue } from "@/lib/taxonomy";
+import { CATEGORY_ICONS } from "@/lib/taxonomy-icons";
 import { CouponQR } from "@/components/coupon-qr";
 
 type CouponEventItem = {
@@ -15,7 +16,7 @@ type CouponEventItem = {
     discount_info: string | null;
     valid_to: string;
     usage_condition: string | null;
-    stores: { name: string } | null;
+    stores: { name: string; category: string } | null;
   } | null;
 };
 
@@ -34,19 +35,19 @@ export default async function MyPage() {
       supabaseAdmin.from("user_interest_areas").select("area").eq("user_id", userId),
       supabaseAdmin
         .from("coupon_events")
-        .select("created_at, coupons(id, title, discount_info, valid_to, usage_condition, stores(name))")
+        .select("created_at, coupons(id, title, discount_info, valid_to, usage_condition, stores(name, category))")
         .eq("user_id", userId)
         .eq("event_type", "favorite")
         .order("created_at", { ascending: false }),
       supabaseAdmin
         .from("coupon_events")
-        .select("id, created_at, coupons(id, title, discount_info, valid_to, usage_condition, stores(name))")
+        .select("id, created_at, coupons(id, title, discount_info, valid_to, usage_condition, stores(name, category))")
         .eq("user_id", userId)
         .eq("event_type", "issue")
         .order("created_at", { ascending: false }),
       supabaseAdmin
         .from("coupon_events")
-        .select("created_at, coupons(id, title, discount_info, valid_to, usage_condition, stores(name))")
+        .select("created_at, coupons(id, title, discount_info, valid_to, usage_condition, stores(name, category))")
         .eq("user_id", userId)
         .eq("event_type", "use")
         .order("created_at", { ascending: false }),
@@ -100,18 +101,25 @@ export default async function MyPage() {
     .slice(0, 4)
     .map((c) => ({ created_at: "", coupons: c }));
 
+  // 実際に店頭で見せる場面を最優先するため、GETしたクーポンは「利用可能」を先頭に並び替える
+  const sortedIssued = [...issued].sort((a, b) => {
+    const aUsable = a.coupons && !usedCouponIds.has(a.coupons.id) && a.coupons.valid_to >= today;
+    const bUsable = b.coupons && !usedCouponIds.has(b.coupons.id) && b.coupons.valid_to >= today;
+    return aUsable === bUsable ? 0 : aUsable ? -1 : 1;
+  });
+
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
-      <h1 className="text-2xl font-extrabold tracking-tight">
+      <h1 className="text-h1 font-display tracking-tight">
         マイページ
       </h1>
 
       <section className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-elevated">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-lg font-bold">{profile?.nickname}</p>
-            <p className="text-sm text-muted">{profile?.email}</p>
-            <p className="mt-1.5 flex items-center gap-1 text-sm font-bold text-primary">
+            <p className="text-h3">{profile?.nickname}</p>
+            <p className="text-caption text-muted">{profile?.email}</p>
+            <p className="mt-1.5 flex items-center gap-1 text-body font-bold text-primary">
               <Coins className="h-4 w-4" />
               {pointBalance.toLocaleString()}
               <span className="font-normal text-muted">
@@ -129,7 +137,7 @@ export default async function MyPage() {
             </Link>
             <Link
               href="/onboarding"
-              className="flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-sm font-medium transition hover:bg-background"
+              className="flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-caption font-medium transition hover:bg-background"
             >
               <Pencil className="h-3.5 w-3.5" />
               編集
@@ -137,7 +145,7 @@ export default async function MyPage() {
           </div>
         </div>
 
-        <div className="mt-4 flex flex-col gap-2 border-t border-border pt-4 text-sm">
+        <div className="mt-4 flex flex-col gap-2 border-t border-border pt-4 text-caption">
           <p>
             <span className="text-muted">
               旅行予定日:{" "}
@@ -179,7 +187,7 @@ export default async function MyPage() {
       <CouponListSection
         icon={Ticket}
         titleJa="GETしたクーポン"
-        items={issued}
+        items={sortedIssued}
         usedCouponIds={usedCouponIds}
         today={today}
       />
@@ -203,12 +211,12 @@ function CouponListSection({
 }) {
   return (
     <section className="mt-8">
-      <h2 className="flex items-center gap-2 text-lg font-bold">
+      <h2 className="flex items-center gap-2 text-h3">
         <Icon className="h-5 w-5 text-primary" />
         {titleJa}
       </h2>
       {items.length === 0 ? (
-        <p className="mt-2 text-sm text-muted">
+        <p className="mt-2 text-body text-muted">
           まだありません
         </p>
       ) : (
@@ -218,19 +226,24 @@ function CouponListSection({
             if (!coupon) return null;
             const isUsed = usedCouponIds?.has(coupon.id);
             const isExpired = !isUsed && !!today && coupon.valid_to < today;
+            const CategoryIcon = coupon.stores?.category
+              ? CATEGORY_ICONS[coupon.stores.category as CategoryValue]
+              : null;
             return (
               <li key={`${coupon.id}-${i}`}>
                 <div className="rounded-2xl border border-border bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-elevated">
-                  <Link href={`/coupons/${coupon.id}`} className="flex items-center justify-between gap-3">
-                    <span className="min-w-0">
-                      <span className="block truncate text-xs text-muted">{coupon.stores?.name}</span>
-                      <span className="mt-0.5 block truncate font-bold text-primary">{coupon.title}</span>
-                      <span className="block truncate text-sm text-muted">{coupon.discount_info}</span>
-                      <span className="mt-1 block text-xs text-muted">
+                  <Link href={`/coupons/${coupon.id}`} className="flex items-center gap-3">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      {CategoryIcon && <CategoryIcon className="h-5 w-5" strokeWidth={2} />}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-caption text-muted">{coupon.stores?.name}</span>
+                      <span className="mt-0.5 block truncate text-h3 text-primary">{coupon.title}</span>
+                      <span className="mt-0.5 block text-caption text-muted">
                         利用期間: {coupon.valid_to}まで
                       </span>
                       {coupon.usage_condition && (
-                        <span className="mt-0.5 block text-xs text-muted">
+                        <span className="mt-0.5 block truncate text-caption text-muted">
                           {coupon.usage_condition}
                         </span>
                       )}
@@ -240,29 +253,29 @@ function CouponListSection({
                   {usedCouponIds && (
                     <div className="mt-3 border-t border-border pt-3">
                       {isUsed ? (
-                        <p className="flex items-center gap-1.5 text-xs font-medium text-success">
+                        <p className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-1 text-caption font-medium text-success">
                           <CheckCircle2 className="h-3.5 w-3.5" />
                           利用済み
                         </p>
                       ) : isExpired ? (
-                        <p className="flex items-center gap-1.5 text-xs font-medium text-muted">
+                        <p className="inline-flex items-center gap-1.5 rounded-full bg-border px-2.5 py-1 text-caption font-medium text-muted">
                           期限切れ
                         </p>
                       ) : item.id ? (
                         <div>
-                          <p className="flex items-center gap-1.5 text-xs font-medium text-primary">
+                          <p className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-caption font-medium text-primary">
                             利用可能
                           </p>
-                          <p className="mt-1.5 text-xs text-muted">
+                          <p className="mt-2 text-caption text-muted">
                             店舗でこのQRコード（またはコード）を提示してください
                           </p>
                           <div className="mt-2 flex items-center gap-3">
                             <CouponQR code={item.id} />
-                            <p className="min-w-0 select-all break-all rounded-lg bg-background px-2.5 py-1.5 font-mono text-xs">
+                            <p className="min-w-0 select-all break-all rounded-lg bg-background px-2.5 py-1.5 font-mono text-caption">
                               {item.id}
                             </p>
                           </div>
-                          <p className="mt-1.5 text-[11px] text-muted">
+                          <p className="mt-1.5 text-label text-muted">
                             ※このページを一度開いておけば、オフラインでも表示できます。
                           </p>
                         </div>

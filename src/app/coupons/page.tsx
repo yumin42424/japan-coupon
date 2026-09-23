@@ -71,7 +71,7 @@ function CategoryAreaHub() {
         <h2 className="text-label font-bold uppercase tracking-wider text-muted">
           カテゴリから探す
         </h2>
-        <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
           {CATEGORIES.map((c) => {
             const Icon = CATEGORY_ICONS[c.value];
             return (
@@ -92,10 +92,10 @@ function CategoryAreaHub() {
                     className="absolute inset-0"
                     style={{ background: "linear-gradient(180deg, rgba(20,16,14,0) 50%, rgba(20,16,14,0.65) 100%)" }}
                   />
-                  <span className="absolute left-2.5 top-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-primary">
-                    <Icon className="h-4 w-4" strokeWidth={2.25} />
+                  <span className="absolute left-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-primary">
+                    <Icon className="h-3.5 w-3.5" strokeWidth={2.25} />
                   </span>
-                  <h3 className="absolute inset-x-0 bottom-2.5 px-2.5 text-h3 leading-tight text-white">
+                  <h3 className="absolute inset-x-0 bottom-2 px-2.5 text-caption font-bold leading-tight text-white sm:text-h3 sm:font-normal sm:bottom-2.5">
                     {c.ja}
                   </h3>
                 </div>

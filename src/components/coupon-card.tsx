@@ -64,8 +64,8 @@ export function CouponCard({
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/0 to-black/0" />
-        <span className="absolute left-2.5 top-2.5 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-primary shadow-soft">
-          <Icon className="h-4 w-4" strokeWidth={2.25} />
+        <span className="absolute left-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-primary shadow-soft">
+          <Icon className="h-3.5 w-3.5" strokeWidth={2.25} />
         </span>
         {(urgent || memberOnly) && (
           <div className="absolute right-2.5 top-2.5 flex flex-col items-end gap-1">

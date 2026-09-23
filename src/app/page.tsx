@@ -9,6 +9,7 @@ import { CATEGORY_IMAGES, AREA_IMAGES } from "@/lib/taxonomy-images";
 import { FaqAccordion, type FaqItem } from "@/components/faq-accordion";
 import { CouponCard } from "@/components/coupon-card";
 import { SectionHeading } from "@/components/section-heading";
+import { HeroImageCarousel } from "@/components/hero-image-carousel";
 
 const FEATURED_AREA_VALUES = ["myeongdong", "hongdae", "gangnam", "seongsu"] as const;
 
@@ -197,15 +198,14 @@ export default async function Home() {
             </p>
           </div>
 
-          {/* デスクトップのみ: 街の写真 + 実データで作った小さなクーポンプレビュー */}
+          {/* デスクトップのみ: 人気エリアの写真が数枚順番に切り替わる + 実データで作った小さなクーポンプレビュー */}
           <div className="relative mt-10 hidden lg:mt-0 lg:block">
             <div className="relative aspect-[4/3] overflow-hidden rounded-3xl shadow-elevated">
-              <Image
-                src={AREA_IMAGES.hongdae ?? ""}
-                alt=""
-                fill
-                sizes="45vw"
-                className="object-cover"
+              <HeroImageCarousel
+                images={featuredAreas.flatMap((a) => {
+                  const src = AREA_IMAGES[a.value];
+                  return src ? [{ src, label: a.ja as string }] : [];
+                })}
               />
             </div>
             {recommended[0] && (
@@ -348,7 +348,7 @@ export default async function Home() {
       <section className="border-t border-border bg-card/40 px-6 py-14">
         <div className="mx-auto max-w-2xl">
           <SectionHeading title="カテゴリーから探す" align="center" />
-          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
             {CATEGORIES.map((c) => {
               const Icon = CATEGORY_ICONS[c.value];
               return (
@@ -361,8 +361,8 @@ export default async function Home() {
                       sizes="(min-width: 672px) 160px, 45vw"
                       className="object-cover transition duration-300 group-hover:scale-[1.03]"
                     />
-                    <span className="absolute left-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-primary">
-                      <Icon className="h-4 w-4" strokeWidth={2.25} />
+                    <span className="absolute left-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-primary">
+                      <Icon className="h-3.5 w-3.5" strokeWidth={2.25} />
                     </span>
                   </div>
                   <h3 className="text-caption font-bold leading-tight">{c.ja}</h3>
