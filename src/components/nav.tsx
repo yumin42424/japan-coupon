@@ -29,28 +29,28 @@ export async function Nav() {
             </Link>
             <Link
               href="/nearby"
-              className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:flex lg:px-3"
+              className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground xl:flex xl:px-3"
             >
               <LocateFixed className="h-4 w-4" strokeWidth={2.25} />
               現在地から
             </Link>
             <Link
               href="/ranking"
-              className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:flex lg:px-3"
+              className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground xl:flex xl:px-3"
             >
               <Trophy className="h-4 w-4" strokeWidth={2.25} />
               おすすめ
             </Link>
             <Link
               href="/guide"
-              className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:flex lg:px-3"
+              className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground xl:flex xl:px-3"
             >
               <BookOpen className="h-4 w-4" strokeWidth={2.25} />
               初めての方へ
             </Link>
             <Link
               href="/notices"
-              className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:flex lg:px-3"
+              className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground xl:flex xl:px-3"
             >
               <Megaphone className="h-4 w-4" strokeWidth={2.25} />
               お知らせ
@@ -124,12 +124,13 @@ export async function Nav() {
         </div>
       </header>
 
-      {/* 모바일 전용 하단 탭바 */}
-      <nav className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-background/95 backdrop-blur-md md:hidden">
-        <div
-          className="mx-auto flex max-w-3xl items-stretch justify-around px-2 pt-1.5"
-          style={{ paddingBottom: "max(0.375rem, env(safe-area-inset-bottom))" }}
-        >
+      {/* 모바일 전용 하단 탭바 — 높이를 --bottom-nav-h 하나로 고정해서
+          body의 여백/쿠폰상세 sticky CTA와 항상 같은 기준으로 맞물리게 한다. */}
+      <nav
+        className="fixed inset-x-0 bottom-0 z-10 flex items-stretch border-t border-border bg-background/95 backdrop-blur-md md:hidden"
+        style={{ height: "var(--bottom-nav-h)", paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
+        <div className="mx-auto flex w-full max-w-3xl items-stretch justify-around px-2">
           <TabItem href="/" icon={Home} label="ホーム" />
           <TabItem href="/coupons" icon={Ticket} label="クーポン" />
           <TabItem href="/ranking" icon={Trophy} label="おすすめ" />

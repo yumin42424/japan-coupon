@@ -43,7 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="ja"
       className={`${display.variable} ${body.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col pb-16 md:pb-0">
+      <body className="flex min-h-full flex-col pb-[var(--bottom-nav-h)] md:pb-0">
         <Nav />
         {children}
         <Footer />

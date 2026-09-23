@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import {
   Heart,
@@ -21,6 +22,7 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import { isAdminEmail } from "@/lib/admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
+import { CATEGORY_IMAGES } from "@/lib/taxonomy-images";
 import { daysUntil, isUrgentDeadline } from "@/lib/urgency";
 import { issueCoupon, toggleFavorite, deleteReview } from "./actions";
 import { ReviewForm } from "./review-form";
@@ -190,67 +192,80 @@ export default async function CouponDetailPage({
       : null;
 
   return (
-    <main className="mx-auto max-w-md px-6 py-10">
+    <main className="mx-auto max-w-md px-6 pb-10 pt-0">
       <ViewTracker couponId={id} />
 
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-3">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            {CategoryIcon && <CategoryIcon className="h-6 w-6" strokeWidth={2} />}
-          </span>
-          <div className="min-w-0">
-            <p className="flex flex-wrap items-center gap-1 text-xs text-muted">
-              <span>
-                {category?.ja}
-              </span>
-              <span>・</span>
-              <span className="flex items-center gap-0.5">
-                <AreaIcon className="h-3 w-3" />
-                {area?.ja}
-              </span>
-              {coupon.member_only && (
-                <span className="ml-1 flex items-center gap-0.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-primary">
-                  <Lock className="h-2.5 w-2.5" />
-                  会員限定
-                </span>
-              )}
-            </p>
-            <h1 className="flex flex-wrap items-center gap-1.5 text-lg font-extrabold tracking-tight">
-              <span className="min-w-0 break-words">{store.name}</span>
-              {store.popular_with_japanese && (
-                <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-orange-500/10 px-1.5 py-0.5 text-[10px] font-medium text-orange-500">
-                  <Flame className="h-2.5 w-2.5" />
-                  日本人に人気
-                </span>
-              )}
-            </h1>
-            {avgRating !== null && (
-              <p className="mt-0.5 flex items-center gap-1 text-xs text-muted">
-                <Star className="h-3.5 w-3.5 text-primary" fill="currentColor" strokeWidth={0} />
-                <span className="font-semibold text-foreground">{avgRating.toFixed(1)}</span>
-                <span>({reviews.length}件の口コミ)</span>
-              </p>
-            )}
-          </div>
-        </div>
+      {/* 写真バナー — カード一覧と同じカテゴリ写真を使い、実店舗の写真がなくても
+          「アイコンだけ」より商品として魅力的に見えるようにする */}
+      <div className="relative -mx-6 aspect-[16/10] w-[calc(100%+3rem)] overflow-hidden bg-primary/10 sm:mx-0 sm:w-full sm:rounded-b-3xl">
+        {CATEGORY_IMAGES[store.category] && (
+          <Image
+            src={CATEGORY_IMAGES[store.category]}
+            alt=""
+            fill
+            priority
+            sizes="(min-width: 448px) 448px, 100vw"
+            className="object-cover"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/5 to-black/0" />
+
+        <span className="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-primary shadow-soft">
+          {CategoryIcon && <CategoryIcon className="h-5 w-5" strokeWidth={2.25} />}
+        </span>
+
         {session?.user && (
-          <form action={toggleFavorite.bind(null, id)}>
+          <form action={toggleFavorite.bind(null, id)} className="absolute right-4 top-4">
             <button
               type="submit"
               aria-label={isFavorited ? "お気に入りから外す" : "お気に入りに追加"}
-              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition focus-visible:ring-4 focus-visible:ring-primary/20 ${
-                isFavorited
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border text-muted hover:border-foreground/30 hover:text-foreground"
+              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full backdrop-blur-sm transition focus-visible:ring-4 focus-visible:ring-white/40 ${
+                isFavorited ? "bg-primary text-white" : "bg-white/80 text-foreground hover:bg-white"
               }`}
             >
               <Heart className="h-5 w-5" fill={isFavorited ? "currentColor" : "none"} strokeWidth={2} />
             </button>
           </form>
         )}
+
+        <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-2 p-4">
+          <div className="min-w-0">
+            <p className="flex flex-wrap items-center gap-1 text-caption text-white/85">
+              <span>{category?.ja}</span>
+              <span>・</span>
+              <span className="flex items-center gap-0.5">
+                <AreaIcon className="h-3 w-3" />
+                {area?.ja}
+              </span>
+            </p>
+            <h1 className="mt-0.5 break-words text-h1 text-white">{store.name}</h1>
+          </div>
+        </div>
       </div>
 
-      <div className="mt-5 overflow-hidden rounded-2xl border border-border bg-card shadow-elevated">
+      <div className="mt-3 flex flex-wrap items-center gap-1.5">
+        {coupon.member_only && (
+          <span className="flex items-center gap-0.5 rounded-full bg-primary/10 px-2 py-0.5 text-caption text-primary">
+            <Lock className="h-2.5 w-2.5" />
+            会員限定
+          </span>
+        )}
+        {store.popular_with_japanese && (
+          <span className="flex items-center gap-0.5 rounded-full bg-orange-500/10 px-2 py-0.5 text-caption font-medium text-orange-500">
+            <Flame className="h-2.5 w-2.5" />
+            日本人に人気
+          </span>
+        )}
+        {avgRating !== null && (
+          <span className="flex items-center gap-1 text-caption text-muted">
+            <Star className="h-3.5 w-3.5 text-primary" fill="currentColor" strokeWidth={0} />
+            <span className="font-semibold text-foreground">{avgRating.toFixed(1)}</span>
+            <span>({reviews.length}件の口コミ)</span>
+          </span>
+        )}
+      </div>
+
+      <div className="mt-3 overflow-hidden rounded-2xl border border-border bg-card shadow-elevated">
           <div className="bg-primary/10 px-5 py-4">
             <p className="text-2xl font-extrabold tracking-tight text-primary">{coupon.title}</p>
             <p className="mt-0.5 text-sm font-medium text-foreground/70">{coupon.discount_info}</p>
@@ -342,8 +357,10 @@ export default async function CouponDetailPage({
         </div>
       )}
 
-      {/* モバイルでは画面下部に固定して常に見える状態にする（店頭で提示する導線を優先） */}
-      <div className="sticky bottom-16 z-10 -mx-6 mt-6 border-t border-border bg-background/95 px-6 py-3 backdrop-blur-md md:static md:mx-0 md:mt-6 md:border-0 md:bg-transparent md:px-0 md:py-0 md:backdrop-blur-none">
+      {/* モバイルでは画面下部に固定して常に見える状態にする（店頭で提示する導線を優先）。
+          下部タブバーと同じ --bottom-nav-h を基準にするので、機種によってタブバーの
+          高さが変わっても隙間がずれない。 */}
+      <div className="sticky bottom-[var(--bottom-nav-h)] z-10 -mx-6 mt-6 border-t border-border bg-background/95 px-6 py-3 backdrop-blur-md md:static md:mx-0 md:mt-6 md:border-0 md:bg-transparent md:px-0 md:py-0 md:backdrop-blur-none">
         <div className="flex items-center gap-3 md:block">
           {discountRate !== null && (
             <span className="shrink-0 text-lg font-extrabold text-primary md:hidden">

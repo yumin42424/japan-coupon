@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ChevronRight, Lock, LocateFixed, AlertCircle } from "lucide-react";
-import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
+import { LocateFixed, AlertCircle } from "lucide-react";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { distanceKm, formatDistance } from "@/lib/geo";
+import { CouponCard } from "@/components/coupon-card";
+import { EmptyState } from "@/components/empty-state";
 import { KakaoMap } from "./kakao-map";
 import type { NearbyCoupon } from "./page";
 
@@ -40,7 +41,7 @@ export function NearbyList({ coupons }: { coupons: NearbyCoupon[] }) {
 
   if (status === "loading") {
     return (
-      <div className="mt-8 flex items-center gap-2 text-sm text-muted">
+      <div className="mt-8 flex items-center gap-2 text-body text-muted">
         <LocateFixed className="h-4 w-4 animate-pulse" />
         現在地を取得しています…
       </div>
@@ -51,10 +52,10 @@ export function NearbyList({ coupons }: { coupons: NearbyCoupon[] }) {
     return (
       <div className="mt-8 rounded-2xl border border-dashed border-border py-10 text-center">
         <AlertCircle className="mx-auto h-6 w-6 text-muted" />
-        <p className="mt-3 text-sm text-muted">{STATUS_MESSAGE[status]}</p>
+        <p className="mt-3 text-body text-muted">{STATUS_MESSAGE[status]}</p>
         <Link
           href="/coupons"
-          className="mt-4 inline-block text-sm font-medium text-primary underline underline-offset-4"
+          className="mt-4 inline-block text-body font-medium text-primary underline underline-offset-4"
         >
           カテゴリから探す
         </Link>
@@ -80,58 +81,26 @@ export function NearbyList({ coupons }: { coupons: NearbyCoupon[] }) {
         }))}
       />
 
-      <ul className="mt-4 flex flex-col gap-3">
-        {withDistance.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border py-16 text-center">
-            <p className="text-sm text-muted">
-              近くにクーポンがありません。
-            </p>
-          </div>
-        ) : (
-          withDistance.map((coupon) => {
-            const c = CATEGORIES.find((x) => x.value === coupon.stores.category);
-            const a = AREAS.find((x) => x.value === coupon.stores.area);
-            const Icon = c ? CATEGORY_ICONS[c.value] : null;
-            return (
-              <li key={coupon.id}>
-                <Link
-                  href={`/coupons/${coupon.id}`}
-                  className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-elevated"
-                >
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    {Icon && <Icon className="h-6 w-6" strokeWidth={2} />}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-center gap-1 text-xs text-muted">
-                      <span>{c?.ja}</span>
-                      <span>・</span>
-                      <span className="flex items-center gap-0.5">
-                        <AreaIcon className="h-3 w-3" />
-                        {a?.ja}
-                      </span>
-                      <span className="ml-1 flex items-center gap-0.5 rounded-full bg-primary/10 px-1.5 py-0.5 font-semibold text-primary">
-                        <LocateFixed className="h-2.5 w-2.5" />
-                        {formatDistance(coupon.distance)}
-                      </span>
-                    </span>
-                    <span className="mt-0.5 flex items-center gap-1.5">
-                      <span className="truncate font-medium">{coupon.stores.name}</span>
-                      {coupon.member_only && (
-                        <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] text-primary">
-                          <Lock className="h-2.5 w-2.5" />
-                          会員限定
-                        </span>
-                      )}
-                    </span>
-                    <span className="mt-1 block text-lg font-bold text-primary">{coupon.title}</span>
-                  </span>
-                  <ChevronRight className="h-5 w-5 shrink-0 text-muted transition group-hover:translate-x-0.5 group-hover:text-primary" />
-                </Link>
-              </li>
-            );
-          })
-        )}
-      </ul>
+      {withDistance.length === 0 ? (
+        <div className="mt-4">
+          <EmptyState message="近くにクーポンがありません。" />
+        </div>
+      ) : (
+        <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {withDistance.map((coupon) => (
+            <CouponCard
+              key={coupon.id}
+              href={`/coupons/${coupon.id}`}
+              category={coupon.stores.category as (typeof CATEGORIES)[number]["value"]}
+              area={coupon.stores.area as (typeof AREAS)[number]["value"]}
+              storeName={coupon.stores.name}
+              benefit={coupon.title}
+              memberOnly={coupon.member_only}
+              distance={formatDistance(coupon.distance)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

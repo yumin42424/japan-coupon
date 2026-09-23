@@ -1,8 +1,7 @@
-import Link from "next/link";
-import { Trophy, ChevronRight } from "lucide-react";
+import { Trophy } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
-import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
+import { CouponCard } from "@/components/coupon-card";
 
 type CouponRow = {
   id: string;
@@ -45,55 +44,35 @@ export default async function RankingPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
-      <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight">
+      <h1 className="flex items-center gap-2 text-h1 font-display tracking-tight">
         <Trophy className="h-6 w-6 text-primary" />
         おすすめクーポン
       </h1>
-      <p className="mt-2 text-sm text-muted">
+      <p className="mt-2 text-body text-muted">
         GET数・閲覧数をもとに、人気のクーポンをピックアップしました。
       </p>
 
-      <ol className="mt-8 flex flex-col gap-3">
-        {ranked.length === 0 && (
-          <p className="text-sm text-muted">
-            まだデータがありません。
-          </p>
-        )}
-        {ranked.map(({ coupon }) => {
-          if (!coupon.stores) return null;
-          const c = CATEGORIES.find((x) => x.value === coupon.stores!.category);
-          const a = AREAS.find((x) => x.value === coupon.stores!.area);
-          const Icon = c ? CATEGORY_ICONS[c.value] : null;
-
-          return (
-            <li key={coupon.id}>
-              <Link
+      {ranked.length === 0 ? (
+        <p className="mt-8 text-body text-muted">
+          まだデータがありません。
+        </p>
+      ) : (
+        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {ranked.map(({ coupon }) => {
+            if (!coupon.stores) return null;
+            return (
+              <CouponCard
+                key={coupon.id}
                 href={`/coupons/${coupon.id}`}
-                className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-elevated"
-              >
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  {Icon && <Icon className="h-6 w-6" strokeWidth={2} />}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="flex items-center gap-1 text-xs text-muted">
-                    <span>
-                      {c?.ja}
-                    </span>
-                    <span>・</span>
-                    <span className="flex items-center gap-0.5">
-                      <AreaIcon className="h-3 w-3" />
-                      {a?.ja}
-                    </span>
-                  </span>
-                  <span className="mt-0.5 block truncate font-medium">{coupon.stores.name}</span>
-                  <span className="mt-1 block text-lg font-bold text-primary">{coupon.title}</span>
-                </span>
-                <ChevronRight className="h-5 w-5 shrink-0 text-muted" />
-              </Link>
-            </li>
-          );
-        })}
-      </ol>
+                category={coupon.stores.category as (typeof CATEGORIES)[number]["value"]}
+                area={coupon.stores.area as (typeof AREAS)[number]["value"]}
+                storeName={coupon.stores.name}
+                benefit={coupon.title}
+              />
+            );
+          })}
+        </div>
+      )}
     </main>
   );
 }

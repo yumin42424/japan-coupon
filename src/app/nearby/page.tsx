@@ -34,10 +34,10 @@ export default async function NearbyPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
-      <h1 className="text-2xl font-extrabold tracking-tight">
+      <h1 className="text-h1 font-display tracking-tight">
         現在地から探す
       </h1>
-      <p className="mt-2 text-sm text-muted">
+      <p className="mt-2 text-body text-muted">
         位置情報を許可すると、近くのクーポンが近い順に表示されます。
       </p>
 

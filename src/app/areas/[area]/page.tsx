@@ -1,10 +1,12 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ChevronRight, Flame, Star, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { AREAS, CATEGORIES, type AreaValue } from "@/lib/taxonomy";
-import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
+import { CATEGORY_ICONS } from "@/lib/taxonomy-icons";
+import { CouponCard } from "@/components/coupon-card";
+import { EmptyState } from "@/components/empty-state";
 
 type CouponRow = {
   id: string;
@@ -109,14 +111,14 @@ export default async function AreaPage({
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
-      <p className="flex items-center gap-1 text-xs text-muted">
+      <p className="flex items-center gap-1 text-caption text-muted">
         <MapPin className="h-3.5 w-3.5" />
         エリアから探す
       </p>
-      <h1 className="font-display mt-1 text-2xl font-black tracking-tight">
+      <h1 className="text-h1 font-display mt-1 tracking-tight">
         {area.ja} 日本人におすすめ
       </h1>
-      <p className="mt-2 text-sm text-muted">
+      <p className="mt-2 text-body text-muted">
         口コミ評価が高い順に表示しています。{entries.length}件の掲載店舗があります。
       </p>
 
@@ -127,7 +129,7 @@ export default async function AreaPage({
             <Link
               key={c.value}
               href={`/coupons?category=${c.value}&area=${area.value}`}
-              className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted transition hover:border-primary/40 hover:text-foreground"
+              className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-caption font-medium text-muted transition hover:border-primary/40 hover:text-foreground"
             >
               <Icon className="h-3.5 w-3.5" strokeWidth={2.25} />
               {c.ja}
@@ -136,71 +138,30 @@ export default async function AreaPage({
         })}
       </div>
 
-      <ul className="mt-8 flex flex-col gap-3">
-        {entries.length ? (
-          entries.map(({ store, couponId, couponTitle }) => {
-            const category = CATEGORIES.find((c) => c.value === store.category);
-            const Icon = category ? CATEGORY_ICONS[category.value] : null;
-            const rating = ratingByStore.get(store.id);
-            return (
-              <li key={store.id}>
-                <Link
-                  href={`/coupons/${couponId}`}
-                  className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-elevated"
-                >
-                  <span className="btn-glossy flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-primary-foreground">
-                    {Icon && <Icon className="h-6 w-6" strokeWidth={2} />}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-center gap-1.5 text-xs text-muted">
-                      <span>{category?.ja}</span>
-                      {rating && (
-                        <>
-                          <span>・</span>
-                          <span className="flex items-center gap-0.5 font-semibold text-foreground">
-                            <Star className="h-3 w-3 text-primary" fill="currentColor" strokeWidth={0} />
-                            {rating.avg.toFixed(1)}
-                          </span>
-                          <span>({rating.count})</span>
-                        </>
-                      )}
-                    </span>
-                    <span className="mt-0.5 flex items-center gap-1.5">
-                      <span className="truncate font-medium">{store.name}</span>
-                      {store.popular_with_japanese && (
-                        <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-orange-500/10 px-1.5 py-0.5 text-[10px] font-medium text-orange-500">
-                          <Flame className="h-2.5 w-2.5" />
-                          日本人に人気
-                        </span>
-                      )}
-                      {store.line_available && (
-                        <span className="shrink-0 rounded-full bg-success/10 px-1.5 py-0.5 text-[10px] font-medium text-success">
-                          日本語対応
-                        </span>
-                      )}
-                    </span>
-                    <span className="mt-1 block truncate text-sm font-bold text-primary">{couponTitle}</span>
-                  </span>
-                  <ChevronRight className="h-5 w-5 shrink-0 text-muted transition group-hover:translate-x-0.5 group-hover:text-primary" />
-                </Link>
-              </li>
-            );
-          })
-        ) : (
-          <div className="rounded-2xl border border-dashed border-border py-16 text-center">
-            <AreaIcon className="mx-auto h-6 w-6 text-muted" />
-            <p className="mt-2 text-sm text-muted">
-              このエリアのクーポンは準備中です。
-            </p>
-            <Link
-              href="/coupons"
-              className="mt-4 inline-block text-sm font-medium text-primary underline underline-offset-4"
-            >
-              他のエリア・カテゴリを見る
-            </Link>
-          </div>
-        )}
-      </ul>
+      {entries.length ? (
+        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {entries.map(({ store, couponId, couponTitle }) => (
+            <CouponCard
+              key={store.id}
+              href={`/coupons/${couponId}`}
+              category={store.category as (typeof CATEGORIES)[number]["value"]}
+              storeName={store.name}
+              benefit={couponTitle}
+              popularWithJapanese={store.popular_with_japanese}
+              rating={ratingByStore.get(store.id)}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="mt-8">
+          <EmptyState
+            icon={MapPin}
+            message="このエリアのクーポンは準備中です。"
+            ctaLabel="他のエリア・カテゴリを見る"
+            ctaHref="/coupons"
+          />
+        </div>
+      )}
     </main>
   );
 }

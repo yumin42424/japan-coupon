@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { ChevronRight, Lock, ChevronLeft, Flame, LocateFixed, Timer } from "lucide-react";
+import { ChevronLeft, LocateFixed } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
 import { CATEGORY_IMAGES } from "@/lib/taxonomy-images";
-import { isUrgentDeadline } from "@/lib/urgency";
+import { isUrgentDeadline, daysUntil } from "@/lib/urgency";
+import { CouponCard } from "@/components/coupon-card";
+import { EmptyState } from "@/components/empty-state";
 
 export const metadata: Metadata = {
   title: "クーポンを探す",
@@ -49,23 +52,23 @@ export default async function CouponsPage({
 function CategoryAreaHub() {
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
-      <h1 className="font-display text-2xl font-black tracking-tight">
+      <h1 className="text-h1 font-display tracking-tight">
         クーポンを探す
       </h1>
-      <p className="mt-2 text-sm text-muted">
+      <p className="mt-2 text-body text-muted">
         カテゴリまたはエリアを選んでください。
       </p>
 
       <Link
         href="/nearby"
-        className="mt-4 flex items-center justify-center gap-2 rounded-2xl border border-primary/25 bg-primary/5 px-4 py-3 text-sm font-bold text-primary shadow-card transition hover:-translate-y-0.5 hover:shadow-elevated"
+        className="mt-4 flex items-center justify-center gap-2 rounded-2xl border border-primary/25 bg-primary/5 px-4 py-3 text-body font-bold text-primary shadow-card transition hover:-translate-y-0.5 hover:shadow-elevated"
       >
         <LocateFixed className="h-4 w-4" />
         現在地から探す
       </Link>
 
       <section className="mt-8">
-        <h2 className="text-sm font-bold text-muted">
+        <h2 className="text-label font-bold uppercase tracking-wider text-muted">
           カテゴリから探す
         </h2>
         <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -78,12 +81,12 @@ function CategoryAreaHub() {
                 className="group relative block w-full overflow-hidden rounded-2xl shadow-card transition-shadow duration-300 hover:shadow-elevated"
               >
                 <div className="relative aspect-square w-full">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <Image
                     src={CATEGORY_IMAGES[c.value]}
                     alt=""
-                    className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
-                    loading="lazy"
+                    fill
+                    sizes="(min-width: 672px) 160px, 45vw"
+                    className="object-cover transition duration-300 group-hover:scale-[1.03]"
                   />
                   <div
                     className="absolute inset-0"
@@ -92,7 +95,7 @@ function CategoryAreaHub() {
                   <span className="absolute left-2.5 top-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-primary">
                     <Icon className="h-4 w-4" strokeWidth={2.25} />
                   </span>
-                  <h3 className="absolute inset-x-0 bottom-2.5 px-2.5 text-[15px] font-bold leading-tight text-white">
+                  <h3 className="absolute inset-x-0 bottom-2.5 px-2.5 text-h3 leading-tight text-white">
                     {c.ja}
                   </h3>
                 </div>
@@ -103,7 +106,7 @@ function CategoryAreaHub() {
       </section>
 
       <section className="mt-10">
-        <h2 className="text-sm font-bold text-muted">
+        <h2 className="text-label font-bold uppercase tracking-wider text-muted">
           エリアから探す
         </h2>
         <div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-4">
@@ -116,7 +119,7 @@ function CategoryAreaHub() {
               <span className="btn-glossy flex h-9 w-9 items-center justify-center rounded-full text-primary-foreground">
                 <AreaIcon className="h-4 w-4" />
               </span>
-              <span className="text-center text-sm font-bold leading-tight">
+              <span className="text-center text-caption font-bold leading-tight">
                 {a.ja}
               </span>
             </Link>
@@ -127,7 +130,7 @@ function CategoryAreaHub() {
       <div className="mt-10 text-center">
         <Link
           href="/coupons?area=all"
-          className="text-sm text-muted underline underline-offset-4 hover:text-foreground"
+          className="text-body text-muted underline underline-offset-4 hover:text-foreground"
         >
           すべてのクーポンを見る
         </Link>
@@ -189,7 +192,7 @@ async function FilteredCouponList({
         カテゴリ・エリア選択に戻る
       </Link>
 
-      <h1 className="font-display mt-3 text-2xl font-black tracking-tight">
+      <h1 className="text-h1 font-display mt-3 tracking-tight">
         {currentCategory ? currentCategory.ja : null}
         {currentCategory && currentArea ? " ・ " : null}
         {currentArea ? currentArea.ja : null}
@@ -231,74 +234,28 @@ async function FilteredCouponList({
         ))}
       </div>
 
-      <ul className="mt-8 flex flex-col gap-3">
-        {coupons.length ? (
-          coupons.map((coupon) => {
-            const c = CATEGORIES.find((x) => x.value === coupon.stores.category);
-            const a = AREAS.find((x) => x.value === coupon.stores.area);
-            const Icon = c ? CATEGORY_ICONS[c.value] : null;
-            return (
-              <li key={coupon.id}>
-                <Link
-                  href={`/coupons/${coupon.id}`}
-                  className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-elevated"
-                >
-                  <span className="btn-glossy flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-primary-foreground">
-                    {Icon && <Icon className="h-6 w-6" strokeWidth={2} />}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-center gap-1 text-xs text-muted">
-                      <span>
-                        {c?.ja}
-                      </span>
-                      <span>・</span>
-                      <span className="flex items-center gap-0.5">
-                        <AreaIcon className="h-3 w-3" />
-                        {a?.ja}
-                      </span>
-                      {coupon.member_only && (
-                        <span className="ml-1 flex items-center gap-0.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-primary">
-                          <Lock className="h-2.5 w-2.5" />
-                          会員限定
-                        </span>
-                      )}
-                    </span>
-                    <span className="mt-0.5 flex items-center gap-1.5">
-                      <span className="truncate font-medium">{coupon.stores.name}</span>
-                      {coupon.stores.popular_with_japanese && (
-                        <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-orange-500/10 px-1.5 py-0.5 text-[10px] font-medium text-orange-500">
-                          <Flame className="h-2.5 w-2.5" />
-                          日本人に人気
-                        </span>
-                      )}
-                      {isUrgentDeadline(coupon.valid_to) && (
-                        <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">
-                          <Timer className="h-2.5 w-2.5" />
-                          締切間近
-                        </span>
-                      )}
-                    </span>
-                    <span className="mt-1 block text-lg font-bold text-primary">{coupon.title}</span>
-                  </span>
-                  <ChevronRight className="h-5 w-5 shrink-0 text-muted transition group-hover:translate-x-0.5 group-hover:text-primary" />
-                </Link>
-              </li>
-            );
-          })
-        ) : (
-          <div className="rounded-2xl border border-dashed border-border py-16 text-center">
-            <p className="text-sm text-muted">
-              該当するクーポンがありません。
-            </p>
-            <Link
-              href="/coupons"
-              className="mt-4 inline-block text-sm font-medium text-primary underline underline-offset-4"
-            >
-              すべてのクーポンを見る
-            </Link>
-          </div>
-        )}
-      </ul>
+      {coupons.length ? (
+        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {coupons.map((coupon) => (
+            <CouponCard
+              key={coupon.id}
+              href={`/coupons/${coupon.id}`}
+              category={coupon.stores.category as (typeof CATEGORIES)[number]["value"]}
+              area={coupon.stores.area as (typeof AREAS)[number]["value"]}
+              storeName={coupon.stores.name}
+              benefit={coupon.title}
+              memberOnly={coupon.member_only}
+              popularWithJapanese={coupon.stores.popular_with_japanese}
+              urgent={isUrgentDeadline(coupon.valid_to)}
+              daysLeft={daysUntil(coupon.valid_to)}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="mt-8">
+          <EmptyState message="該当するクーポンがありません。" ctaLabel="すべてのクーポンを見る" ctaHref="/coupons" />
+        </div>
+      )}
     </main>
   );
 }
