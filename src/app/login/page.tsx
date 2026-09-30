@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Mail, Lock, AlertCircle, Ticket } from "lucide-react";
+import { Mail, Lock, AlertCircle, Ticket, CheckCircle2 } from "lucide-react";
 import { login, type LoginState } from "./actions";
 import { loginWithLine, loginWithGoogle } from "./oauth-actions";
 import { SIGNUPS_ENABLED } from "@/lib/feature-flags";
@@ -17,6 +17,7 @@ export default function LoginPage() {
   // ?error= 付きで戻ってくる。その場合だけ案内を出す。
   const searchParams = useSearchParams();
   const hasOAuthError = searchParams.has("error");
+  const justReset = searchParams.get("reset") === "1";
   const callbackUrl = searchParams.get("callbackUrl") ?? undefined;
   const signupHref = callbackUrl ? `/signup?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/signup";
 
@@ -33,6 +34,13 @@ export default function LoginPage() {
       <h1 className="text-h1 font-display mt-4 tracking-tight">
         ログイン
       </h1>
+
+      {justReset && (
+        <p className="mt-4 flex items-start gap-1.5 rounded-xl border border-success/30 bg-success/5 p-3 text-body text-success" role="status">
+          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+          パスワードを更新しました。新しいパスワードでログインしてください。
+        </p>
+      )}
 
       {hasOAuthError && (
         <p className="mt-4 flex items-start gap-1.5 rounded-xl border border-primary/30 bg-primary/5 p-3 text-body text-primary" role="alert">
@@ -63,9 +71,14 @@ export default function LoginPage() {
         </label>
 
         <label className="flex flex-col gap-1.5 text-body font-medium">
-          <span className="flex items-center gap-1.5">
-            <Lock className="h-4 w-4 text-primary" />
-            パスワード
+          <span className="flex items-center justify-between gap-1.5">
+            <span className="flex items-center gap-1.5">
+              <Lock className="h-4 w-4 text-primary" />
+              パスワード
+            </span>
+            <Link href="/forgot-password" className="text-caption font-medium text-muted underline underline-offset-2 hover:text-foreground">
+              お忘れですか？
+            </Link>
           </span>
           <input
             type="password"

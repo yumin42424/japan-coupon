@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Heart, Ticket, CheckCircle2, ChevronRight, Pencil, Sparkles, Settings, Coins } from "lucide-react";
+import { Heart, Ticket, CheckCircle2, ChevronRight, Pencil, Sparkles, Settings, Coins, MailWarning } from "lucide-react";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS, type CategoryValue } from "@/lib/taxonomy";
 import { CATEGORY_ICONS } from "@/lib/taxonomy-icons";
 import { CouponQR } from "@/components/coupon-qr";
+import { resendVerificationEmail } from "./verify-actions";
 
 type CouponEventItem = {
   id?: string;
@@ -20,17 +21,26 @@ type CouponEventItem = {
   } | null;
 };
 
-export default async function MyPage() {
+export default async function MyPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ resent?: string }>;
+}) {
   const session = await auth();
   if (!session?.user?.id) {
     redirect("/login");
   }
+  const { resent } = await searchParams;
   const userId = session.user.id;
   const today = new Date().toISOString().slice(0, 10);
 
   const [profileRes, categoriesRes, areasRes, favoritedRes, issuedRes, usedRes, allCouponsRes, pointsRes] =
     await Promise.all([
-      supabaseAdmin.from("users").select("nickname, email, travel_date").eq("id", userId).maybeSingle(),
+      supabaseAdmin
+        .from("users")
+        .select("nickname, email, travel_date, email_verified_at")
+        .eq("id", userId)
+        .maybeSingle(),
       supabaseAdmin.from("user_interest_categories").select("category").eq("user_id", userId),
       supabaseAdmin.from("user_interest_areas").select("area").eq("user_id", userId),
       supabaseAdmin
@@ -113,6 +123,22 @@ export default async function MyPage() {
       <h1 className="text-h1 font-display tracking-tight">
         マイページ
       </h1>
+
+      {!profile?.email_verified_at && (
+        <div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 p-3 text-body text-primary">
+          <MailWarning className="h-4 w-4 shrink-0" />
+          <span className="flex-1">
+            {resent === "1" ? "確認メールを再送しました。" : "メールアドレスがまだ確認されていません。"}
+          </span>
+          {resent !== "1" && (
+            <form action={resendVerificationEmail}>
+              <button type="submit" className="font-semibold underline underline-offset-2">
+                確認メールを再送する
+              </button>
+            </form>
+          )}
+        </div>
+      )}
 
       <section className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-elevated">
         <div className="flex items-center justify-between">

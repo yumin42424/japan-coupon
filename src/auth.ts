@@ -148,6 +148,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               terms_agreed_at: now,
               privacy_agreed_at: now,
               marketing_agreed_at: consent.marketing ? now : null,
+              // LINEアカウント連携時点で本人確認済みとみなす（メール確認は不要）
+              email_verified_at: now,
             })
             .select("id")
             .single();
@@ -188,6 +190,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               terms_agreed_at: now,
               privacy_agreed_at: now,
               marketing_agreed_at: consent.marketing ? now : null,
+              // Googleは常に検証済みメールのみ渡すため、確認は不要
+              email_verified_at: now,
             })
             .select("id")
             .single();

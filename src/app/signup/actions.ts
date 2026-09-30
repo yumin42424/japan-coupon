@@ -8,6 +8,29 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import { signIn } from "@/auth";
 import { SIGNUPS_ENABLED } from "@/lib/feature-flags";
 import { safeRedirectPath } from "@/lib/safe-redirect";
+import { createAuthToken } from "@/lib/auth-tokens";
+import { sendEmail } from "@/lib/email";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://japan-coupon-five.vercel.app";
+
+async function sendVerificationEmail(userId: string, email: string) {
+  try {
+    const token = await createAuthToken(userId, "email_verify");
+    const url = `${SITE_URL}/verify-email?token=${token}`;
+    await sendEmail({
+      to: email,
+      subject: "【K-Coupon Japan】メールアドレスの確認",
+      html: `
+        <p>K-Coupon Japanにご登録いただきありがとうございます。</p>
+        <p>以下のリンクをクリックして、メールアドレスの確認を完了してください（24時間有効）。</p>
+        <p><a href="${url}">${url}</a></p>
+      `,
+    });
+  } catch (err) {
+    // 메일 발송 실패가 회원가입 자체를 막지 않도록 로그만 남긴다.
+    console.error("[signup] failed to send verification email", err);
+  }
+}
 
 // LINE/Google은 인가 서버로 리다이렉트했다가 콜백으로 돌아오는 구조라, 그 사이에
 // "동의 체크박스를 확인하고 눌렀다"는 사실을 auth.ts의 signIn 콜백까지 전달할 방법이
@@ -170,22 +193,28 @@ export async function signup(
   const passwordHash = await bcrypt.hash(password, 10);
   const now = new Date().toISOString();
 
-  const { error: insertError } = await supabaseAdmin.from("users").insert({
-    email,
-    password_hash: passwordHash,
-    nickname,
-    acquisition_source: acquisitionSource,
-    terms_agreed_at: now,
-    privacy_agreed_at: now,
-    marketing_agreed_at: formData.get("agreeMarketing") === "on" ? now : null,
-  });
+  const { data: created, error: insertError } = await supabaseAdmin
+    .from("users")
+    .insert({
+      email,
+      password_hash: passwordHash,
+      nickname,
+      acquisition_source: acquisitionSource,
+      terms_agreed_at: now,
+      privacy_agreed_at: now,
+      marketing_agreed_at: formData.get("agreeMarketing") === "on" ? now : null,
+    })
+    .select("id")
+    .single();
 
-  if (insertError) {
+  if (insertError || !created) {
     return {
       error:
         "登録に失敗しました。しばらくしてからもう一度お試しください。",
     };
   }
+
+  await sendVerificationEmail(created.id, email);
 
   // 가입 직후 자동 로그인
   await signIn("credentials", {
