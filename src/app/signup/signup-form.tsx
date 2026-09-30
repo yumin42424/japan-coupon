@@ -25,7 +25,7 @@ export function SignupForm({
   return (
     <>
       {isRateLimited && (
-        <p className="mt-4 flex items-start gap-1.5 rounded-xl border border-primary/30 bg-primary/5 p-3 text-sm text-primary" role="alert">
+        <p className="mt-4 flex items-start gap-1.5 rounded-xl border border-primary/30 bg-primary/5 p-3 text-body text-primary" role="alert">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           登録の試行回数が多すぎます。しばらくしてからもう一度お試しください。
         </p>
@@ -39,7 +39,7 @@ export function SignupForm({
           <button
             type="submit"
             disabled={!canSubmit}
-            className="w-full rounded-full bg-[#06C755] px-4 py-3 text-sm font-semibold text-white shadow-card transition hover:opacity-90 disabled:opacity-40"
+            className="w-full rounded-full bg-[#06C755] px-4 py-3 text-body font-semibold text-white shadow-card transition hover:opacity-90 disabled:opacity-40"
           >
             LINEで続ける
           </button>
@@ -52,14 +52,14 @@ export function SignupForm({
           <button
             type="submit"
             disabled={!canSubmit}
-            className="w-full rounded-full border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground shadow-card transition hover:bg-background disabled:opacity-40"
+            className="w-full rounded-full border border-border bg-card px-4 py-3 text-body font-semibold text-foreground shadow-card transition hover:bg-background disabled:opacity-40"
           >
             Googleで続ける
           </button>
         </form>
       </div>
 
-      <div className="mt-5 flex items-center gap-3 text-xs text-muted">
+      <div className="mt-5 flex items-center gap-3 text-caption text-muted">
         <span className="h-px flex-1 bg-border" />
         または
         <span className="h-px flex-1 bg-border" />
@@ -69,7 +69,7 @@ export function SignupForm({
         <input type="hidden" name="acquisitionSource" value={acquisitionSource} />
         {callbackUrl && <input type="hidden" name="callbackUrl" value={callbackUrl} />}
 
-        <label className="flex flex-col gap-1.5 text-sm font-medium">
+        <label className="flex flex-col gap-1.5 text-body font-medium">
           <span className="flex items-center gap-1.5">
             <Mail className="h-4 w-4 text-primary" />
             メールアドレス
@@ -83,7 +83,7 @@ export function SignupForm({
           />
         </label>
 
-        <label className="flex flex-col gap-1.5 text-sm font-medium">
+        <label className="flex flex-col gap-1.5 text-body font-medium">
           <span className="flex items-center gap-1.5">
             <Lock className="h-4 w-4 text-primary" />
             パスワード
@@ -98,7 +98,7 @@ export function SignupForm({
           />
         </label>
 
-        <label className="flex flex-col gap-1.5 text-sm font-medium">
+        <label className="flex flex-col gap-1.5 text-body font-medium">
           <span className="flex items-center gap-1.5">
             <UserRound className="h-4 w-4 text-primary" />
             ニックネーム
@@ -112,7 +112,7 @@ export function SignupForm({
           />
         </label>
 
-        <div className="flex flex-col gap-2 rounded-xl border border-border bg-card p-3.5 text-sm">
+        <div className="flex flex-col gap-2 rounded-xl border border-border bg-card p-3.5 text-body">
           <label className="flex items-start gap-2">
             <input
               type="checkbox"
@@ -163,13 +163,13 @@ export function SignupForm({
         </div>
 
         {!canSubmit && (
-          <p className="text-center text-xs font-medium text-primary">
+          <p className="text-center text-caption font-medium text-primary">
             利用規約・プライバシーポリシーに同意すると、上のLINE・Google登録ボタンも有効になります。
           </p>
         )}
 
         {state.error && (
-          <p className="flex items-center gap-1.5 text-sm text-primary" role="alert">
+          <p className="flex items-center gap-1.5 text-body text-primary" role="alert">
             <AlertCircle className="h-4 w-4 shrink-0" />
             {state.error}
           </p>
@@ -178,13 +178,13 @@ export function SignupForm({
         <button
           type="submit"
           disabled={pending || !canSubmit}
-          className="btn-glossy mt-2 rounded-full px-4 py-3 text-sm font-bold text-primary-foreground transition hover:brightness-105 active:scale-[0.99] disabled:opacity-50 disabled:shadow-none"
+          className="btn-glossy mt-2 rounded-full px-4 py-3 text-body font-bold text-primary-foreground transition hover:brightness-105 active:scale-[0.99] disabled:opacity-50 disabled:shadow-none"
         >
           {pending ? "登録中..." : "無料会員登録"}
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-muted">
+      <p className="mt-6 text-center text-body text-muted">
         既にアカウントをお持ちですか？{" "}
         <Link
           href={callbackUrl ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/login"}

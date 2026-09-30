@@ -112,6 +112,11 @@ export default async function Home() {
     <>
       {/* ---- Hero ---- */}
       <main className="relative overflow-hidden">
+        {/* 배경이 단색으로 비어 보이지 않도록 브랜드 컬러를 아주 옅게 퍼뜨리는 장식 — 데스크톱에서만, 텍스트/사진 뒤에 */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 hidden lg:block">
+          <div className="bg-blob -right-24 -top-40 h-[28rem] w-[28rem] opacity-[0.07]" />
+          <div className="bg-blob -left-32 bottom-0 h-96 w-96 opacity-[0.05]" />
+        </div>
         <div className="relative mx-auto max-w-6xl px-6 py-16 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12 lg:px-10 lg:py-24">
           {/* モバイルのみ: 背景写真+暗めのオーバーレイ。デスクトップは右カラムに独立した写真を置くのでここでは使わない */}
           <div aria-hidden className="absolute inset-0 lg:hidden">
@@ -278,7 +283,7 @@ export default async function Home() {
 
       {/* ---- 新着クーポン ---- */}
       {recommended.length > 0 && (
-        <section className="border-t border-border bg-card/40 px-6 py-14">
+        <section className="border-t border-border bg-background-alt px-6 py-14">
           <div className="mx-auto max-w-5xl">
             <SectionHeading title="新着クーポン" />
             <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
@@ -345,7 +350,7 @@ export default async function Home() {
       </section>
 
       {/* ---- カテゴリーから探す ---- */}
-      <section className="border-t border-border bg-card/40 px-6 py-14">
+      <section className="border-t border-border bg-background-alt px-6 py-14">
         <div className="mx-auto max-w-2xl">
           <SectionHeading title="カテゴリーから探す" align="center" />
           <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">

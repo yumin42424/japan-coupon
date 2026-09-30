@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { UserPlus } from "lucide-react";
 import { SignupForm } from "./signup-form";
 import { SIGNUPS_ENABLED } from "@/lib/feature-flags";
 
@@ -17,10 +18,10 @@ export default async function SignupPage({
   if (!SIGNUPS_ENABLED) {
     return (
       <main className="mx-auto flex min-h-[calc(100vh-65px)] max-w-sm flex-col justify-center px-6 py-12">
-        <h1 className="text-2xl font-extrabold tracking-tight">
+        <h1 className="text-h1 font-display tracking-tight">
           準備中です
         </h1>
-        <p className="mt-2 text-sm text-muted">
+        <p className="mt-2 text-body text-muted">
           現在、会員登録機能を準備しています。もうしばらくお待ちください。
         </p>
       </main>
@@ -28,12 +29,19 @@ export default async function SignupPage({
   }
 
   return (
-    <main className="mx-auto flex min-h-[calc(100vh-65px)] max-w-sm flex-col justify-center px-6 py-12">
-      <div className="rounded-3xl border border-border bg-card p-7 shadow-elevated sm:p-8">
-        <h1 className="text-2xl font-black tracking-tight">
+    <main className="relative flex min-h-[calc(100vh-65px)] items-center justify-center overflow-hidden px-6 py-12">
+      <div aria-hidden className="pointer-events-none absolute inset-0 hidden sm:block">
+        <div className="bg-blob -right-20 -top-24 h-80 w-80 opacity-[0.06]" />
+        <div className="bg-blob -left-24 bottom-0 h-72 w-72 opacity-[0.05]" />
+      </div>
+      <div className="relative w-full max-w-sm rounded-3xl border border-border bg-card p-7 shadow-elevated sm:p-8">
+        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <UserPlus className="h-5 w-5" strokeWidth={2.25} />
+        </span>
+        <h1 className="text-h1 font-display mt-4 tracking-tight">
           無料会員登録
         </h1>
-        <p className="mt-2 text-sm text-muted">
+        <p className="mt-2 text-body text-muted">
           会員登録すると、会員限定クーポンをGETできます。
         </p>
 

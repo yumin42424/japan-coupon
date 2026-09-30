@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Home, Ticket, User, Shield, LogIn, Trophy, BookOpen, Megaphone, MessagesSquare, LocateFixed } from "lucide-react";
 import { auth } from "@/auth";
 import { isAdminEmail } from "@/lib/admin";
+import { ScrollHeader } from "@/components/scroll-header";
 
 export async function Nav() {
   const session = await auth();
@@ -9,7 +10,7 @@ export async function Nav() {
 
   return (
     <>
-      <header className="sticky top-0 z-10 border-b border-border/80 bg-background/80 px-4 py-3.5 backdrop-blur-md sm:px-6">
+      <ScrollHeader>
         <div className="mx-auto flex max-w-6xl items-center gap-4">
           <Link
             href="/"
@@ -122,7 +123,7 @@ export async function Nav() {
             )}
           </div>
         </div>
-      </header>
+      </ScrollHeader>
 
       {/* 모바일 전용 하단 탭바 — 높이를 --bottom-nav-h 하나로 고정해서
           body의 여백/쿠폰상세 sticky CTA와 항상 같은 기준으로 맞물리게 한다. */}

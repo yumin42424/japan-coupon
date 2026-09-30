@@ -110,7 +110,8 @@ const SECTIONS = [
     title: "第13条（お問い合わせ）",
     body: [
       "運営者：［正式名称］",
-      "個人情報管理責任者：［氏名または役職］",
+      "個人情報管理責任者：Kang Yumin",
+      "連絡先電話番号：+82 10-8276-7743",
       "所在地：［所在地］",
       "メールアドレス：［メールアドレス］",
       "制定日：［YYYY年MM月DD日］",
@@ -121,18 +122,18 @@ const SECTIONS = [
 export default function PrivacyPage() {
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
-      <h1 className="text-2xl font-extrabold tracking-tight">
+      <h1 className="text-h1 font-display tracking-tight">
         K-Coupon Japan プライバシーポリシー
       </h1>
-      <p className="mt-2 text-sm text-muted">
+      <p className="mt-2 text-body text-muted">
         K-Coupon Japanの運営者（以下「運営者」といいます。）は、本サービスにおけるユーザーの個人情報を、適用される法令および本プライバシーポリシーに従い適切に取り扱います。
       </p>
 
       <div className="mt-8 flex flex-col gap-6">
         {SECTIONS.map((section) => (
           <section key={section.title} className="rounded-2xl border border-border bg-card p-5 shadow-card">
-            <h2 className="font-bold">{section.title}</h2>
-            <ul className="mt-2 flex flex-col gap-1.5 text-sm text-foreground/80">
+            <h2 className="text-h3">{section.title}</h2>
+            <ul className="mt-2 flex flex-col gap-1.5 text-body text-foreground/80">
               {section.body.map((line, i) => (
                 <li key={i}>{line}</li>
               ))}
@@ -141,7 +142,7 @@ export default function PrivacyPage() {
         ))}
       </div>
 
-      <p className="mt-8 text-xs text-muted">
+      <p className="mt-8 text-caption text-muted">
         ［　］で示した箇所は、事業者情報の確定後に正式な内容を掲載いたします。
       </p>
     </main>

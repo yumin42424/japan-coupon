@@ -154,18 +154,18 @@ const SECTIONS = [
 export default function TermsPage() {
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
-      <h1 className="text-2xl font-extrabold tracking-tight">
+      <h1 className="text-h1 font-display tracking-tight">
         K-Coupon Japan 利用規約
       </h1>
-      <p className="mt-2 text-sm text-muted">
+      <p className="mt-2 text-body text-muted">
         本利用規約（以下「本規約」といいます。）は、K-Coupon Japan（以下「本サービス」といいます。）の利用条件を定めるものです。ユーザーは、本規約に同意した上で本サービスを利用するものとします。
       </p>
 
       <div className="mt-8 flex flex-col gap-6">
         {SECTIONS.map((section) => (
           <section key={section.title} className="rounded-2xl border border-border bg-card p-5 shadow-card">
-            <h2 className="font-bold">{section.title}</h2>
-            <ul className="mt-2 flex flex-col gap-1.5 text-sm text-foreground/80">
+            <h2 className="text-h3">{section.title}</h2>
+            <ul className="mt-2 flex flex-col gap-1.5 text-body text-foreground/80">
               {section.body.map((line, i) => (
                 <li key={i}>{line}</li>
               ))}
@@ -174,7 +174,7 @@ export default function TermsPage() {
         ))}
       </div>
 
-      <p className="mt-8 text-xs text-muted">
+      <p className="mt-8 text-caption text-muted">
         ［　］で示した箇所は、事業者情報の確定後に正式な内容を掲載いたします。
       </p>
     </main>
