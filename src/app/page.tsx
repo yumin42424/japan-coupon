@@ -10,6 +10,7 @@ import { FaqAccordion, type FaqItem } from "@/components/faq-accordion";
 import { CouponCard } from "@/components/coupon-card";
 import { SectionHeading } from "@/components/section-heading";
 import { HeroImageCarousel } from "@/components/hero-image-carousel";
+import { Reveal } from "@/components/reveal";
 
 const FEATURED_AREA_VALUES = ["myeongdong", "hongdae", "gangnam", "seongsu"] as const;
 
@@ -133,30 +134,30 @@ export default async function Home() {
             />
           </div>
 
-          {/* テキストカラム */}
+          {/* テキストカラム — 読み込み時に要素ごとに時間差でふわっと浮かび上がる */}
           <div className="relative flex flex-col items-center gap-5 text-center lg:items-start lg:gap-6 lg:text-left">
-            <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-label font-medium text-white backdrop-blur-sm lg:border-primary/20 lg:bg-primary/10 lg:text-primary">
+            <span className="animate-rise-in rounded-full border border-white/30 bg-white/10 px-3 py-1 text-label font-medium text-white backdrop-blur-sm lg:border-primary/20 lg:bg-primary/10 lg:text-primary">
               日本人旅行者限定
             </span>
 
-            <h1 className="text-display text-balance text-white lg:text-foreground">
+            <h1 className="animate-rise-in text-display text-balance text-white [animation-delay:90ms] lg:text-foreground">
               韓国旅行を、
               <br />
               もっとお得に。
             </h1>
-            <p className="text-body-lg text-white/90 lg:text-foreground/80">
+            <p className="animate-rise-in text-body-lg text-white/90 [animation-delay:180ms] lg:text-foreground/80">
               日本人旅行者向けの
               <br className="lg:hidden" />
               韓国限定クーポンをかんたん検索。
             </p>
-            <p className="text-body leading-relaxed text-white/75 lg:text-muted">
+            <p className="animate-rise-in text-body leading-relaxed text-white/75 [animation-delay:260ms] lg:text-muted">
               明洞・弘大・江南・聖水など、人気エリアの
               <br className="lg:hidden" />
               グルメ・美容・ショッピングのお得なクーポンが見つかります。
             </p>
 
             {session?.user ? (
-              <div className="mt-1 flex flex-col items-center gap-3 lg:items-start">
+              <div className="animate-rise-in mt-1 flex flex-col items-center gap-3 [animation-delay:340ms] lg:items-start">
                 <p className="text-body text-white lg:text-foreground">
                   ようこそ、<strong className="font-bold">{session.user.name}</strong>さん
                 </p>
@@ -179,7 +180,7 @@ export default async function Home() {
                 </form>
               </div>
             ) : (
-              <div className="flex flex-col items-center gap-3 sm:flex-row lg:items-start">
+              <div className="animate-rise-in flex flex-col items-center gap-3 [animation-delay:340ms] sm:flex-row lg:items-start">
                 <Link
                   href="/coupons"
                   className="group mt-1 flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-body font-bold text-primary-foreground shadow-card transition hover:brightness-105"
@@ -197,13 +198,13 @@ export default async function Home() {
               </div>
             )}
 
-            <p className="text-caption text-white/70 lg:text-muted">
+            <p className="animate-rise-in text-caption text-white/70 [animation-delay:420ms] lg:text-muted">
               登録無料 ・ かんたん利用 ・ 韓国旅行ですぐ使える
             </p>
           </div>
 
           {/* デスクトップのみ: 人気エリアの写真が数枚順番に切り替わる + 実データで作った小さなクーポンプレビュー */}
-          <div className="relative mt-10 hidden lg:mt-0 lg:block">
+          <div className="animate-rise-in-scale relative mt-10 hidden [animation-delay:160ms] lg:mt-0 lg:block">
             <div className="relative aspect-[4/3] overflow-hidden rounded-3xl shadow-elevated">
               <HeroImageCarousel
                 images={featuredAreas.flatMap((a) => {
@@ -237,7 +238,7 @@ export default async function Home() {
 
       {/* ---- 人気エリアから探す ---- */}
       <section className="border-t border-border px-6 py-14">
-        <div className="mx-auto max-w-2xl">
+        <Reveal className="mx-auto max-w-2xl">
           <SectionHeading title="人気エリアから探す" />
           <div className="mt-6 grid grid-cols-2 gap-4">
             {featuredAreas.map((area) => {
@@ -277,13 +278,13 @@ export default async function Home() {
               すべてのエリアを見る →
             </Link>
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* ---- 新着クーポン ---- */}
       {recommended.length > 0 && (
         <section className="border-t border-border bg-background-alt px-6 py-14">
-          <div className="mx-auto max-w-5xl">
+          <Reveal className="mx-auto max-w-5xl">
             <SectionHeading title="新着クーポン" />
             <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               {recommended.map((coupon) => {
@@ -304,13 +305,13 @@ export default async function Home() {
                 );
               })}
             </div>
-          </div>
+          </Reveal>
         </section>
       )}
 
       {/* ---- クーポンの使い方 ---- */}
       <section className="border-t border-border px-6 py-14">
-        <div className="mx-auto max-w-2xl">
+        <Reveal className="mx-auto max-w-2xl">
           <SectionHeading title="クーポンの使い方" align="center" />
           <div className="relative mt-8 grid gap-4 sm:grid-cols-3">
             {/* デスクトップで3ステップが一目で繋がって見えるように、カードの間を横線で結ぶ */}
@@ -345,12 +346,12 @@ export default async function Home() {
               クーポンを探してみる
             </Link>
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* ---- カテゴリーから探す ---- */}
       <section className="border-t border-border bg-background-alt px-6 py-14">
-        <div className="mx-auto max-w-2xl">
+        <Reveal className="mx-auto max-w-2xl">
           <SectionHeading title="カテゴリーから探す" align="center" />
           <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
             {CATEGORIES.map((c) => {
@@ -374,12 +375,12 @@ export default async function Home() {
               );
             })}
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* ---- K-Coupon Japanなら ---- */}
       <section className="border-t border-border px-6 py-14">
-        <div className="mx-auto max-w-2xl">
+        <Reveal className="mx-auto max-w-2xl">
           <SectionHeading
             title="K-Coupon Japanなら韓国旅行がもっと便利に。"
             align="center"
@@ -397,7 +398,7 @@ export default async function Home() {
               </div>
             ))}
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* ---- 中間CTA ---- */}
@@ -406,7 +407,7 @@ export default async function Home() {
           <Image src={CATEGORY_IMAGES.tour} alt="" fill sizes="100vw" className="object-cover" />
           <div className="absolute inset-0 bg-[rgba(20,16,14,0.72)]" />
         </div>
-        <div className="relative mx-auto flex max-w-sm flex-col items-center gap-3">
+        <Reveal className="relative mx-auto flex max-w-sm flex-col items-center gap-3">
           <h2 className="text-h1 text-white">
             韓国旅行の前に
             <br />
@@ -425,17 +426,17 @@ export default async function Home() {
             無料でクーポンを探す
           </Link>
           <p className="text-caption text-white/70">登録無料</p>
-        </div>
+        </Reveal>
       </section>
 
       {/* ---- FAQ ---- */}
       <section id="faq" className="border-t border-border px-6 py-14">
-        <div className="mx-auto max-w-2xl">
+        <Reveal className="mx-auto max-w-2xl">
           <SectionHeading title="よくある質問" align="center" />
           <div className="mt-6">
             <FaqAccordion items={FAQ_ITEMS} />
           </div>
-        </div>
+        </Reveal>
       </section>
     </>
   );

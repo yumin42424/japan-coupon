@@ -101,6 +101,41 @@ h1, h2, h3, h4, .font-display {
     pointer-events: none;
   }
 
+  /* 첫 화면(Hero) 진입 시 한 번만 순차적으로 떠오르는 연출 — 요소마다
+     animation-delay를 다르게 줘서 하나의 조율된 시퀀스처럼 보이게 한다. */
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes rise-in-scale {
+    from {
+      opacity: 0;
+      transform: scale(0.96) translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  .animate-rise-in {
+    animation: rise-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .animate-rise-in-scale {
+    animation: rise-in-scale 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-rise-in,
+    .animate-rise-in-scale {
+      animation: none;
+    }
+  }
+
   .surface-glass {
     background: rgba(255, 255, 255, 0.86);
     backdrop-filter: blur(12px);
