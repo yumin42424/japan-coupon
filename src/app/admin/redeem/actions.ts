@@ -10,6 +10,7 @@ export type RedeemState = {
   issueEventId?: string;
   couponId?: string;
   userId?: string;
+  reissueKey?: string;
   storeName?: string;
   couponTitle?: string;
   nickname?: string;
@@ -19,6 +20,7 @@ type IssueRow = {
   id: string;
   coupon_id: string;
   user_id: string | null;
+  reissue_key: string;
   coupons: { title: string; valid_to: string; is_active: boolean; stores: { name: string; is_active: boolean } | null } | null;
   users: { nickname: string } | null;
 };
@@ -35,15 +37,18 @@ export async function processRedeem(
     const issueEventId = formData.get("issueEventId") as string;
     const couponId = formData.get("couponId") as string;
     const userId = formData.get("userId") as string;
+    const reissueKey = (formData.get("reissueKey") as string) || "0";
     if (!issueEventId || !couponId || !userId) return { step: "invalid" };
 
     // 재확인: 그 사이 다른 관리자가 먼저 처리했을 수도 있으니 마지막에 한 번 더 체크
+    // (재사용 가능 쿠폰은 같은 period 안에서만 "이미 사용됨"으로 본다)
     const { data: existingUse } = await supabaseAdmin
       .from("coupon_events")
       .select("id")
       .eq("coupon_id", couponId)
       .eq("user_id", userId)
       .eq("event_type", "use")
+      .eq("reissue_key", reissueKey)
       .maybeSingle();
     if (existingUse) return { step: "used" };
 
@@ -65,6 +70,7 @@ export async function processRedeem(
       coupon_id: couponId,
       user_id: userId,
       event_type: "use",
+      reissue_key: reissueKey,
     });
 
     // 쿠폰 사용 시 포인트 적립
@@ -83,7 +89,7 @@ export async function processRedeem(
 
   const { data: issueRow } = await supabaseAdmin
     .from("coupon_events")
-    .select("id, coupon_id, user_id, coupons(title, valid_to, is_active, stores(name, is_active)), users(nickname)")
+    .select("id, coupon_id, user_id, reissue_key, coupons(title, valid_to, is_active, stores(name, is_active)), users(nickname)")
     .eq("id", code)
     .eq("event_type", "issue")
     .maybeSingle();
@@ -105,6 +111,7 @@ export async function processRedeem(
     .eq("coupon_id", issue.coupon_id)
     .eq("user_id", issue.user_id)
     .eq("event_type", "use")
+    .eq("reissue_key", issue.reissue_key)
     .maybeSingle();
 
   if (useRow) return { step: "used" };
@@ -114,6 +121,7 @@ export async function processRedeem(
     issueEventId: issue.id,
     couponId: issue.coupon_id,
     userId: issue.user_id,
+    reissueKey: issue.reissue_key,
     storeName: issue.coupons?.stores?.name,
     couponTitle: issue.coupons?.title,
     nickname: issue.users?.nickname,

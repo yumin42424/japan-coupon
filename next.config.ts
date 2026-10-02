@@ -6,11 +6,14 @@ import type { NextConfig } from "next";
 // React/Next의 개발 모드 Fast Refresh·에러 오버레이는 eval()을 쓴다(프로덕션 빌드는 안 씀) —
 // 개발 환경에서만 'unsafe-eval'을 허용해서 CSP가 로컬 개발 서버를 깨지 않게 한다.
 const isDev = process.env.NODE_ENV !== "production";
+const supabaseHostname = process.env.NEXT_PUBLIC_SUPABASE_URL
+  ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
+  : undefined;
 const CSP = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval' " : ""}https://dapi.kakao.com https://va.vercel-scripts.com`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://commons.wikimedia.org https://*.daumcdn.net",
+  `img-src 'self' data: blob: https://commons.wikimedia.org https://*.daumcdn.net${supabaseHostname ? ` https://${supabaseHostname}` : ""}`,
   "font-src 'self' data:",
   "connect-src 'self' https://dapi.kakao.com https://*.daumcdn.net https://*.ingest.us.sentry.io https://va.vercel-scripts.com https://vitals.vercel-insights.com",
   "frame-ancestors 'none'",
@@ -28,6 +31,15 @@ const nextConfig: NextConfig = {
         hostname: "commons.wikimedia.org",
         pathname: "/wiki/Special:FilePath/**",
       },
+      ...(supabaseHostname
+        ? [
+            {
+              protocol: "https" as const,
+              hostname: supabaseHostname,
+              pathname: "/storage/v1/object/public/**",
+            },
+          ]
+        : []),
     ],
   },
   async headers() {
@@ -41,7 +53,7 @@ const nextConfig: NextConfig = {
           { key: "X-Frame-Options", value: "DENY" },
           {
             key: "Permissions-Policy",
-            value: "camera=(), microphone=(), payment=(), usb=(), geolocation=(self)",
+            value: "camera=(self), microphone=(), payment=(), usb=(), geolocation=(self)",
           },
         ],
       },

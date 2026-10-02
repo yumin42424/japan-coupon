@@ -26,6 +26,8 @@ export async function createCoupon(
   const discountedPrice = discountedPriceRaw ? Number(discountedPriceRaw) : null;
   const quantityLimitRaw = formData.get("quantityLimit") as string;
   const quantityLimit = quantityLimitRaw ? Number(quantityLimitRaw) : null;
+  const reusableAfterDaysRaw = formData.get("reusableAfterDays") as string;
+  const reusableAfterDays = reusableAfterDaysRaw ? Number(reusableAfterDaysRaw) : null;
 
   if (!storeId) return { error: "店舗を選択してください。" };
   if (!title) return { error: "クーポン名を入力してください。" };
@@ -43,6 +45,9 @@ export async function createCoupon(
   if (quantityLimitRaw && (Number.isNaN(quantityLimit) || (quantityLimit as number) < 1)) {
     return { error: "数量は1以上の数字で入力してください。" };
   }
+  if (reusableAfterDaysRaw && (Number.isNaN(reusableAfterDays) || (reusableAfterDays as number) < 1)) {
+    return { error: "再利用間隔は1以上の数字で入力してください。" };
+  }
 
   const { error } = await supabaseAdmin.from("coupons").insert({
     store_id: storeId,
@@ -55,6 +60,7 @@ export async function createCoupon(
     regular_price: regularPrice,
     discounted_price: discountedPrice,
     quantity_limit: quantityLimit,
+    reusable_after_days: reusableAfterDays,
   });
 
   if (error) {
@@ -87,6 +93,8 @@ export async function updateCoupon(
   const discountedPrice = discountedPriceRaw ? Number(discountedPriceRaw) : null;
   const quantityLimitRaw = formData.get("quantityLimit") as string;
   const quantityLimit = quantityLimitRaw ? Number(quantityLimitRaw) : null;
+  const reusableAfterDaysRaw = formData.get("reusableAfterDays") as string;
+  const reusableAfterDays = reusableAfterDaysRaw ? Number(reusableAfterDaysRaw) : null;
 
   if (!storeId) return { error: "店舗を選択してください。" };
   if (!title) return { error: "クーポン名を入力してください。" };
@@ -104,6 +112,9 @@ export async function updateCoupon(
   if (quantityLimitRaw && (Number.isNaN(quantityLimit) || (quantityLimit as number) < 1)) {
     return { error: "数量は1以上の数字で入力してください。" };
   }
+  if (reusableAfterDaysRaw && (Number.isNaN(reusableAfterDays) || (reusableAfterDays as number) < 1)) {
+    return { error: "再利用間隔は1以上の数字で入力してください。" };
+  }
 
   const { error } = await supabaseAdmin
     .from("coupons")
@@ -119,6 +130,7 @@ export async function updateCoupon(
       regular_price: regularPrice,
       discounted_price: discountedPrice,
       quantity_limit: quantityLimit,
+      reusable_after_days: reusableAfterDays,
     })
     .eq("id", couponId);
 

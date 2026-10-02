@@ -11,6 +11,7 @@ import { resendVerificationEmail } from "./verify-actions";
 type CouponEventItem = {
   id?: string;
   created_at: string;
+  reissue_key?: string;
   coupons: {
     id: string;
     title: string;
@@ -51,13 +52,13 @@ export default async function MyPage({
         .order("created_at", { ascending: false }),
       supabaseAdmin
         .from("coupon_events")
-        .select("id, created_at, coupons(id, title, discount_info, valid_to, usage_condition, stores(name, category))")
+        .select("id, created_at, reissue_key, coupons(id, title, discount_info, valid_to, usage_condition, stores(name, category))")
         .eq("user_id", userId)
         .eq("event_type", "issue")
         .order("created_at", { ascending: false }),
       supabaseAdmin
         .from("coupon_events")
-        .select("created_at, coupons(id, title, discount_info, valid_to, usage_condition, stores(name, category))")
+        .select("created_at, reissue_key, coupons(id, title, discount_info, valid_to, usage_condition, stores(name, category))")
         .eq("user_id", userId)
         .eq("event_type", "use")
         .order("created_at", { ascending: false }),
@@ -86,7 +87,11 @@ export default async function MyPage({
   const favorited = (favoritedRes.data ?? []) as unknown as CouponEventItem[];
   const issued = (issuedRes.data ?? []) as unknown as CouponEventItem[];
   const used = (usedRes.data ?? []) as unknown as CouponEventItem[];
-  const usedCouponIds = new Set<string>(used.flatMap((u) => (u.coupons?.id ? [u.coupons.id] : [])));
+  // 재사용 가능한 쿠폰은 (쿠폰, reissue_key) 조합이 "한 번의 GET~사용 사이클"이라서,
+  // coupon_id만으로 묶으면 예전 사이클의 사용 기록이 새로 GET한 걸 덮어써버린다.
+  const usedCycleKeys = new Set<string>(
+    used.flatMap((u) => (u.coupons?.id ? [`${u.coupons.id}::${u.reissue_key ?? "0"}`] : []))
+  );
 
   const myCategoryValues = new Set<string>(myCategories.flatMap((c) => (c ? [c.value] : [])));
   const myAreaValues = new Set<string>(myAreas.flatMap((a) => (a ? [a.value] : [])));
@@ -113,12 +118,27 @@ export default async function MyPage({
     .slice(0, 4)
     .map((c) => ({ created_at: "", coupons: c }));
 
+  const cycleKey = (couponId: string, reissueKey?: string) => `${couponId}::${reissueKey ?? "0"}`;
+
   // 実際に店頭で見せる場面を最優先するため、GETしたクーポンは「利用可能」を先頭に並び替える
   const sortedIssued = [...issued].sort((a, b) => {
-    const aUsable = a.coupons && !usedCouponIds.has(a.coupons.id) && a.coupons.valid_to >= today;
-    const bUsable = b.coupons && !usedCouponIds.has(b.coupons.id) && b.coupons.valid_to >= today;
+    const aUsable =
+      a.coupons && !usedCycleKeys.has(cycleKey(a.coupons.id, a.reissue_key)) && a.coupons.valid_to >= today;
+    const bUsable =
+      b.coupons && !usedCycleKeys.has(cycleKey(b.coupons.id, b.reissue_key)) && b.coupons.valid_to >= today;
     return aUsable === bUsable ? 0 : aUsable ? -1 : 1;
   });
+
+  const soonCutoff = new Date();
+  soonCutoff.setDate(soonCutoff.getDate() + 3);
+  const soonCutoffStr = soonCutoff.toISOString().slice(0, 10);
+  const expiringSoon = sortedIssued.filter(
+    (i) =>
+      i.coupons &&
+      !usedCycleKeys.has(cycleKey(i.coupons.id, i.reissue_key)) &&
+      i.coupons.valid_to >= today &&
+      i.coupons.valid_to <= soonCutoffStr
+  );
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
@@ -139,6 +159,21 @@ export default async function MyPage({
               </button>
             </form>
           )}
+        </div>
+      )}
+
+      {expiringSoon.length > 0 && (
+        <div className="mt-4 rounded-xl border border-primary/30 bg-primary/5 p-3 text-body text-primary">
+          <p className="font-semibold">
+            ⏰ {expiringSoon.length}件のクーポンがまもなく期限切れです
+          </p>
+          <ul className="mt-1.5 flex flex-col gap-0.5 text-caption">
+            {expiringSoon.map((i) => (
+              <li key={i.coupons!.id}>
+                {i.coupons!.stores?.name}「{i.coupons!.title}」— {i.coupons!.valid_to}まで
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
@@ -216,7 +251,7 @@ export default async function MyPage({
         icon={Ticket}
         titleJa="GETしたクーポン"
         items={sortedIssued}
-        usedCouponIds={usedCouponIds}
+        usedCycleKeys={usedCycleKeys}
         today={today}
       />
       <CouponListSection icon={CheckCircle2} titleJa="使用済みクーポン" items={used} />
@@ -228,13 +263,13 @@ function CouponListSection({
   icon: Icon,
   titleJa,
   items,
-  usedCouponIds,
+  usedCycleKeys,
   today,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   titleJa: string;
   items: CouponEventItem[];
-  usedCouponIds?: Set<string>;
+  usedCycleKeys?: Set<string>;
   today?: string;
 }) {
   return (
@@ -252,7 +287,7 @@ function CouponListSection({
           {items.map((item, i) => {
             const coupon = item.coupons;
             if (!coupon) return null;
-            const isUsed = usedCouponIds?.has(coupon.id);
+            const isUsed = usedCycleKeys?.has(`${coupon.id}::${item.reissue_key ?? "0"}`);
             const isExpired = !isUsed && !!today && coupon.valid_to < today;
             const CategoryIcon = coupon.stores?.category
               ? CATEGORY_ICONS[coupon.stores.category as CategoryValue]
@@ -278,7 +313,7 @@ function CouponListSection({
                     </span>
                     <ChevronRight className="h-5 w-5 shrink-0 text-muted" />
                   </Link>
-                  {usedCouponIds && (
+                  {usedCycleKeys && (
                     <div className="mt-3 border-t border-border pt-3">
                       {isUsed ? (
                         <p className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-1 text-caption font-medium text-success">

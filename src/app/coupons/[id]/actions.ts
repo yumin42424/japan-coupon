@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { isAdminEmail } from "@/lib/admin";
+import { computeReissueKey } from "@/lib/reissue";
 
 export async function recordView(couponId: string) {
   const session = await auth();
@@ -21,21 +22,9 @@ export async function issueCoupon(couponId: string) {
     redirect(`/login?callbackUrl=${encodeURIComponent(`/coupons/${couponId}`)}`);
   }
 
-  const { data: existingIssue } = await supabaseAdmin
-    .from("coupon_events")
-    .select("id")
-    .eq("coupon_id", couponId)
-    .eq("user_id", session.user.id)
-    .eq("event_type", "issue")
-    .maybeSingle();
-
-  if (existingIssue) {
-    redirect(`/coupons/${couponId}`);
-  }
-
   const { data: coupon } = await supabaseAdmin
     .from("coupons")
-    .select("valid_to, quantity_limit, is_active, is_demo, stores(is_active, is_demo)")
+    .select("valid_to, quantity_limit, is_active, is_demo, reusable_after_days, stores(is_active, is_demo)")
     .eq("id", couponId)
     .maybeSingle();
 
@@ -50,6 +39,24 @@ export async function issueCoupon(couponId: string) {
 
   const today = new Date().toISOString().slice(0, 10);
   if (coupon.valid_to < today) {
+    redirect(`/coupons/${couponId}`);
+  }
+
+  // 재사용 가능 쿠폰은 현재 period(reissueKey)에서 이미 받았는지만 본다 —
+  // period가 바뀌면 자연스럽게 다시 GET할 수 있다. 재사용 불가(대부분)는 기존과 동일하게
+  // "평생 한 번"을 reissueKey='0' 하나로 표현한다.
+  const reissueKey = computeReissueKey(coupon.reusable_after_days);
+
+  const { data: existingIssue } = await supabaseAdmin
+    .from("coupon_events")
+    .select("id")
+    .eq("coupon_id", couponId)
+    .eq("user_id", session.user.id)
+    .eq("event_type", "issue")
+    .eq("reissue_key", reissueKey)
+    .maybeSingle();
+
+  if (existingIssue) {
     redirect(`/coupons/${couponId}`);
   }
 
@@ -68,6 +75,7 @@ export async function issueCoupon(couponId: string) {
     coupon_id: couponId,
     user_id: session.user.id,
     event_type: "issue",
+    reissue_key: reissueKey,
   });
 
   redirect(`/coupons/${couponId}`);
@@ -119,6 +127,13 @@ async function hasUsedCouponAtStore(userId: string, storeId: string): Promise<bo
   return !!data && data.length > 0;
 }
 
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+const ALLOWED_PHOTO_TYPES: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+};
+
 export async function submitReview(
   storeId: string,
   couponId: string,
@@ -148,12 +163,36 @@ export async function submitReview(
     return { error: "クーポンを利用したお客様のみ口コミを投稿できます。" };
   }
 
+  const photo = formData.get("photo");
+  const payload: { store_id: string; user_id: string; rating: number; body: string; photo_url?: string } = {
+    store_id: storeId,
+    user_id: session.user.id,
+    rating,
+    body,
+  };
+
+  if (photo instanceof File && photo.size > 0) {
+    const ext = ALLOWED_PHOTO_TYPES[photo.type];
+    if (!ext) {
+      return { error: "写真はJPEG・PNG・WebP形式のみ対応しています。" };
+    }
+    if (photo.size > MAX_PHOTO_BYTES) {
+      return { error: "写真のサイズは5MB以内にしてください。" };
+    }
+    const path = `${session.user.id}/${storeId}-${Date.now()}.${ext}`;
+    const { error: uploadError } = await supabaseAdmin.storage
+      .from("review-photos")
+      .upload(path, photo, { contentType: photo.type, upsert: false });
+    if (uploadError) {
+      return { error: "写真のアップロードに失敗しました。しばらくしてからもう一度お試しください。" };
+    }
+    const { data: publicUrlData } = supabaseAdmin.storage.from("review-photos").getPublicUrl(path);
+    payload.photo_url = publicUrlData.publicUrl;
+  }
+
   const { error } = await supabaseAdmin
     .from("reviews")
-    .upsert(
-      { store_id: storeId, user_id: session.user.id, rating, body },
-      { onConflict: "store_id,user_id" }
-    );
+    .upsert(payload, { onConflict: "store_id,user_id" });
 
   if (error) {
     return { error: "口コミの投稿に失敗しました。しばらくしてからもう一度お試しください。" };

@@ -5,9 +5,30 @@ import { redirect } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { requireAdmin } from "@/lib/admin";
+import { sendLinePush, textMessage } from "@/lib/line-push";
 
 const VALID_CATEGORIES = new Set<string>(CATEGORIES.map((c) => c.value));
 const VALID_AREAS = new Set<string>(AREAS.map((a) => a.value));
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://japan-coupon-five.vercel.app";
+
+// 관심지역으로 그 エリア를 등록해둔 회원 중 LINE 연동된 사람에게만 신규 매장 소식을 보낸다.
+async function notifyInterestedUsersOfNewStore(area: string, storeName: string) {
+  const areaInfo = AREAS.find((a) => a.value === area);
+  const { data: interested } = await supabaseAdmin
+    .from("user_interest_areas")
+    .select("users!inner(line_user_id)")
+    .eq("area", area)
+    .not("users.line_user_id", "is", null);
+
+  const message = textMessage(
+    `🆕${areaInfo?.ja ?? area}に新しいお店が登録されました！\n\n${storeName}\n\n${SITE_URL}/areas/${area}`
+  );
+
+  for (const row of (interested ?? []) as unknown as { users: { line_user_id: string | null } | null }[]) {
+    const lineUserId = row.users?.line_user_id;
+    if (lineUserId) await sendLinePush(lineUserId, [message]);
+  }
+}
 
 export type StoreFormState = { error?: string };
 
@@ -54,6 +75,8 @@ export async function createStore(
   if (error) {
     return { error: "登録に失敗しました。" };
   }
+
+  await notifyInterestedUsersOfNewStore(area, name);
 
   revalidatePath("/admin/stores");
   revalidatePath("/admin/coupons");

@@ -1,13 +1,22 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { CheckCircle2, AlertCircle, Search, TicketCheck } from "lucide-react";
 import { processRedeem, type RedeemState } from "./actions";
+import { QrScanner } from "@/components/qr-scanner";
 
 const initialState: RedeemState = { step: "input" };
 
 export function RedeemForm() {
   const [state, formAction, pending] = useActionState(processRedeem, initialState);
+  const [code, setCode] = useState("");
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const handleScan = (value: string) => {
+    setCode(value);
+    // state 반영 후 제출되도록 다음 tick에 submit
+    requestAnimationFrame(() => formRef.current?.requestSubmit());
+  };
 
   if (state.step === "done") {
     return (
@@ -45,6 +54,7 @@ export function RedeemForm() {
           <input type="hidden" name="issueEventId" value={state.issueEventId} />
           <input type="hidden" name="couponId" value={state.couponId} />
           <input type="hidden" name="userId" value={state.userId} />
+          <input type="hidden" name="reissueKey" value={state.reissueKey} />
           <button
             type="submit"
             disabled={pending}
@@ -59,11 +69,13 @@ export function RedeemForm() {
   }
 
   return (
-    <form action={formAction} className="flex flex-col gap-3">
+    <form ref={formRef} action={formAction} className="flex flex-col gap-3">
       <input
         type="text"
         name="code"
         required
+        value={code}
+        onChange={(e) => setCode(e.target.value)}
         placeholder="クーポンコード"
         className="rounded-lg border border-border bg-card px-3.5 py-2.5 font-mono text-body outline-none focus:border-primary"
       />
@@ -93,14 +105,17 @@ export function RedeemForm() {
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="btn-glossy flex items-center justify-center gap-2 self-start rounded-full px-5 py-2.5 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
-      >
-        <Search className="h-4 w-4" />
-        検索
-      </button>
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="submit"
+          disabled={pending}
+          className="btn-glossy flex items-center justify-center gap-2 self-start rounded-full px-5 py-2.5 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
+        >
+          <Search className="h-4 w-4" />
+          検索
+        </button>
+        <QrScanner onScan={handleScan} />
+      </div>
     </form>
   );
 }

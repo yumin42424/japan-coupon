@@ -20,6 +20,7 @@ type Coupon = {
   regular_price: number | null;
   discounted_price: number | null;
   quantity_limit: number | null;
+  reusable_after_days: number | null;
 };
 
 export function EditCouponForm({ coupon, stores }: { coupon: Coupon; stores: StoreOption[] }) {
@@ -129,6 +130,18 @@ export function EditCouponForm({ coupon, stores }: { coupon: Coupon; stores: Sto
           min={1}
           defaultValue={coupon.quantity_limit ?? ""}
           placeholder="空欄なら無制限"
+          className="rounded-lg border border-border bg-background px-3 py-2 font-normal outline-none focus:border-primary"
+        />
+      </label>
+
+      <label className="flex flex-col gap-1 text-body font-medium">
+        再利用間隔（日・任意）
+        <input
+          type="number"
+          name="reusableAfterDays"
+          min={1}
+          defaultValue={coupon.reusable_after_days ?? ""}
+          placeholder="空欄なら一人一回のみ。例: 30 → 30日ごとに再GET可能"
           className="rounded-lg border border-border bg-background px-3 py-2 font-normal outline-none focus:border-primary"
         />
       </label>

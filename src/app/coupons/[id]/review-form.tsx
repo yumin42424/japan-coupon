@@ -1,7 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { Star, AlertCircle } from "lucide-react";
+import { useActionState, useRef, useState } from "react";
+import { Star, AlertCircle, Camera, X } from "lucide-react";
 import { submitReview, type ReviewState } from "./actions";
 
 const initialState: ReviewState = {};
@@ -20,7 +20,23 @@ export function ReviewForm({
   const action = submitReview.bind(null, storeId, couponId);
   const [state, formAction, pending] = useActionState(action, initialState);
   const [rating, setRating] = useState(initialRating ?? 0);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const isEdit = initialBody != null;
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setPhotoPreview(null);
+      return;
+    }
+    setPhotoPreview(URL.createObjectURL(file));
+  };
+
+  const clearPhoto = () => {
+    setPhotoPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   return (
     <form action={formAction} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4">
@@ -55,6 +71,36 @@ export function ReviewForm({
         placeholder="日本語対応や実際に行ってみた感想を書いてください"
         className="rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
       />
+
+      <div className="flex items-center gap-2">
+        <label className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted transition hover:border-primary/40 hover:text-foreground">
+          <Camera className="h-3.5 w-3.5" />
+          写真を追加
+          <input
+            ref={fileInputRef}
+            type="file"
+            name="photo"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={handlePhotoChange}
+            className="hidden"
+          />
+        </label>
+        {photoPreview && (
+          <div className="relative h-12 w-12 overflow-hidden rounded-lg border border-border">
+            {/* eslint-disable-next-line @next/next/no-img-element -- blob: URLのローカルプレビューはnext/imageの対象外 */}
+            <img src={photoPreview} alt="" className="h-full w-full object-cover" />
+            <button
+              type="button"
+              onClick={clearPhoto}
+              aria-label="写真を削除"
+              className="absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-bl bg-black/60 text-white"
+            >
+              <X className="h-2.5 w-2.5" />
+            </button>
+          </div>
+        )}
+      </div>
+
       {state.error && (
         <p className="flex items-center gap-1.5 text-xs text-primary" role="alert">
           <AlertCircle className="h-3.5 w-3.5 shrink-0" />

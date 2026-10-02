@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, LocateFixed } from "lucide-react";
+import { ChevronLeft, LocateFixed, Search } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
@@ -37,10 +37,10 @@ type CouponListItem = {
 export default async function CouponsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; area?: string }>;
+  searchParams: Promise<{ category?: string; area?: string; q?: string }>;
 }) {
-  const { category, area } = await searchParams;
-  const hasFilter = !!(category || area);
+  const { category, area, q } = await searchParams;
+  const hasFilter = !!(category || area || q?.trim());
 
   // 카테고리/지역을 아직 고르지 않았으면 먼저 큰 타일로 골라 들어가게 하고,
   // 하나라도 고른 뒤에는 실제 쿠폰 목록 화면을 보여준다.
@@ -53,7 +53,7 @@ export default async function CouponsPage({
   // ストリーミング開始後の 200 で固定されてしまう不具合があった。
   return (
     <Suspense fallback={<FilteredCouponListFallback />}>
-      <FilteredCouponList category={category} area={area} />
+      <FilteredCouponList category={category} area={area} q={q} />
     </Suspense>
   );
 }
@@ -80,6 +80,16 @@ function CategoryAreaHub() {
       <p className="mt-2 text-body text-muted">
         カテゴリまたはエリアを選んでください。
       </p>
+
+      <form action="/coupons" className="relative mt-5">
+        <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+        <input
+          type="text"
+          name="q"
+          placeholder="店舗名やクーポン名で検索"
+          className="w-full rounded-full border border-border bg-card py-3 pl-11 pr-4 text-body outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
+        />
+      </form>
 
       <Link
         href="/nearby"
@@ -164,11 +174,14 @@ function CategoryAreaHub() {
 async function FilteredCouponList({
   category,
   area: areaParam,
+  q,
 }: {
   category?: string;
   area?: string;
+  q?: string;
 }) {
   const area = areaParam === "all" ? undefined : areaParam;
+  const keyword = q?.trim();
 
   let query = supabaseAdmin
     .from("coupons")
@@ -185,6 +198,19 @@ async function FilteredCouponList({
   if (category) query = query.eq("stores.category", category);
   if (area) query = query.eq("stores.area", area);
 
+  if (keyword) {
+    // 매장명으로도 찾을 수 있어야 하는데, PostgREST의 OR 조건은 같은 테이블
+    // 컬럼끼리만 안전하게 묶이므로 매장명 검색은 먼저 store_id 목록으로 변환한다.
+    const { data: matchedStores } = await supabaseAdmin
+      .from("stores")
+      .select("id")
+      .ilike("name", `%${keyword}%`);
+    const storeIds = (matchedStores ?? []).map((s) => s.id);
+    const orParts = [`title.ilike.%${keyword}%`];
+    if (storeIds.length > 0) orParts.push(`store_id.in.(${storeIds.join(",")})`);
+    query = query.or(orParts.join(","));
+  }
+
   const { data } = await query;
   const coupons = (data ?? []) as unknown as CouponListItem[];
 
@@ -192,6 +218,7 @@ async function FilteredCouponList({
     const params = new URLSearchParams();
     if (next.category) params.set("category", next.category);
     if (next.area) params.set("area", next.area);
+    if (keyword) params.set("q", keyword);
     const qs = params.toString();
     return qs ? `/coupons?${qs}` : "/coupons";
   };
@@ -217,13 +244,27 @@ async function FilteredCouponList({
       </Link>
 
       <h1 className="text-h1 font-display mt-3 tracking-tight">
-        {currentCategory ? currentCategory.ja : null}
-        {currentCategory && currentArea ? " ・ " : null}
-        {currentArea ? currentArea.ja : null}
-        {!currentCategory && !currentArea && "すべてのクーポン"}
+        {keyword ? `「${keyword}」の検索結果` : null}
+        {!keyword && currentCategory ? currentCategory.ja : null}
+        {!keyword && currentCategory && currentArea ? " ・ " : null}
+        {!keyword && currentArea ? currentArea.ja : null}
+        {!keyword && !currentCategory && !currentArea && "すべてのクーポン"}
       </h1>
 
-      <div className="mt-6 flex flex-wrap gap-2">
+      <form action="/coupons" className="relative mt-4">
+        {category && <input type="hidden" name="category" value={category} />}
+        {area && <input type="hidden" name="area" value={area} />}
+        <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+        <input
+          type="text"
+          name="q"
+          defaultValue={keyword}
+          placeholder="店舗名やクーポン名で検索"
+          className="w-full rounded-full border border-border bg-card py-2.5 pl-11 pr-4 text-body outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
+        />
+      </form>
+
+      <div className="mt-4 flex flex-wrap gap-2">
         <Link href={buildHref({ area })} className={chip(!category)}>
           すべて
         </Link>

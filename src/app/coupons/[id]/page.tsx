@@ -24,9 +24,15 @@ import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
 import { CATEGORY_IMAGES } from "@/lib/taxonomy-images";
 import { daysUntil, isUrgentDeadline } from "@/lib/urgency";
+import { isOpenNow } from "@/lib/business-hours";
+import { getKrwToJpyRate, formatJpy } from "@/lib/exchange-rate";
+import { computeReissueKey } from "@/lib/reissue";
 import { issueCoupon, toggleFavorite, deleteReview } from "./actions";
 import { ReviewForm } from "./review-form";
 import { ViewTracker } from "./view-tracker";
+import { ShareButton } from "@/components/share-button";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://japan-coupon-five.vercel.app";
 
 type CouponDetail = {
   id: string;
@@ -40,6 +46,7 @@ type CouponDetail = {
   usage_condition: string | null;
   quantity_limit: number | null;
   is_active: boolean;
+  reusable_after_days: number | null;
   stores: {
     id: string;
     name: string;
@@ -117,7 +124,7 @@ export default async function CouponDetailPage({
   const { data } = await supabaseAdmin
     .from("coupons")
     .select(
-      "id, title, discount_info, valid_from, valid_to, member_only, regular_price, discounted_price, usage_condition, quantity_limit, is_active, stores(id, name, category, area, line_available, popular_with_japanese, address, business_hours, reservation_info, is_active)"
+      "id, title, discount_info, valid_from, valid_to, member_only, regular_price, discounted_price, usage_condition, quantity_limit, is_active, reusable_after_days, stores(id, name, category, area, line_available, popular_with_japanese, address, business_hours, reservation_info, is_active)"
     )
     .eq("id", id)
     .maybeSingle();
@@ -125,6 +132,7 @@ export default async function CouponDetailPage({
   if (!data) notFound();
   const coupon = data as unknown as CouponDetail;
   const store = coupon.stores;
+  const reissueKey = computeReissueKey(coupon.reusable_after_days);
 
   let issuedCount = 0;
   if (coupon.quantity_limit != null) {
@@ -153,6 +161,7 @@ export default async function CouponDetailPage({
         .eq("coupon_id", id)
         .eq("user_id", session.user.id)
         .eq("event_type", "issue")
+        .eq("reissue_key", reissueKey)
         .maybeSingle(),
       supabaseAdmin
         .from("coupon_events")
@@ -178,13 +187,14 @@ export default async function CouponDetailPage({
     id: string;
     rating: number;
     body: string;
+    photo_url: string | null;
     created_at: string;
     user_id: string;
     users: { nickname: string } | null;
   };
   const { data: reviewRows } = await supabaseAdmin
     .from("reviews")
-    .select("id, rating, body, created_at, user_id, users(nickname)")
+    .select("id, rating, body, photo_url, created_at, user_id, users(nickname)")
     .eq("store_id", store.id)
     .order("created_at", { ascending: false });
   const reviews = (reviewRows ?? []) as unknown as ReviewRow[];
@@ -203,6 +213,9 @@ export default async function CouponDetailPage({
     coupon.regular_price && coupon.discounted_price
       ? Math.round((1 - coupon.discounted_price / coupon.regular_price) * 100)
       : null;
+  const openNow = isOpenNow(store.business_hours);
+  const jpyRate = await getKrwToJpyRate();
+  const shareTitle = `${store.name}｜${coupon.title}`;
 
   return (
     <main className="mx-auto max-w-md px-6 pb-10 pt-0">
@@ -227,19 +240,22 @@ export default async function CouponDetailPage({
           {CategoryIcon && <CategoryIcon className="h-5 w-5" strokeWidth={2.25} />}
         </span>
 
-        {session?.user && (
-          <form action={toggleFavorite.bind(null, id)} className="absolute right-4 top-4">
-            <button
-              type="submit"
-              aria-label={isFavorited ? "お気に入りから外す" : "お気に入りに追加"}
-              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full backdrop-blur-sm transition focus-visible:ring-4 focus-visible:ring-white/40 ${
-                isFavorited ? "bg-primary text-white" : "bg-white/80 text-foreground hover:bg-white"
-              }`}
-            >
-              <Heart className="h-5 w-5" fill={isFavorited ? "currentColor" : "none"} strokeWidth={2} />
-            </button>
-          </form>
-        )}
+        <div className="absolute right-4 top-4 flex items-center gap-2">
+          <ShareButton title={shareTitle} url={`${SITE_URL}/coupons/${id}`} />
+          {session?.user && (
+            <form action={toggleFavorite.bind(null, id)}>
+              <button
+                type="submit"
+                aria-label={isFavorited ? "お気に入りから外す" : "お気に入りに追加"}
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full backdrop-blur-sm transition focus-visible:ring-4 focus-visible:ring-white/40 ${
+                  isFavorited ? "bg-primary text-white" : "bg-white/80 text-foreground hover:bg-white"
+                }`}
+              >
+                <Heart className="h-5 w-5" fill={isFavorited ? "currentColor" : "none"} strokeWidth={2} />
+              </button>
+            </form>
+          )}
+        </div>
 
         <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-2 p-4">
           <div className="min-w-0">
@@ -305,21 +321,28 @@ export default async function CouponDetailPage({
               </p>
             )}
             {(coupon.regular_price || coupon.discounted_price) && (
-              <p className="mt-1.5 flex items-center gap-2">
-                {coupon.regular_price && (
-                  <span className="text-sm text-muted line-through">
-                    ¥{coupon.regular_price.toLocaleString()}
-                  </span>
+              <>
+                <p className="mt-1.5 flex items-center gap-2">
+                  {coupon.regular_price && (
+                    <span className="text-sm text-muted line-through">
+                      ₩{coupon.regular_price.toLocaleString()}
+                    </span>
+                  )}
+                  {coupon.discounted_price && (
+                    <span className="text-lg font-bold">₩{coupon.discounted_price.toLocaleString()}</span>
+                  )}
+                  {discountRate !== null && (
+                    <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-primary-foreground">
+                      -{discountRate}%
+                    </span>
+                  )}
+                </p>
+                {jpyRate && coupon.discounted_price && (
+                  <p className="text-caption text-muted">
+                    約{formatJpy(coupon.discounted_price, jpyRate)}
+                  </p>
                 )}
-                {coupon.discounted_price && (
-                  <span className="text-lg font-bold">¥{coupon.discounted_price.toLocaleString()}</span>
-                )}
-                {discountRate !== null && (
-                  <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-primary-foreground">
-                    -{discountRate}%
-                  </span>
-                )}
-              </p>
+              </>
             )}
           </div>
           <div className="flex flex-col gap-2 px-5 py-4 text-sm">
@@ -343,6 +366,15 @@ export default async function CouponDetailPage({
               <p className="flex items-center gap-2 text-muted">
                 <Clock className="h-4 w-4 shrink-0" />
                 {store.business_hours}
+                {openNow !== null && (
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                      openNow ? "bg-success/10 text-success" : "bg-border text-muted"
+                    }`}
+                  >
+                    {openNow ? "営業中" : "営業時間外"}
+                  </span>
+                )}
               </p>
             )}
             {store.reservation_info && (
@@ -458,6 +490,11 @@ export default async function CouponDetailPage({
                     )}
                   </div>
                   <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">{review.body}</p>
+                  {review.photo_url && (
+                    <div className="relative mt-2 aspect-video w-full max-w-[240px] overflow-hidden rounded-xl bg-border">
+                      <Image src={review.photo_url} alt="" fill sizes="240px" className="object-cover" />
+                    </div>
+                  )}
                   <p className="mt-2 flex items-center gap-1 text-[11px] text-muted">
                     <span>{review.users?.nickname ?? "会員"}</span>
                     <span>・</span>
