@@ -10,11 +10,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
   const [state, formAction, pending] = useActionState(resetPassword, initialState);
 
   return (
-    <main className="relative flex min-h-[calc(100vh-65px)] items-center justify-center overflow-hidden px-6 py-12">
-      <div aria-hidden className="pointer-events-none absolute inset-0 hidden sm:block">
-        <div className="bg-blob -right-20 -top-24 h-80 w-80 opacity-[0.06]" />
-        <div className="bg-blob -left-24 bottom-0 h-72 w-72 opacity-[0.05]" />
-      </div>
+    <main className="relative flex min-h-[calc(100vh-65px)] items-center justify-center px-6 py-12">
       <div className="relative w-full max-w-sm rounded-3xl border border-border bg-card p-7 shadow-elevated sm:p-8">
         <h1 className="text-h1 font-display tracking-tight">
           新しいパスワード

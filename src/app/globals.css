@@ -41,9 +41,39 @@
 }
 
 body {
+  position: relative;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-body), "Noto Sans JP", sans-serif;
+}
+
+/* 페이지 전체가 단색 배경이라 첫 화면부터 "휑하다"는 피드백을 받아서,
+   브랜드 컬러를 아주 낮은 농도로 퍼뜨린 장식을 뷰포트에 고정해서 깐다.
+   스크롤해도 따라오기 때문에 어느 섹션에서든 배경에 깊이가 느껴진다. */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  border-radius: 9999px;
+  pointer-events: none;
+  filter: blur(80px);
+}
+body::before {
+  top: -6rem;
+  right: -4rem;
+  height: 38rem;
+  width: 38rem;
+  background: radial-gradient(circle, var(--primary) 0%, transparent 72%);
+  opacity: 0.28;
+}
+body::after {
+  bottom: -10rem;
+  left: -8rem;
+  height: 32rem;
+  width: 32rem;
+  background: radial-gradient(circle, var(--primary-dark) 0%, transparent 72%);
+  opacity: 0.16;
 }
 
 h1, h2, h3, h4, .font-display {

@@ -4,11 +4,7 @@ const LINE_URL = "https://line.me/R/ti/p/@490gzucs";
 
 export default function SupportPage() {
   return (
-    <main className="relative flex min-h-[calc(100vh-65px)] items-center justify-center overflow-hidden px-6 py-12">
-      <div aria-hidden className="pointer-events-none absolute inset-0 hidden sm:block">
-        <div className="bg-blob -right-20 -top-24 h-80 w-80 opacity-[0.06]" />
-        <div className="bg-blob -left-24 bottom-0 h-72 w-72 opacity-[0.05]" />
-      </div>
+    <main className="relative flex min-h-[calc(100vh-65px)] items-center justify-center px-6 py-12">
       <div className="relative flex w-full max-w-sm flex-col items-center rounded-3xl border border-border bg-card p-7 text-center shadow-elevated sm:p-8">
         <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
           <MessageCircleQuestion className="h-6 w-6" />
