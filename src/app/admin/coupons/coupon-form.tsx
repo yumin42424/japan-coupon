@@ -20,7 +20,7 @@ export function CouponForm({ stores }: { stores: StoreOption[] }) {
 
   return (
     <form ref={formRef} action={formAction} className="mt-3 flex flex-col gap-3">
-      <label className="flex flex-col gap-1 text-sm font-medium">
+      <label className="flex flex-col gap-1 text-body font-medium">
         店舗
         <select
           name="storeId"
@@ -39,7 +39,7 @@ export function CouponForm({ stores }: { stores: StoreOption[] }) {
         </select>
       </label>
 
-      <label className="flex flex-col gap-1 text-sm font-medium">
+      <label className="flex flex-col gap-1 text-body font-medium">
         クーポン名
         <input
           type="text"
@@ -50,7 +50,7 @@ export function CouponForm({ stores }: { stores: StoreOption[] }) {
         />
       </label>
 
-      <label className="flex flex-col gap-1 text-sm font-medium">
+      <label className="flex flex-col gap-1 text-body font-medium">
         割引内容
         <input
           type="text"
@@ -61,7 +61,7 @@ export function CouponForm({ stores }: { stores: StoreOption[] }) {
       </label>
 
       <div className="grid grid-cols-2 gap-3">
-        <label className="flex flex-col gap-1 text-sm font-medium">
+        <label className="flex flex-col gap-1 text-body font-medium">
           正規価格 (円)
           <input
             type="number"
@@ -71,7 +71,7 @@ export function CouponForm({ stores }: { stores: StoreOption[] }) {
             className="rounded-lg border border-border bg-background px-3 py-2 font-normal outline-none focus:border-primary"
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm font-medium">
+        <label className="flex flex-col gap-1 text-body font-medium">
           クーポン価格 (円)
           <input
             type="number"
@@ -83,7 +83,7 @@ export function CouponForm({ stores }: { stores: StoreOption[] }) {
         </label>
       </div>
 
-      <label className="flex flex-col gap-1 text-sm font-medium">
+      <label className="flex flex-col gap-1 text-body font-medium">
         利用条件
         <input
           type="text"
@@ -94,7 +94,7 @@ export function CouponForm({ stores }: { stores: StoreOption[] }) {
       </label>
 
       <div className="grid grid-cols-2 gap-3">
-        <label className="flex flex-col gap-1 text-sm font-medium">
+        <label className="flex flex-col gap-1 text-body font-medium">
           開始日
           <input
             type="date"
@@ -103,7 +103,7 @@ export function CouponForm({ stores }: { stores: StoreOption[] }) {
             className="rounded-lg border border-border bg-background px-3 py-2 font-normal outline-none focus:border-primary"
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm font-medium">
+        <label className="flex flex-col gap-1 text-body font-medium">
           終了日
           <input
             type="date"
@@ -114,7 +114,7 @@ export function CouponForm({ stores }: { stores: StoreOption[] }) {
         </label>
       </div>
 
-      <label className="flex flex-col gap-1 text-sm font-medium">
+      <label className="flex flex-col gap-1 text-body font-medium">
         先着順の数量制限（任意）
         <input
           type="number"
@@ -125,13 +125,13 @@ export function CouponForm({ stores }: { stores: StoreOption[] }) {
         />
       </label>
 
-      <label className="flex items-center gap-2 text-sm font-medium">
+      <label className="flex items-center gap-2 text-body font-medium">
         <input type="checkbox" name="memberOnly" defaultChecked />
         会員限定クーポン
       </label>
 
       {state.error && (
-        <p className="flex items-center gap-1.5 text-sm text-primary" role="alert">
+        <p className="flex items-center gap-1.5 text-body text-primary" role="alert">
           <AlertCircle className="h-4 w-4 shrink-0" />
           {state.error}
         </p>
@@ -140,7 +140,7 @@ export function CouponForm({ stores }: { stores: StoreOption[] }) {
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-90 disabled:opacity-50"
+        className="btn-glossy self-start rounded-full px-4 py-2 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
       >
         {pending ? "登録中..." : "登録する"}
       </button>

@@ -13,15 +13,15 @@ export function RedeemForm() {
     return (
       <div className="rounded-2xl border border-success/40 bg-success/10 p-6 text-center">
         <CheckCircle2 className="mx-auto h-8 w-8 text-success" />
-        <p className="mt-2 font-bold text-success">
+        <p className="mt-2 text-h3 text-success">
           使用処理が完了しました
         </p>
-        <p className="mt-1 text-sm text-muted">
+        <p className="mt-1 text-body text-muted">
           10ポイントが付与されました。
         </p>
         <a
           href="/admin/redeem"
-          className="mt-3 inline-block text-sm text-primary underline underline-offset-4"
+          className="mt-3 inline-block text-body text-primary underline underline-offset-4"
         >
           別のクーポンを処理する
         </a>
@@ -31,10 +31,10 @@ export function RedeemForm() {
 
   if (state.step === "found") {
     return (
-      <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-        <p className="text-xs text-muted">{state.storeName}</p>
-        <p className="font-bold text-primary">{state.couponTitle}</p>
-        <p className="mt-2 text-sm">
+      <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
+        <p className="text-caption text-muted">{state.storeName}</p>
+        <p className="text-h3 text-primary">{state.couponTitle}</p>
+        <p className="mt-2 text-body">
           <span className="text-muted">
             会員:{" "}
           </span>
@@ -48,7 +48,7 @@ export function RedeemForm() {
           <button
             type="submit"
             disabled={pending}
-            className="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition hover:shadow-xl hover:shadow-primary/30 disabled:opacity-50"
+            className="btn-glossy flex w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
           >
             <TicketCheck className="h-4 w-4" />
             使用処理する
@@ -65,29 +65,29 @@ export function RedeemForm() {
         name="code"
         required
         placeholder="クーポンコード"
-        className="rounded-lg border border-border bg-card px-3.5 py-2.5 font-mono text-sm outline-none focus:border-primary"
+        className="rounded-lg border border-border bg-card px-3.5 py-2.5 font-mono text-body outline-none focus:border-primary"
       />
 
       {state.step === "used" && (
-        <p className="flex items-center gap-1.5 text-sm text-primary">
+        <p className="flex items-center gap-1.5 text-body text-primary">
           <AlertCircle className="h-4 w-4 shrink-0" />
           既に使用済みのクーポンです。
         </p>
       )}
       {state.step === "invalid" && (
-        <p className="flex items-center gap-1.5 text-sm text-primary">
+        <p className="flex items-center gap-1.5 text-body text-primary">
           <AlertCircle className="h-4 w-4 shrink-0" />
           コードが見つかりません。
         </p>
       )}
       {state.step === "expired" && (
-        <p className="flex items-center gap-1.5 text-sm text-primary">
+        <p className="flex items-center gap-1.5 text-body text-primary">
           <AlertCircle className="h-4 w-4 shrink-0" />
           このクーポンは有効期限が終了しています。
         </p>
       )}
       {state.step === "unavailable" && (
-        <p className="flex items-center gap-1.5 text-sm text-primary">
+        <p className="flex items-center gap-1.5 text-body text-primary">
           <AlertCircle className="h-4 w-4 shrink-0" />
           このクーポンまたは店舗は現在停止中です。
         </p>
@@ -96,7 +96,7 @@ export function RedeemForm() {
       <button
         type="submit"
         disabled={pending}
-        className="flex items-center justify-center gap-2 self-start rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-90 disabled:opacity-50"
+        className="btn-glossy flex items-center justify-center gap-2 self-start rounded-full px-5 py-2.5 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
       >
         <Search className="h-4 w-4" />
         検索

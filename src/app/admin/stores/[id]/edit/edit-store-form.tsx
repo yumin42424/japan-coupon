@@ -28,7 +28,7 @@ export function EditStoreForm({ store }: { store: Store }) {
 
   return (
     <form action={formAction} className="mt-3 flex flex-col gap-3">
-      <label className="flex flex-col gap-1 text-sm font-medium">
+      <label className="flex flex-col gap-1 text-body font-medium">
         店舗名
         <input
           type="text"
@@ -40,7 +40,7 @@ export function EditStoreForm({ store }: { store: Store }) {
       </label>
 
       <div className="grid grid-cols-2 gap-3">
-        <label className="flex flex-col gap-1 text-sm font-medium">
+        <label className="flex flex-col gap-1 text-body font-medium">
           カテゴリ
           <select
             name="category"
@@ -56,7 +56,7 @@ export function EditStoreForm({ store }: { store: Store }) {
           </select>
         </label>
 
-        <label className="flex flex-col gap-1 text-sm font-medium">
+        <label className="flex flex-col gap-1 text-body font-medium">
           エリア
           <select
             name="area"
@@ -73,7 +73,7 @@ export function EditStoreForm({ store }: { store: Store }) {
         </label>
       </div>
 
-      <label className="flex flex-col gap-1 text-sm font-medium">
+      <label className="flex flex-col gap-1 text-body font-medium">
         住所
         <input
           type="text"
@@ -84,7 +84,7 @@ export function EditStoreForm({ store }: { store: Store }) {
       </label>
 
       <div className="grid grid-cols-2 gap-3">
-        <label className="flex flex-col gap-1 text-sm font-medium">
+        <label className="flex flex-col gap-1 text-body font-medium">
           緯度
           <input
             type="number"
@@ -96,7 +96,7 @@ export function EditStoreForm({ store }: { store: Store }) {
           />
         </label>
 
-        <label className="flex flex-col gap-1 text-sm font-medium">
+        <label className="flex flex-col gap-1 text-body font-medium">
           経度
           <input
             type="number"
@@ -109,7 +109,7 @@ export function EditStoreForm({ store }: { store: Store }) {
         </label>
       </div>
 
-      <label className="flex flex-col gap-1 text-sm font-medium">
+      <label className="flex flex-col gap-1 text-body font-medium">
         営業時間
         <input
           type="text"
@@ -119,7 +119,7 @@ export function EditStoreForm({ store }: { store: Store }) {
         />
       </label>
 
-      <label className="flex flex-col gap-1 text-sm font-medium">
+      <label className="flex flex-col gap-1 text-body font-medium">
         予約方法
         <input
           type="text"
@@ -129,12 +129,12 @@ export function EditStoreForm({ store }: { store: Store }) {
         />
       </label>
 
-      <label className="flex items-center gap-2 text-sm font-medium">
+      <label className="flex items-center gap-2 text-body font-medium">
         <input type="checkbox" name="lineAvailable" defaultChecked={store.line_available} />
         日本語対応可能
       </label>
 
-      <label className="flex items-center gap-2 text-sm font-medium">
+      <label className="flex items-center gap-2 text-body font-medium">
         <input
           type="checkbox"
           name="popularWithJapanese"
@@ -143,13 +143,13 @@ export function EditStoreForm({ store }: { store: Store }) {
         日本人に人気の店舗
       </label>
 
-      <label className="flex items-center gap-2 text-sm font-medium">
+      <label className="flex items-center gap-2 text-body font-medium">
         <input type="checkbox" name="isActive" defaultChecked={store.is_active} />
         掲載を有効にする（オフにすると一時停止し、この店舗のクーポンは非公開になります）
       </label>
 
       {state.error && (
-        <p className="flex items-center gap-1.5 text-sm text-primary" role="alert">
+        <p className="flex items-center gap-1.5 text-body text-primary" role="alert">
           <AlertCircle className="h-4 w-4 shrink-0" />
           {state.error}
         </p>
@@ -158,7 +158,7 @@ export function EditStoreForm({ store }: { store: Store }) {
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-90 disabled:opacity-50"
+        className="btn-glossy self-start rounded-full px-4 py-2 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
       >
         {pending ? "更新中..." : "更新する"}
       </button>

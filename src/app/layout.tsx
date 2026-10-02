@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
+import { PublicChrome } from "@/components/public-chrome";
 
 // 見出し用 — 幾何学的で存在感のあるゴシック体
 const display = Zen_Kaku_Gothic_New({
@@ -45,9 +46,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${display.variable} ${body.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col pb-[var(--bottom-nav-h)] md:pb-0">
-        <Nav />
+        <PublicChrome>
+          <Nav />
+        </PublicChrome>
         {children}
-        <Footer />
+        <PublicChrome>
+          <Footer />
+        </PublicChrome>
         <Analytics />
       </body>
     </html>

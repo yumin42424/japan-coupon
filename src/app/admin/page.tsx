@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { Users, Eye, Ticket, CheckCircle2, CalendarHeart, Repeat, Store, Tag, Link2, TicketCheck, Megaphone } from "lucide-react";
+import { Users, Eye, Ticket, CheckCircle2, CalendarHeart, Repeat } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 
@@ -105,47 +104,9 @@ export default async function AdminPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="text-2xl font-extrabold tracking-tight">
+      <h1 className="text-h1 font-display tracking-tight">
         管理者ダッシュボード
       </h1>
-
-      <div className="mt-4 flex gap-2 text-sm">
-        <Link
-          href="/admin/stores"
-          className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 font-medium transition hover:border-primary/40"
-        >
-          <Store className="h-3.5 w-3.5" />
-          店舗管理
-        </Link>
-        <Link
-          href="/admin/coupons"
-          className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 font-medium transition hover:border-primary/40"
-        >
-          <Tag className="h-3.5 w-3.5" />
-          クーポン管理
-        </Link>
-        <Link
-          href="/admin/landing-pages"
-          className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 font-medium transition hover:border-primary/40"
-        >
-          <Link2 className="h-3.5 w-3.5" />
-          LP管理
-        </Link>
-        <Link
-          href="/admin/redeem"
-          className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 font-medium transition hover:border-primary/40"
-        >
-          <TicketCheck className="h-3.5 w-3.5" />
-          使用処理
-        </Link>
-        <Link
-          href="/admin/notices"
-          className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 font-medium transition hover:border-primary/40"
-        >
-          <Megaphone className="h-3.5 w-3.5" />
-          お知らせ管理
-        </Link>
-      </div>
 
       <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
         <StatCard icon={Users} ja="会員登録数" value={totalUsers} />
@@ -188,23 +149,23 @@ export default async function AdminPage() {
       </Section>
 
       <Section ja="店舗別 利用状況">
-        <div className="mt-2 overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="mt-2 overflow-x-auto rounded-2xl border border-border bg-card shadow-card">
+          <table className="w-full text-body">
             <thead>
-              <tr className="border-b border-border text-left text-muted">
-                <th className="py-1 pr-4">
+              <tr className="border-b border-border text-left text-caption text-muted">
+                <th className="py-2.5 pl-4 pr-4 font-medium">
                   店舗名
                 </th>
-                <th className="py-1 pr-4">
+                <th className="py-2.5 pr-4 font-medium">
                   閲覧
                 </th>
-                <th className="py-1 pr-4">
+                <th className="py-2.5 pr-4 font-medium">
                   発行
                 </th>
-                <th className="py-1 pr-4">
+                <th className="py-2.5 pr-4 font-medium">
                   使用
                 </th>
-                <th className="py-1">
+                <th className="py-2.5 pr-4 font-medium">
                   使用率
                 </th>
               </tr>
@@ -212,18 +173,18 @@ export default async function AdminPage() {
             <tbody>
               {[...storeStats.values()].length === 0 && (
                 <tr>
-                  <td className="py-2 text-muted" colSpan={5}>
+                  <td className="py-4 pl-4 text-caption text-muted" colSpan={5}>
                     データがありません
                   </td>
                 </tr>
               )}
               {[...storeStats.values()].map((s) => (
-                <tr key={s.name} className="border-b border-border">
-                  <td className="py-1 pr-4">{s.name}</td>
-                  <td className="py-1 pr-4">{s.view}</td>
-                  <td className="py-1 pr-4">{s.issue}</td>
-                  <td className="py-1 pr-4">{s.use}</td>
-                  <td className="py-1">
+                <tr key={s.name} className="border-b border-border last:border-0">
+                  <td className="py-2.5 pl-4 pr-4 font-medium">{s.name}</td>
+                  <td className="py-2.5 pr-4 text-muted">{s.view}</td>
+                  <td className="py-2.5 pr-4 text-muted">{s.issue}</td>
+                  <td className="py-2.5 pr-4 text-muted">{s.use}</td>
+                  <td className="py-2.5 pr-4 font-medium text-primary">
                     {s.issue ? `${Math.round((s.use / s.issue) * 1000) / 10}%` : "-"}
                   </td>
                 </tr>
@@ -246,12 +207,12 @@ function StatCard({
   value: string | number;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-      <div className="flex items-center gap-1.5 text-xs text-muted">
+    <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
+      <div className="flex items-center gap-1.5 text-caption text-muted">
         <Icon className="h-3.5 w-3.5" />
         <span>{ja}</span>
       </div>
-      <p className="mt-1.5 text-2xl font-extrabold tracking-tight text-primary">{value}</p>
+      <p className="mt-1.5 text-h1 font-display tracking-tight text-primary">{value}</p>
     </div>
   );
 }
@@ -265,7 +226,7 @@ function Section({
 }) {
   return (
     <section className="mt-10">
-      <h2 className="text-lg font-bold">{ja}</h2>
+      <h2 className="text-h2 font-display">{ja}</h2>
       {children}
     </section>
   );
@@ -280,17 +241,17 @@ function SimpleTable({
 }) {
   if (!rows.length) {
     return (
-      <p className="mt-2 text-sm text-muted">
+      <p className="mt-2 text-body text-muted">
         データがありません
       </p>
     );
   }
   return (
-    <ul className="mt-2 flex flex-col gap-1 text-sm">
+    <ul className="mt-2 flex flex-col gap-1 text-body">
       {rows.map(([key, count]) => (
         <li
           key={key}
-          className="flex justify-between border-b border-border py-1"
+          className="flex justify-between border-b border-border py-1.5"
         >
           <span>{renderLabel(key)}</span>
           <span className="font-medium">{count}</span>

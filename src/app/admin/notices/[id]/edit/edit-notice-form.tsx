@@ -12,7 +12,7 @@ export function EditNoticeForm({ notice }: { notice: { id: string; title: string
 
   return (
     <form action={formAction} className="mt-3 flex flex-col gap-3">
-      <label className="flex flex-col gap-1 text-sm font-medium">
+      <label className="flex flex-col gap-1 text-body font-medium">
         タイトル
         <input
           type="text"
@@ -23,7 +23,7 @@ export function EditNoticeForm({ notice }: { notice: { id: string; title: string
         />
       </label>
 
-      <label className="flex flex-col gap-1 text-sm font-medium">
+      <label className="flex flex-col gap-1 text-body font-medium">
         本文
         <textarea
           name="body"
@@ -35,7 +35,7 @@ export function EditNoticeForm({ notice }: { notice: { id: string; title: string
       </label>
 
       {state.error && (
-        <p className="flex items-center gap-1.5 text-sm text-primary" role="alert">
+        <p className="flex items-center gap-1.5 text-body text-primary" role="alert">
           <AlertCircle className="h-4 w-4 shrink-0" />
           {state.error}
         </p>
@@ -44,7 +44,7 @@ export function EditNoticeForm({ notice }: { notice: { id: string; title: string
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-90 disabled:opacity-50"
+        className="btn-glossy self-start rounded-full px-4 py-2 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
       >
         {pending ? "更新中..." : "更新する"}
       </button>

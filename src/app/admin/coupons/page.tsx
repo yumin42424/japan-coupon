@@ -11,6 +11,7 @@ type CouponRow = {
   valid_from: string;
   valid_to: string;
   is_active: boolean;
+  is_demo: boolean;
   stores: { name: string } | null;
 };
 
@@ -18,7 +19,7 @@ export default async function AdminCouponsPage() {
   const [couponsRes, storesRes] = await Promise.all([
     supabaseAdmin
       .from("coupons")
-      .select("id, title, discount_info, valid_from, valid_to, is_active, stores(name)")
+      .select("id, title, discount_info, valid_from, valid_to, is_active, is_demo, stores(name)")
       .order("created_at", { ascending: false }),
     supabaseAdmin.from("stores").select("id, name").order("name"),
   ]);
@@ -28,16 +29,16 @@ export default async function AdminCouponsPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
-      <h1 className="text-2xl font-extrabold tracking-tight">
+      <h1 className="text-h1 font-display tracking-tight">
         クーポン管理
       </h1>
 
-      <section className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-sm">
-        <h2 className="text-sm font-bold">
+      <section className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-card">
+        <h2 className="text-h3">
           新しいクーポンを登録
         </h2>
         {stores.length === 0 ? (
-          <p className="mt-3 text-sm text-muted">
+          <p className="mt-3 text-body text-muted">
             先に店舗を登録してください。
           </p>
         ) : (
@@ -46,12 +47,12 @@ export default async function AdminCouponsPage() {
       </section>
 
       <section className="mt-8">
-        <h2 className="text-lg font-bold">
+        <h2 className="text-h2 font-display">
           登録済みクーポン ({coupons.length})
         </h2>
         <ul className="mt-3 flex flex-col gap-2">
           {coupons.length === 0 && (
-            <p className="text-sm text-muted">
+            <p className="text-body text-muted">
               まだクーポンがありません
             </p>
           )}
@@ -61,16 +62,21 @@ export default async function AdminCouponsPage() {
               className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3"
             >
               <div className="min-w-0">
-                <p className="truncate text-xs text-muted">{coupon.stores?.name}</p>
-                <p className="flex items-center gap-1.5 truncate font-bold text-primary">
+                <p className="truncate text-caption text-muted">{coupon.stores?.name}</p>
+                <p className="flex items-center gap-1.5 truncate text-h3 text-primary">
                   {coupon.title}
+                  {coupon.is_demo && (
+                    <span className="shrink-0 rounded-full bg-primary/10 px-1.5 py-0.5 text-label font-medium text-primary">
+                      DEMO
+                    </span>
+                  )}
                   {!coupon.is_active && (
-                    <span className="shrink-0 rounded-full bg-border px-1.5 py-0.5 text-[10px] font-normal text-muted">
+                    <span className="shrink-0 rounded-full bg-border px-1.5 py-0.5 text-label font-normal text-muted">
                       停止中
                     </span>
                   )}
                 </p>
-                <p className="text-xs text-muted">
+                <p className="text-caption text-muted">
                   {coupon.discount_info} ・ {coupon.valid_from} 〜 {coupon.valid_to}
                 </p>
               </div>
