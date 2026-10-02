@@ -37,13 +37,13 @@ export default async function BoardPage({
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
       <div className="flex items-center justify-between">
-        <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight">
+        <h1 className="flex items-center gap-2 text-h1 font-display tracking-tight">
           <MessagesSquare className="h-6 w-6 text-primary" />
           韓国旅行Q&A
         </h1>
         <Link
           href={session?.user ? "/board/write" : "/login"}
-          className="btn-glossy flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold text-primary-foreground transition hover:brightness-105"
+          className="btn-glossy flex items-center gap-1.5 rounded-full px-4 py-2 text-caption font-bold text-primary-foreground transition hover:brightness-105"
         >
           <PenSquare className="h-4 w-4" />
           投稿する
@@ -53,7 +53,7 @@ export default async function BoardPage({
       <div className="mt-5 flex flex-wrap gap-1.5">
         <Link
           href="/board"
-          className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+          className={`rounded-full px-3 py-1.5 text-caption font-medium transition ${
             !activeCategory
               ? "btn-glossy border-transparent text-primary-foreground"
               : "border border-border bg-card text-muted hover:border-primary/40 hover:text-foreground"
@@ -65,7 +65,7 @@ export default async function BoardPage({
           <Link
             key={c.value}
             href={`/board?category=${c.value}`}
-            className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+            className={`rounded-full px-3 py-1.5 text-caption font-medium transition ${
               activeCategory === c.value
                 ? "btn-glossy border-transparent text-primary-foreground"
                 : "border border-border bg-card text-muted hover:border-primary/40 hover:text-foreground"
@@ -78,7 +78,7 @@ export default async function BoardPage({
 
       <ul className="mt-6 flex flex-col gap-2">
         {posts.length === 0 && (
-          <p className="text-sm text-muted">
+          <p className="text-body text-muted">
             まだ投稿がありません。
           </p>
         )}
@@ -93,13 +93,13 @@ export default async function BoardPage({
                 <span className="min-w-0">
                   <span className="flex items-center gap-1.5">
                     {category && (
-                      <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                      <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-label font-medium text-primary">
                         {category.ja}
                       </span>
                     )}
-                    <span className="truncate font-medium">{post.title}</span>
+                    <span className="truncate text-h3">{post.title}</span>
                   </span>
-                  <span className="mt-0.5 block text-xs text-muted">
+                  <span className="mt-0.5 block text-caption text-muted">
                     {post.users?.nickname} ・ {new Date(post.created_at).toISOString().slice(0, 10)}
                   </span>
                 </span>

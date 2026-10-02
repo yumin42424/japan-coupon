@@ -19,14 +19,14 @@ export default async function NoticesPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
-      <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight">
+      <h1 className="flex items-center gap-2 text-h1 font-display tracking-tight">
         <Megaphone className="h-6 w-6 text-primary" />
         お知らせ
       </h1>
 
       <ul className="mt-8 flex flex-col gap-2">
         {notices.length === 0 && (
-          <p className="text-sm text-muted">
+          <p className="text-body text-muted">
             お知らせはまだありません。
           </p>
         )}
@@ -37,10 +37,10 @@ export default async function NoticesPage() {
               className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-elevated"
             >
               <span className="min-w-0">
-                <span className="block text-xs text-muted">
+                <span className="block text-caption text-muted">
                   {new Date(notice.published_at).toISOString().slice(0, 10)}
                 </span>
-                <span className="mt-0.5 block truncate font-medium">{notice.title}</span>
+                <span className="mt-0.5 block truncate text-h3">{notice.title}</span>
               </span>
               <ChevronRight className="h-5 w-5 shrink-0 text-muted" />
             </Link>

@@ -9,7 +9,7 @@ const initialState: SettingsState = {};
 function Message({ state }: { state: SettingsState }) {
   if (state.error) {
     return (
-      <p className="flex items-center gap-1.5 text-sm text-primary" role="alert">
+      <p className="flex items-center gap-1.5 text-body text-primary" role="alert">
         <AlertCircle className="h-4 w-4 shrink-0" />
         {state.error}
       </p>
@@ -17,7 +17,7 @@ function Message({ state }: { state: SettingsState }) {
   }
   if (state.success) {
     return (
-      <p className="flex items-center gap-1.5 text-sm text-success" role="status">
+      <p className="flex items-center gap-1.5 text-body text-success" role="status">
         <CheckCircle2 className="h-4 w-4 shrink-0" />
         {state.success}
       </p>
@@ -31,7 +31,7 @@ export function NicknameForm({ currentNickname }: { currentNickname: string }) {
 
   return (
     <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
-      <h2 className="flex items-center gap-2 text-sm font-bold">
+      <h2 className="flex items-center gap-2 text-h3">
         <UserRound className="h-4 w-4 text-primary" />
         ニックネーム
       </h2>
@@ -42,18 +42,18 @@ export function NicknameForm({ currentNickname }: { currentNickname: string }) {
           required
           maxLength={30}
           defaultValue={currentNickname}
-          className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+          className="rounded-lg border border-border bg-background px-3 py-2 text-body outline-none focus:border-primary"
         />
         <Message state={state} />
         <button
           type="submit"
           disabled={pending}
-          className="btn-glossy self-start rounded-full px-4 py-2 text-sm font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
+          className="btn-glossy self-start rounded-full px-4 py-2 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
         >
           {pending ? "保存中..." : "保存する"}
         </button>
       </form>
-      <p className="mt-2 text-xs text-muted">
+      <p className="mt-2 text-caption text-muted">
         ※ ヘッダーの表示名は再ログイン後に反映されます。
       </p>
     </section>
@@ -65,27 +65,27 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
 
   return (
     <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
-      <h2 className="flex items-center gap-2 text-sm font-bold">
+      <h2 className="flex items-center gap-2 text-h3">
         <Lock className="h-4 w-4 text-primary" />
         パスワード変更
       </h2>
 
       {!hasPassword ? (
-        <p className="mt-3 text-sm text-muted">
+        <p className="mt-3 text-body text-muted">
           LINEログインのアカウントのため、パスワードは設定されていません。
         </p>
       ) : (
         <form action={formAction} className="mt-3 flex flex-col gap-3">
-          <label className="flex flex-col gap-1 text-sm font-medium">
+          <label className="flex flex-col gap-1 text-body font-medium">
             現在のパスワード
             <input
               type="password"
               name="currentPassword"
               required
-              className="rounded-lg border border-border bg-background px-3 py-2 text-sm font-normal outline-none focus:border-primary"
+              className="rounded-lg border border-border bg-background px-3 py-2 text-body font-normal outline-none focus:border-primary"
             />
           </label>
-          <label className="flex flex-col gap-1 text-sm font-medium">
+          <label className="flex flex-col gap-1 text-body font-medium">
             新しいパスワード
             <input
               type="password"
@@ -93,14 +93,14 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
               required
               minLength={8}
               placeholder="8文字以上"
-              className="rounded-lg border border-border bg-background px-3 py-2 text-sm font-normal outline-none focus:border-primary"
+              className="rounded-lg border border-border bg-background px-3 py-2 text-body font-normal outline-none focus:border-primary"
             />
           </label>
           <Message state={state} />
           <button
             type="submit"
             disabled={pending}
-            className="btn-glossy self-start rounded-full px-4 py-2 text-sm font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
+            className="btn-glossy self-start rounded-full px-4 py-2 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
           >
             {pending ? "変更中..." : "変更する"}
           </button>
@@ -116,11 +116,11 @@ export function DeleteAccountSection() {
 
   return (
     <section className="rounded-2xl border border-primary/30 bg-primary/5 p-5 shadow-card">
-      <h2 className="flex items-center gap-2 text-sm font-bold text-primary">
+      <h2 className="flex items-center gap-2 text-h3 text-primary">
         <UserX className="h-4 w-4" />
         退会
       </h2>
-      <p className="mt-2 text-sm text-foreground/80">
+      <p className="mt-2 text-body text-foreground/80">
         退会すると、保有クーポン・お気に入り・ポイントなどすべてのデータが削除され、元に戻せません。
       </p>
 
@@ -128,7 +128,7 @@ export function DeleteAccountSection() {
         <button
           type="button"
           onClick={() => setConfirming(true)}
-          className="mt-3 rounded-full border border-primary/40 px-4 py-2 text-sm font-medium text-primary transition hover:bg-primary/10"
+          className="mt-3 rounded-full border border-primary/40 px-4 py-2 text-body font-medium text-primary transition hover:bg-primary/10"
         >
           退会する
         </button>
@@ -138,7 +138,7 @@ export function DeleteAccountSection() {
             <button
               type="submit"
               disabled={pending}
-              className="btn-glossy rounded-full px-4 py-2 text-sm font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
+              className="btn-glossy rounded-full px-4 py-2 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
             >
               {pending ? "退会処理中..." : "本当に退会する"}
             </button>
@@ -146,7 +146,7 @@ export function DeleteAccountSection() {
               type="button"
               onClick={() => setConfirming(false)}
               disabled={pending}
-              className="rounded-full border border-border px-4 py-2 text-sm font-medium transition hover:bg-background disabled:opacity-50"
+              className="rounded-full border border-border px-4 py-2 text-body font-medium transition hover:bg-background disabled:opacity-50"
             >
               キャンセル
             </button>

@@ -38,7 +38,7 @@ export default async function PostDetailPage({
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
-      <Link href="/board" className="flex items-center gap-1 text-sm text-muted hover:text-foreground">
+      <Link href="/board" className="flex items-center gap-1 text-body text-muted hover:text-foreground">
         <ChevronLeft className="h-4 w-4" />
         Q&amp;Aに戻る
       </Link>
@@ -46,12 +46,12 @@ export default async function PostDetailPage({
       <div className="mt-4 flex items-start justify-between gap-3">
         <div>
           {category && (
-            <span className="mb-1.5 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+            <span className="mb-1.5 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-label font-medium text-primary">
               {category.ja}
             </span>
           )}
-          <h1 className="text-xl font-extrabold tracking-tight">{post.title}</h1>
-          <p className="mt-1 text-xs text-muted">
+          <h1 className="text-h1 font-display tracking-tight">{post.title}</h1>
+          <p className="mt-1 text-caption text-muted">
             {post.users?.nickname} ・ {new Date(post.created_at).toISOString().slice(0, 10)}
           </p>
         </div>
@@ -68,7 +68,7 @@ export default async function PostDetailPage({
         )}
       </div>
 
-      <div className="mt-6 whitespace-pre-wrap rounded-2xl border border-border bg-card p-5 text-sm leading-relaxed shadow-card">
+      <div className="mt-6 whitespace-pre-wrap rounded-2xl border border-border bg-card p-5 text-body leading-relaxed shadow-card">
         {post.body}
       </div>
     </main>

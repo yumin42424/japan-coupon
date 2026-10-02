@@ -4,27 +4,33 @@ const LINE_URL = "https://line.me/R/ti/p/@490gzucs";
 
 export default function SupportPage() {
   return (
-    <main className="mx-auto flex min-h-[calc(100vh-65px)] max-w-sm flex-col justify-center px-6 py-12 text-center">
-      <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-        <MessageCircleQuestion className="h-6 w-6" />
-      </span>
-      <h1 className="mt-4 text-2xl font-extrabold tracking-tight">
-        カスタマーサポート
-      </h1>
-      <p className="mt-2 text-sm leading-relaxed text-muted">
-        ご不明な点は、LINE公式アカウント（@490gzucs）よりお気軽にお問い合わせください。担当者が確認次第、順次ご返信いたします。
-      </p>
-      <a
-        href={LINE_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-4 inline-flex items-center justify-center gap-2 self-center rounded-full bg-[#06C755] px-6 py-3 text-sm font-semibold text-white shadow-card transition hover:opacity-90"
-      >
-        LINEで問い合わせる
-      </a>
-      <p className="mt-4 text-xs text-muted">
-        よくあるご質問は、トップページの「よくある質問」もあわせてご確認ください。
-      </p>
+    <main className="relative flex min-h-[calc(100vh-65px)] items-center justify-center overflow-hidden px-6 py-12">
+      <div aria-hidden className="pointer-events-none absolute inset-0 hidden sm:block">
+        <div className="bg-blob -right-20 -top-24 h-80 w-80 opacity-[0.06]" />
+        <div className="bg-blob -left-24 bottom-0 h-72 w-72 opacity-[0.05]" />
+      </div>
+      <div className="relative flex w-full max-w-sm flex-col items-center rounded-3xl border border-border bg-card p-7 text-center shadow-elevated sm:p-8">
+        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <MessageCircleQuestion className="h-6 w-6" />
+        </span>
+        <h1 className="text-h1 font-display mt-4 tracking-tight">
+          カスタマーサポート
+        </h1>
+        <p className="mt-2 text-body leading-relaxed text-muted">
+          ご不明な点は、LINE公式アカウント（@490gzucs）よりお気軽にお問い合わせください。担当者が確認次第、順次ご返信いたします。
+        </p>
+        <a
+          href={LINE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 inline-flex items-center justify-center gap-2 self-center rounded-full bg-[#06C755] px-6 py-3 text-body font-semibold text-white shadow-card transition hover:opacity-90"
+        >
+          LINEで問い合わせる
+        </a>
+        <p className="mt-4 text-caption text-muted">
+          よくあるご質問は、トップページの「よくある質問」もあわせてご確認ください。
+        </p>
+      </div>
     </main>
   );
 }

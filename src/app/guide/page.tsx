@@ -67,10 +67,10 @@ const PROMISES = [
 export default function GuidePage() {
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
-      <h1 className="text-2xl font-extrabold tracking-tight">
+      <h1 className="text-h1 font-display tracking-tight">
         初めての方へ
       </h1>
-      <p className="mt-2 text-sm text-muted">
+      <p className="mt-2 text-body text-muted">
         K-Coupon Japanの使い方は、たったの5ステップです。
       </p>
 
@@ -80,15 +80,15 @@ export default function GuidePage() {
             key={step.ja}
             className="flex items-start gap-4 rounded-2xl border border-border bg-card p-4 shadow-card"
           >
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-extrabold text-primary">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-body font-extrabold text-primary">
               {i + 1}
             </span>
             <div className="min-w-0">
-              <p className="flex items-center gap-1.5 font-bold">
+              <p className="flex items-center gap-1.5 text-h3">
                 <step.icon className="h-4 w-4 text-primary" />
                 {step.ja}
               </p>
-              <p className="mt-1 text-sm text-muted">
+              <p className="mt-1 text-body text-muted">
                 {step.descJa}
               </p>
             </div>
@@ -96,7 +96,7 @@ export default function GuidePage() {
         ))}
       </ol>
 
-      <h2 className="mt-12 text-lg font-extrabold tracking-tight">
+      <h2 className="mt-12 text-h2 font-display tracking-tight">
         安心してご利用いただくために
       </h2>
       <div className="mt-4 flex flex-col gap-4">
@@ -105,11 +105,11 @@ export default function GuidePage() {
             key={promise.ja}
             className="rounded-2xl border border-border bg-primary/5 p-5"
           >
-            <p className="flex items-center gap-2 font-bold text-primary">
+            <p className="flex items-center gap-2 text-h3 text-primary">
               <promise.icon className="h-5 w-5" />
               {promise.ja}
             </p>
-            <p className="mt-1.5 text-sm text-foreground/80">
+            <p className="mt-1.5 text-body text-foreground/80">
               {promise.descJa}
             </p>
           </div>
@@ -119,7 +119,7 @@ export default function GuidePage() {
       <div className="mt-10 flex justify-center">
         <Link
           href="/signup"
-          className="btn-glossy rounded-full px-6 py-3 text-sm font-bold text-primary-foreground transition hover:brightness-105"
+          className="btn-glossy rounded-full px-6 py-3 text-body font-bold text-primary-foreground transition hover:brightness-105"
         >
           無料会員登録はこちら
         </Link>

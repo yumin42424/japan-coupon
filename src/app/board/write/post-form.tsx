@@ -16,14 +16,14 @@ export function PostForm() {
       <input type="hidden" name="category" value={category} />
 
       <div className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium">カテゴリ</span>
+        <span className="text-body font-medium">カテゴリ</span>
         <div className="flex flex-wrap gap-1.5">
           {BOARD_CATEGORIES.map((c) => (
             <button
               key={c.value}
               type="button"
               onClick={() => setCategory(c.value)}
-              className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+              className={`rounded-full px-3 py-1.5 text-caption font-medium transition ${
                 category === c.value
                   ? "btn-glossy border-transparent text-primary-foreground"
                   : "border border-border bg-background text-muted hover:border-primary/40 hover:text-foreground"
@@ -35,7 +35,7 @@ export function PostForm() {
         </div>
       </div>
 
-      <label className="flex flex-col gap-1 text-sm font-medium">
+      <label className="flex flex-col gap-1 text-body font-medium">
         タイトル
         <input
           type="text"
@@ -45,7 +45,7 @@ export function PostForm() {
         />
       </label>
 
-      <label className="flex flex-col gap-1 text-sm font-medium">
+      <label className="flex flex-col gap-1 text-body font-medium">
         本文
         <textarea
           name="body"
@@ -56,7 +56,7 @@ export function PostForm() {
       </label>
 
       {state.error && (
-        <p className="flex items-center gap-1.5 text-sm text-primary" role="alert">
+        <p className="flex items-center gap-1.5 text-body text-primary" role="alert">
           <AlertCircle className="h-4 w-4 shrink-0" />
           {state.error}
         </p>
@@ -65,7 +65,7 @@ export function PostForm() {
       <button
         type="submit"
         disabled={pending}
-        className="btn-glossy self-start rounded-full px-5 py-2.5 text-sm font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
+        className="btn-glossy self-start rounded-full px-5 py-2.5 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
       >
         {pending ? "投稿中..." : "投稿する"}
       </button>

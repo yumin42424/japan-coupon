@@ -21,16 +21,16 @@ export default async function OnboardingPage({
 
   return (
     <main className="mx-auto flex min-h-[calc(100vh-65px)] max-w-md flex-col justify-center px-6 py-12">
-      <h1 className="text-2xl font-extrabold tracking-tight">
+      <h1 className="text-h1 font-display tracking-tight">
         韓国旅行について教えてください
       </h1>
-      <p className="mt-2 text-sm text-muted">
+      <p className="mt-2 text-body text-muted">
         興味に合わせて、お得なクーポンをご紹介します。
       </p>
 
       <form action={saveOnboarding} className="mt-8 flex flex-col gap-8">
         {callbackUrl && <input type="hidden" name="callbackUrl" value={callbackUrl} />}
-        <label className="flex flex-col gap-1.5 text-sm font-medium">
+        <label className="flex flex-col gap-1.5 text-body font-medium">
           <span className="flex items-center gap-1.5">
             <CalendarHeart className="h-4 w-4 text-primary" />
             韓国旅行の予定日
@@ -43,10 +43,10 @@ export default async function OnboardingPage({
         </label>
 
         <fieldset className="flex flex-col gap-3">
-          <legend className="text-sm font-medium">
+          <legend className="text-body font-medium">
             どんな情報に興味がありますか？
           </legend>
-          <div className="flex flex-wrap gap-2 text-sm">
+          <div className="flex flex-wrap gap-2 text-body">
             {CATEGORIES.map((category) => {
               const Icon = CATEGORY_ICONS[category.value];
               return (
@@ -69,10 +69,10 @@ export default async function OnboardingPage({
         </fieldset>
 
         <fieldset className="flex flex-col gap-3">
-          <legend className="text-sm font-medium">
+          <legend className="text-body font-medium">
             主に行きたいエリアは？
           </legend>
-          <div className="flex flex-wrap gap-2 text-sm">
+          <div className="flex flex-wrap gap-2 text-body">
             {AREAS.map((area) => (
               <label
                 key={area.value}
@@ -89,13 +89,13 @@ export default async function OnboardingPage({
         <div className="flex flex-col items-center gap-3">
           <button
             type="submit"
-            className="btn-glossy w-full rounded-full px-4 py-3.5 text-sm font-bold text-primary-foreground transition hover:brightness-105"
+            className="btn-glossy w-full rounded-full px-4 py-3.5 text-body font-bold text-primary-foreground transition hover:brightness-105"
           >
             保存する
           </button>
           <Link
             href={callbackUrl || "/"}
-            className="text-sm text-muted underline underline-offset-4 hover:text-foreground"
+            className="text-body text-muted underline underline-offset-4 hover:text-foreground"
           >
             あとで設定する
           </Link>
