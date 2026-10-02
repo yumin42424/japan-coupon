@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
-/** 스크롤해서 뷰포트에 들어오면 한 번만 살짝 떠오르며 나타난다.
+/** 뷰포트에 들어올 때마다 살짝 떠오르며 나타나고, 벗어나면 다시 숨는다 —
+ * 스크롤을 올렸다 다시 내려도 매번 같은 연출이 반복된다.
  * prefers-reduced-motion이면 처음부터 그냥 보이게 한다. */
 export function Reveal({
   children,
@@ -21,12 +22,7 @@ export function Reveal({
       return;
     }
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
+      ([entry]) => setVisible(entry.isIntersecting),
       { threshold: 0.15, rootMargin: "0px 0px -80px 0px" }
     );
     observer.observe(el);
