@@ -34,6 +34,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .select("id, created_at, stores!inner(is_active)")
     .eq("is_active", true)
     .eq("stores.is_active", true)
+    .eq("is_demo", false)
+    .eq("stores.is_demo", false)
     .gte("valid_to", today);
 
   const couponRoutes = (coupons ?? []).map((coupon) => ({

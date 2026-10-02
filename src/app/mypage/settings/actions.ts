@@ -95,6 +95,7 @@ export async function deleteAccount(
   await supabaseAdmin.from("user_interest_categories").delete().eq("user_id", userId);
   await supabaseAdmin.from("user_interest_areas").delete().eq("user_id", userId);
   await supabaseAdmin.from("posts").delete().eq("user_id", userId);
+  await supabaseAdmin.from("reviews").delete().eq("user_id", userId);
   const { error } = await supabaseAdmin.from("users").delete().eq("id", userId);
 
   if (error) {

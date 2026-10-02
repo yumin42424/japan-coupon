@@ -80,7 +80,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const email = credentials?.email as string | undefined;
+        // signup/forgot-password는 이메일을 소문자로 정규화해서 저장하므로,
+        // 로그인 시에도 똑같이 정규화해야 대소문자 차이로 로그인이 실패하지 않는다.
+        const email = (credentials?.email as string | undefined)?.trim().toLowerCase();
         const password = credentials?.password as string | undefined;
         if (!email || !password) return null;
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, LocateFixed } from "lucide-react";
@@ -9,6 +10,7 @@ import { CATEGORY_IMAGES } from "@/lib/taxonomy-images";
 import { isUrgentDeadline, daysUntil } from "@/lib/urgency";
 import { CouponCard } from "@/components/coupon-card";
 import { EmptyState } from "@/components/empty-state";
+import { CouponCardSkeleton } from "@/components/coupon-card-skeleton";
 
 export const metadata: Metadata = {
   title: "クーポンを探す",
@@ -46,7 +48,27 @@ export default async function CouponsPage({
     return <CategoryAreaHub />;
   }
 
-  return <FilteredCouponList category={category} area={area} />;
+  // ここだけ Suspense で囲む — segment 全体の loading.tsx にすると
+  // /coupons/[id] まで同じ境界に入ってしまい、notFound() の 404 が
+  // ストリーミング開始後の 200 で固定されてしまう不具合があった。
+  return (
+    <Suspense fallback={<FilteredCouponListFallback />}>
+      <FilteredCouponList category={category} area={area} />
+    </Suspense>
+  );
+}
+
+function FilteredCouponListFallback() {
+  return (
+    <main className="mx-auto max-w-2xl px-6 py-10">
+      <div className="h-7 w-40 animate-pulse rounded bg-border/60" />
+      <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <CouponCardSkeleton key={i} />
+        ))}
+      </div>
+    </main>
+  );
 }
 
 function CategoryAreaHub() {
@@ -155,6 +177,8 @@ async function FilteredCouponList({
     )
     .eq("is_active", true)
     .eq("stores.is_active", true)
+    .eq("is_demo", false)
+    .eq("stores.is_demo", false)
     .gte("valid_to", new Date().toISOString().slice(0, 10))
     .order("created_at", { ascending: false });
 

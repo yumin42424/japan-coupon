@@ -66,6 +66,8 @@ export default async function MyPage({
         .select("id, title, discount_info, valid_to, usage_condition, stores!inner(id, name, category, area)")
         .eq("is_active", true)
         .eq("stores.is_active", true)
+        .eq("is_demo", false)
+        .eq("stores.is_demo", false)
         .gte("valid_to", today),
       supabaseAdmin.from("point_events").select("points").eq("user_id", userId),
     ]);

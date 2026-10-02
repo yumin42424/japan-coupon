@@ -24,7 +24,9 @@ export async function createPost(
   const category = isBoardCategory(categoryInput) ? categoryInput : DEFAULT_BOARD_CATEGORY;
 
   if (!title) return { error: "タイトルを入力してください。" };
+  if (title.length > 100) return { error: "タイトルは100文字以内で入力してください。" };
   if (!body) return { error: "本文を入力してください。" };
+  if (body.length > 2000) return { error: "本文は2000文字以内で入力してください。" };
 
   const { data: created, error } = await supabaseAdmin
     .from("posts")

@@ -84,6 +84,8 @@ export default async function Home() {
       )
       .eq("is_active", true)
       .eq("stores.is_active", true)
+      .eq("is_demo", false)
+      .eq("stores.is_demo", false)
       .gte("valid_to", new Date().toISOString().slice(0, 10))
       .order("created_at", { ascending: false })
       .limit(6),
@@ -92,6 +94,8 @@ export default async function Home() {
       .select("stores!inner(area)")
       .eq("is_active", true)
       .eq("stores.is_active", true)
+      .eq("is_demo", false)
+      .eq("stores.is_demo", false)
       .gte("valid_to", new Date().toISOString().slice(0, 10)),
   ]);
 

@@ -35,7 +35,7 @@ export async function issueCoupon(couponId: string) {
 
   const { data: coupon } = await supabaseAdmin
     .from("coupons")
-    .select("valid_to, quantity_limit, is_active, stores(is_active)")
+    .select("valid_to, quantity_limit, is_active, is_demo, stores(is_active, is_demo)")
     .eq("id", couponId)
     .maybeSingle();
 
@@ -43,8 +43,8 @@ export async function issueCoupon(couponId: string) {
     notFound();
   }
 
-  const store = coupon.stores as unknown as { is_active: boolean } | null;
-  if (!coupon.is_active || !store?.is_active) {
+  const store = coupon.stores as unknown as { is_active: boolean; is_demo: boolean } | null;
+  if (!coupon.is_active || !store?.is_active || coupon.is_demo || store?.is_demo) {
     redirect(`/coupons/${couponId}`);
   }
 

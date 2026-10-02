@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import { Trophy } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CouponCard } from "@/components/coupon-card";
+
+export const metadata: Metadata = {
+  title: "おすすめクーポン",
+  description: "GET数の多い人気クーポンをランキング形式でご紹介します。",
+};
 
 type CouponRow = {
   id: string;
@@ -25,6 +31,8 @@ export default async function RankingPage() {
       .select("id, title, discount_info, valid_to, stores!inner(id, name, category, area)")
       .eq("is_active", true)
       .eq("stores.is_active", true)
+      .eq("is_demo", false)
+      .eq("stores.is_demo", false)
       .gte("valid_to", today),
     supabaseAdmin.from("coupon_events").select("coupon_id, event_type").in("event_type", ["issue", "view"]),
   ]);

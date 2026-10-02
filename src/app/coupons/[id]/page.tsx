@@ -63,14 +63,27 @@ export async function generateMetadata({
 
   const { data } = await supabaseAdmin
     .from("coupons")
-    .select("title, discount_info, regular_price, discounted_price, stores(name, category, area)")
+    .select("title, discount_info, regular_price, discounted_price, is_active, is_demo, valid_to, stores(name, category, area, is_active, is_demo)")
     .eq("id", id)
     .maybeSingle();
 
   if (!data) return {};
-  const coupon = data as unknown as Pick<CouponDetail, "title" | "discount_info" | "regular_price" | "discounted_price"> & {
-    stores: CouponDetail["stores"] | null;
+  const coupon = data as unknown as Pick<
+    CouponDetail,
+    "title" | "discount_info" | "regular_price" | "discounted_price" | "is_active" | "valid_to"
+  > & {
+    is_demo: boolean;
+    stores: (CouponDetail["stores"] & { is_demo: boolean }) | null;
   };
+
+  // 비공개(demo)/비활성/만료된 쿠폰은 검색엔진에 노출되지 않게 한다 —
+  // 실제 혜택인 것처럼 보이는 SEO 타이틀/설명이 만들어지는 걸 막는다.
+  const today = new Date().toISOString().slice(0, 10);
+  const isPubliclyVisible =
+    coupon.is_active && !coupon.is_demo && !coupon.stores?.is_demo && coupon.stores?.is_active && coupon.valid_to >= today;
+  if (!isPubliclyVisible) {
+    return { robots: { index: false, follow: false } };
+  }
   const store = coupon.stores;
   const category = store ? CATEGORIES.find((c) => c.value === store.category) : undefined;
   const area = store ? AREAS.find((a) => a.value === store.area) : undefined;
