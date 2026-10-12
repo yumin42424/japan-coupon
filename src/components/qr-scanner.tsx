@@ -16,10 +16,16 @@ export function QrScanner({ onScan }: { onScan: (value: string) => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
+  // 부모가 리렌더될 때마다 onScan 함수가 새로 만들어져도 카메라가 다시 켜지지 않게 최신 값만 ref로 들고 있는다.
+  const onScanRef = useRef(onScan);
+  useEffect(() => {
+    onScanRef.current = onScan;
+  }, [onScan]);
   const supported = typeof window !== "undefined" && "BarcodeDetector" in window;
 
   useEffect(() => {
-    if (!open) return;
+    // 카메라 API가 없는 환경(http 등)은 버튼 클릭 시점에 안내를 띄우므로(아래 onClick), 여기서는 아무것도 하지 않는다.
+    if (!open || !navigator.mediaDevices?.getUserMedia) return;
 
     let cancelled = false;
     const detector = new (window as unknown as { BarcodeDetector: BarcodeDetectorCtor }).BarcodeDetector({
@@ -44,7 +50,7 @@ export function QrScanner({ onScan }: { onScan: (value: string) => void }) {
           try {
             const results = await detector.detect(videoRef.current);
             if (results.length > 0) {
-              onScan(results[0].rawValue);
+              onScanRef.current(results[0].rawValue);
               setOpen(false);
               return;
             }
@@ -56,7 +62,7 @@ export function QrScanner({ onScan }: { onScan: (value: string) => void }) {
         rafRef.current = requestAnimationFrame(tick);
       })
       .catch(() => {
-        setError("カメラを起動できませんでした。権限設定をご確認ください。");
+        setError("カメラを起動できませんでした。権限設定をご確認いただくか、コードを直接入力してください。");
       });
 
     return () => {
@@ -65,7 +71,7 @@ export function QrScanner({ onScan }: { onScan: (value: string) => void }) {
       streamRef.current?.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
     };
-  }, [open, onScan]);
+  }, [open]);
 
   if (!supported) return null;
 
@@ -74,7 +80,12 @@ export function QrScanner({ onScan }: { onScan: (value: string) => void }) {
       <button
         type="button"
         onClick={() => {
-          setError(null);
+          // http 등 보안 컨텍스트가 아니면 navigator.mediaDevices 자체가 없다 — 화면이 깨지지 않게 안내만 띄운다.
+          setError(
+            typeof navigator.mediaDevices?.getUserMedia === "function"
+              ? null
+              : "このブラウザではカメラを使用できません。コードを直接入力してください。"
+          );
           setOpen(true);
         }}
         className="flex items-center justify-center gap-2 rounded-full border border-border px-5 py-2.5 text-body font-bold text-foreground transition hover:border-primary/40"

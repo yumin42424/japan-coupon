@@ -18,6 +18,8 @@ export async function createNotice(
 
   if (!title) return { error: "タイトルを入力してください。" };
   if (!body) return { error: "本文を入力してください。" };
+  if (title.length > 100) return { error: "タイトルは100文字以内で入力してください。" };
+  if (body.length > 5000) return { error: "本文は5000文字以内で入力してください。" };
 
   const { error } = await supabaseAdmin.from("notices").insert({ title, body });
 
@@ -42,6 +44,8 @@ export async function updateNotice(
 
   if (!title) return { error: "タイトルを入力してください。" };
   if (!body) return { error: "本文を入力してください。" };
+  if (title.length > 100) return { error: "タイトルは100文字以内で入力してください。" };
+  if (body.length > 5000) return { error: "本文は5000文字以内で入力してください。" };
 
   const { error } = await supabaseAdmin
     .from("notices")

@@ -6,6 +6,7 @@ import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { getIsAdmin } from "@/lib/admin";
 import { isBoardCategory, DEFAULT_BOARD_CATEGORY } from "@/lib/board-categories";
+import { isRateLimited } from "@/lib/rate-limit";
 
 export type PostFormState = { error?: string };
 
@@ -27,6 +28,11 @@ export async function createPost(
   if (title.length > 100) return { error: "タイトルは100文字以内で入力してください。" };
   if (!body) return { error: "本文を入力してください。" };
   if (body.length > 2000) return { error: "本文は2000文字以内で入力してください。" };
+
+  // 누구나 가입해서 쓸 수 있는 공개 게시판이라, 광고성 도배를 막기 위해 1시간에 5건까지만 허용한다.
+  if (await isRateLimited(`post:user:${session.user.id}`, { max: 5, windowMs: 60 * 60 * 1000, lockMs: 60 * 60 * 1000 })) {
+    return { error: "投稿の回数が多すぎます。しばらくしてからもう一度お試しください。" };
+  }
 
   const { data: created, error } = await supabaseAdmin
     .from("posts")

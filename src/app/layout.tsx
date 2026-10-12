@@ -20,6 +20,8 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://japan-coupon-five.
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  // 広告のutmパラメータ等が付いたURLが別ページとして重複インデックスされないよう、各ページの正規URL(パラメータなし)を指定する。
+  alternates: { canonical: "./" },
   title: {
     default: "K-Coupon Japan | 韓国旅行がもっとお得になるクーポンサイト",
     template: "%s | K-Coupon Japan",

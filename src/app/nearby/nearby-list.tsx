@@ -70,16 +70,29 @@ export function NearbyList({ coupons }: { coupons: NearbyCoupon[] }) {
     }))
     .sort((a, b) => a.distance - b.distance);
 
+  // 일본 등 한국 밖에서 열면 가장 가까운 매장도 수백 km 떨어져 있다 — 빈 지도와 "1,000km" 카드만 보이지 않게 안내한다.
+  const farFromKorea = withDistance.length > 0 && withDistance[0].distance > 100;
+
   return (
     <div className="mt-6">
-      <KakaoMap
-        center={pos!}
-        markers={withDistance.map((c) => ({
-          lat: c.stores.latitude,
-          lng: c.stores.longitude,
-          label: c.stores.name,
-        }))}
-      />
+      {farFromKorea ? (
+        <div className="rounded-2xl border border-dashed border-border px-4 py-6 text-center">
+          <AlertCircle className="mx-auto h-6 w-6 text-muted" />
+          <p className="mt-2 text-body text-muted">
+            現在地が韓国から離れているようです（最も近いお店まで約{Math.round(withDistance[0].distance).toLocaleString()}km）。
+            韓国に到着したら、もう一度お試しください。
+          </p>
+        </div>
+      ) : (
+        <KakaoMap
+          center={pos!}
+          markers={withDistance.map((c) => ({
+            lat: c.stores.latitude,
+            lng: c.stores.longitude,
+            label: c.stores.name,
+          }))}
+        />
+      )}
 
       {withDistance.length === 0 ? (
         <div className="mt-4">
