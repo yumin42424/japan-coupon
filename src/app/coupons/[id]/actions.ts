@@ -1,6 +1,7 @@
 "use server";
 
 import { todayKST } from "@/lib/date";
+import * as Sentry from "@sentry/nextjs";
 import { redirect, notFound } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
@@ -62,6 +63,23 @@ export async function issueCoupon(couponId: string) {
   // "평생 한 번"을 reissueKey='0' 하나로 표현한다.
   const reissueKey = computeReissueKey(coupon.reusable_after_days);
 
+  // 선착순 한도 확인 + 발급 기록을 DB 함수(issue_coupon) 한 번으로 처리한다. 쿠폰 행을 잠근 채 세고 기록하기 때문에
+  // 동시에 몰려도 한도를 넘겨 발급되지도, 전원이 탈락하지도 않는다 (db/migrations/20261012_issue_coupon_atomic.sql).
+  const { error: rpcError } = await supabaseAdmin.rpc("issue_coupon", {
+    p_user_id: session.user.id,
+    p_coupon_id: couponId,
+    p_reissue_key: reissueKey,
+  });
+  if (!rpcError) {
+    revalidatePath(`/coupons/${couponId}`);
+    redirect(`/coupons/${couponId}`);
+  }
+  // PGRST202: 함수가 아직 DB에 없음(마이그레이션 적용 전) → 아래의 기존 방식으로 처리한다. 그 외 오류는 기록만 남기고 화면으로 돌려보낸다.
+  if (rpcError.code !== "PGRST202") {
+    Sentry.captureException(new Error(`issue_coupon failed (${rpcError.code ?? "no-code"}): ${rpcError.message}`));
+    redirect(`/coupons/${couponId}`);
+  }
+
   const { data: existingIssue } = await supabaseAdmin
     .from("coupon_events")
     .select("id")
@@ -86,30 +104,13 @@ export async function issueCoupon(couponId: string) {
     }
   }
 
-  const { data: created, error: insertError } = await supabaseAdmin
-    .from("coupon_events")
-    .insert({
-      coupon_id: couponId,
-      user_id: session.user.id,
-      event_type: "issue",
-      reissue_key: reissueKey,
-    })
-    .select("id")
-    .single();
-
-  // 선착순 쿠폰은 위의 사전 확인만으로는 동시 요청에서 한도를 넘겨 발급될 수 있다.
-  // 그래서 발급 기록을 남긴 "뒤에" 다시 세어 보고, 한도를 넘었으면 방금 만든 기록을 되돌린다
-  // (정확히 동시에 몰린 드문 경우엔 둘 다 되돌려질 수 있지만, 한도를 초과해 발급되는 일은 없다).
-  if (!insertError && created && coupon.quantity_limit != null) {
-    const { count: afterCount } = await supabaseAdmin
-      .from("coupon_events")
-      .select("id", { count: "exact", head: true })
-      .eq("coupon_id", couponId)
-      .eq("event_type", "issue");
-    if ((afterCount ?? 0) > coupon.quantity_limit) {
-      await supabaseAdmin.from("coupon_events").delete().eq("id", created.id);
-    }
-  }
+  // (DB 함수가 없는 동안의 임시 경로) 중복 발급은 DB 유니크 인덱스가 막아 준다.
+  await supabaseAdmin.from("coupon_events").insert({
+    coupon_id: couponId,
+    user_id: session.user.id,
+    event_type: "issue",
+    reissue_key: reissueKey,
+  });
 
   revalidatePath(`/coupons/${couponId}`);
   redirect(`/coupons/${couponId}`);

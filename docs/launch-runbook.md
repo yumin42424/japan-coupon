@@ -117,6 +117,19 @@ Git 이력 점검 결과: `.env*` 파일이 커밋된 적 없음, 현재/과거 
 
 ---
 
+## 4-2. DB 마이그레이션 (직접 실행 — Supabase SQL Editor의 **새 쿼리 탭**에 파일 내용만 붙여넣기)
+
+두 파일 모두 **추가형(additive)** 이라 기존 데이터를 바꾸거나 지우지 않고, 여러 번 실행해도 안전합니다. 적용하지 않아도 앱은 지금 동작 그대로 작동합니다.
+
+| 파일 | 하는 일 | 권장 시점 |
+|---|---|---|
+| `db/migrations/20261012_issue_coupon_atomic.sql` | 선착순(수량 제한) 쿠폰 발급을 DB에서 원자적으로 처리 → 동시에 몰려도 정확히 N명만 발급 (실제 PostgreSQL에서 동시 20건 → 정확히 3건 발급 검증) | **수량 제한이 있는 쿠폰을 처음 만들기 전** (한도 없는 쿠폰만 쓴다면 급하지 않음) |
+| `db/migrations/20261012_point_use.sql` | 포인트 사용(차감) 함수 + 내역 컬럼. 사용처가 정해질 때까지 앱은 사용을 서버에서 거부함 | 포인트 사용처가 확정되어 기능을 켤 때 |
+
+적용 확인: SQL Editor에서 `select proname from pg_proc where proname in ('issue_coupon','use_points');`
+
+---
+
 ## 5. 포인트 사용 기능 활성화 절차 (사업 정책 확정 후)
 
 현재 `src/lib/point-policy.ts`의 `POINT_USE_ENABLED = false`, `POINT_USE_OPTIONS = []` → 서버가 모든 사용 요청을 `disabled`로 거부하고 UI는 "ポイントの利用機能は準備中です"를 표시한다.
