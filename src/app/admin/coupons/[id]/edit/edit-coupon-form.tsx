@@ -68,7 +68,7 @@ export function EditCouponForm({ coupon, stores }: { coupon: Coupon; stores: Sto
 
       <div className="grid grid-cols-2 gap-3">
         <label className="flex flex-col gap-1 text-body font-medium">
-          正規価格 (円)
+          正規価格（ウォン ₩）
           <input
             type="number"
             name="regularPrice"
@@ -78,7 +78,7 @@ export function EditCouponForm({ coupon, stores }: { coupon: Coupon; stores: Sto
           />
         </label>
         <label className="flex flex-col gap-1 text-body font-medium">
-          クーポン価格 (円)
+          クーポン価格（ウォン ₩）
           <input
             type="number"
             name="discountedPrice"

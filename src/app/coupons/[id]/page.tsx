@@ -1,3 +1,4 @@
+import { todayKST } from "@/lib/date";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -46,6 +47,7 @@ type CouponDetail = {
   usage_condition: string | null;
   quantity_limit: number | null;
   is_active: boolean;
+  is_demo: boolean;
   reusable_after_days: number | null;
   stores: {
     id: string;
@@ -58,6 +60,7 @@ type CouponDetail = {
     business_hours: string | null;
     reservation_info: string | null;
     is_active: boolean;
+    is_demo: boolean;
   };
 };
 
@@ -85,7 +88,7 @@ export async function generateMetadata({
 
   // 비공개(demo)/비활성/만료된 쿠폰은 검색엔진에 노출되지 않게 한다 —
   // 실제 혜택인 것처럼 보이는 SEO 타이틀/설명이 만들어지는 걸 막는다.
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayKST();
   const isPubliclyVisible =
     coupon.is_active && !coupon.is_demo && !coupon.stores?.is_demo && coupon.stores?.is_active && coupon.valid_to >= today;
   if (!isPubliclyVisible) {
@@ -125,7 +128,7 @@ export default async function CouponDetailPage({
   const { data } = await supabaseAdmin
     .from("coupons")
     .select(
-      "id, title, discount_info, valid_from, valid_to, member_only, regular_price, discounted_price, usage_condition, quantity_limit, is_active, reusable_after_days, stores(id, name, category, area, line_available, popular_with_japanese, address, business_hours, reservation_info, is_active)"
+      "id, title, discount_info, valid_from, valid_to, member_only, regular_price, discounted_price, usage_condition, quantity_limit, is_active, is_demo, reusable_after_days, stores(id, name, category, area, line_available, popular_with_japanese, address, business_hours, reservation_info, is_active, is_demo)"
     )
     .eq("id", id)
     .maybeSingle();
@@ -133,6 +136,24 @@ export default async function CouponDetailPage({
   if (!data) notFound();
   const coupon = data as unknown as CouponDetail;
   const store = coupon.stores;
+
+  // 테스트(demo) 데이터는 직접 URL로도 열리면 안 된다 — 관리자만 미리보기할 수 있다.
+  if ((coupon.is_demo || store.is_demo) && !isAdmin) notFound();
+  // 중지(비공개)된 쿠폰·매장은 이미 GET한 회원에게만 보인다 (마이페이지 링크로 들어오는 경우).
+  if ((!coupon.is_active || !store.is_active) && !isAdmin) {
+    let hasIssued = false;
+    if (session?.user?.id) {
+      const { data: issuedAny } = await supabaseAdmin
+        .from("coupon_events")
+        .select("id")
+        .eq("coupon_id", id)
+        .eq("user_id", session.user.id)
+        .eq("event_type", "issue")
+        .limit(1);
+      hasIssued = !!issuedAny && issuedAny.length > 0;
+    }
+    if (!hasIssued) notFound();
+  }
   const reissueKey = computeReissueKey(coupon.reusable_after_days);
 
   let issuedCount = 0;
@@ -146,7 +167,7 @@ export default async function CouponDetailPage({
   }
   const remaining = coupon.quantity_limit != null ? coupon.quantity_limit - issuedCount : null;
   const isSoldOut = remaining !== null && remaining <= 0;
-  const isExpired = coupon.valid_to < new Date().toISOString().slice(0, 10);
+  const isExpired = coupon.valid_to < todayKST();
   const isUnavailable = !coupon.is_active || !store.is_active;
   const urgent = isUrgentDeadline(coupon.valid_to);
   const daysLeft = daysUntil(coupon.valid_to);

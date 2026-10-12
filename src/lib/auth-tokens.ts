@@ -30,17 +30,20 @@ export async function createAuthToken(userId: string, type: AuthTokenType): Prom
 }
 
 // 유효하면 해당 토큰을 사용 처리(1회용)하고 user_id를 반환, 아니면 null.
+// "조회 후 갱신" 두 단계로 나누면 같은 링크를 동시에 두 번 열었을 때 둘 다 성공할 수 있어서,
+// 조건(미사용 + 미만료)을 건 UPDATE 한 번으로 처리한다 — 동시에 와도 한쪽만 행을 갱신한다.
 export async function consumeAuthToken(rawToken: string, type: AuthTokenType): Promise<string | null> {
-  const { data: row } = await supabaseAdmin
+  if (typeof rawToken !== "string" || rawToken.length < 32 || rawToken.length > 200) return null;
+
+  const { data } = await supabaseAdmin
     .from("auth_tokens")
-    .select("id, user_id, expires_at, used_at")
+    .update({ used_at: new Date().toISOString() })
     .eq("token_hash", hashToken(rawToken))
     .eq("type", type)
+    .is("used_at", null)
+    .gt("expires_at", new Date().toISOString())
+    .select("user_id")
     .maybeSingle();
 
-  if (!row || row.used_at || new Date(row.expires_at) < new Date()) return null;
-
-  await supabaseAdmin.from("auth_tokens").update({ used_at: new Date().toISOString() }).eq("id", row.id);
-
-  return row.user_id;
+  return data?.user_id ?? null;
 }

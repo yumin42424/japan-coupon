@@ -1,9 +1,12 @@
+import { todayKST } from "@/lib/date";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, LocateFixed, Search } from "lucide-react";
+import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { ComingSoonNotice } from "@/components/coming-soon-notice";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
 import { CATEGORY_IMAGES } from "@/lib/taxonomy-images";
@@ -71,7 +74,20 @@ function FilteredCouponListFallback() {
   );
 }
 
-function CategoryAreaHub() {
+async function CategoryAreaHub() {
+  // 공개된 쿠폰이 하나도 없으면(제휴 매장 확보 전) 빈 목록 대신 "準備中" 안내를 먼저 보여준다.
+  const [{ count: publicCouponCount }, session] = await Promise.all([
+    supabaseAdmin
+      .from("coupons")
+      .select("id, stores!inner(id)", { count: "exact", head: true })
+      .eq("is_active", true)
+      .eq("is_demo", false)
+      .eq("stores.is_active", true)
+      .eq("stores.is_demo", false)
+      .gte("valid_to", todayKST()),
+    auth(),
+  ]);
+
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
       <h1 className="text-h1 font-display tracking-tight">
@@ -90,6 +106,12 @@ function CategoryAreaHub() {
           className="w-full rounded-full border border-border bg-card py-3 pl-11 pr-4 text-body outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
         />
       </form>
+
+      {(publicCouponCount ?? 0) === 0 && (
+        <div className="mt-6">
+          <ComingSoonNotice loggedIn={!!session?.user} />
+        </div>
+      )}
 
       <Link
         href="/nearby"
@@ -181,7 +203,10 @@ async function FilteredCouponList({
   q?: string;
 }) {
   const area = areaParam === "all" ? undefined : areaParam;
-  const keyword = q?.trim();
+  const keyword = q?.trim().slice(0, 50);
+  // PostgREST의 or() 필터에서는 쉼표·괄호·따옴표·백슬래시가 문법 기호라서, 검색어를 그대로 넣으면
+  // 조건이 깨지거나(에러 → 빈 결과) 다른 조건을 끼워 넣을 수 있다. ilike 와일드카드(%, _)도 함께 뺀다.
+  const safeKeyword = keyword?.replace(/[,()"'\\%*_:;]/g, " ").replace(/\s+/g, " ").trim();
 
   let query = supabaseAdmin
     .from("coupons")
@@ -192,21 +217,26 @@ async function FilteredCouponList({
     .eq("stores.is_active", true)
     .eq("is_demo", false)
     .eq("stores.is_demo", false)
-    .gte("valid_to", new Date().toISOString().slice(0, 10))
+    .gte("valid_to", todayKST())
     .order("created_at", { ascending: false });
 
   if (category) query = query.eq("stores.category", category);
   if (area) query = query.eq("stores.area", area);
 
-  if (keyword) {
+  if (keyword && !safeKeyword) {
+    // 기호만 입력된 경우 — 아무것도 일치하지 않는 것으로 처리한다.
+    query = query.eq("id", "00000000-0000-0000-0000-000000000000");
+  } else if (safeKeyword) {
     // 매장명으로도 찾을 수 있어야 하는데, PostgREST의 OR 조건은 같은 테이블
     // 컬럼끼리만 안전하게 묶이므로 매장명 검색은 먼저 store_id 목록으로 변환한다.
     const { data: matchedStores } = await supabaseAdmin
       .from("stores")
       .select("id")
-      .ilike("name", `%${keyword}%`);
+      .eq("is_active", true)
+      .eq("is_demo", false)
+      .ilike("name", `%${safeKeyword}%`);
     const storeIds = (matchedStores ?? []).map((s) => s.id);
-    const orParts = [`title.ilike.%${keyword}%`];
+    const orParts = [`title.ilike.%${safeKeyword}%`];
     if (storeIds.length > 0) orParts.push(`store_id.in.(${storeIds.join(",")})`);
     query = query.or(orParts.join(","));
   }

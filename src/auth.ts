@@ -11,26 +11,31 @@ import { SIGNUPS_ENABLED } from "@/lib/feature-flags";
 // 응답 속도로 "이 이메일이 가입되어 있는지"를 추측하지 못하게 한다.
 const DUMMY_HASH = bcrypt.hashSync("dummy-password-for-timing-safety", 10);
 
-// 로그인 무차별 대입 공격 방어: 15분 동안 5번 틀리면 15분간 잠금.
-// 잠겼을 때도 "비밀번호가 틀렸습니다"와 동일한 메시지만 노출해서, 이 계정이
-// 실제로 존재하는지/잠겨있는지를 외부에서 구분할 수 없게 한다.
-const MAX_ATTEMPTS = 5;
+// 로그인 무차별 대입 공격 방어. 잠겼을 때도 "비밀번호가 틀렸습니다"와 동일한 메시지만 노출해서,
+// 이 계정이 실제로 존재하는지/잠겨있는지를 외부에서 구분할 수 없게 한다.
+//
+// 이메일만으로 잠그면 아무나 남의 이메일(관리자 포함)로 5번 틀려서 그 사람을 계속 잠가둘 수 있다.
+// 그래서 두 겹으로 건다:
+//  - (접속 IP + 이메일) 조합: 15분에 5번 틀리면 15분 잠금. 공격자가 본인 IP로 잠그는 건 본인 IP의 그 계정뿐이다.
+//  - 이메일 단독: 여러 IP로 분산 공격해도 15분에 30번을 넘으면 5분 잠금 (정상 사용자를 오래 막지 않는 완충 한도).
 const ATTEMPT_WINDOW_MS = 15 * 60 * 1000;
-const LOCKOUT_MS = 15 * 60 * 1000;
+type LoginLimit = { maxAttempts: number; lockoutMs: number };
+const PER_IP_EMAIL_LIMIT: LoginLimit = { maxAttempts: 5, lockoutMs: 15 * 60 * 1000 };
+const PER_EMAIL_LIMIT: LoginLimit = { maxAttempts: 30, lockoutMs: 5 * 60 * 1000 };
 
-async function isLoginLocked(email: string): Promise<boolean> {
+async function isLoginLocked(key: string): Promise<boolean> {
   const { data: row } = await supabaseAdmin
     .from("login_attempts")
     .select("locked_until")
-    .eq("email", email)
+    .eq("email", key)
     .maybeSingle();
 
   return !!row?.locked_until && new Date(row.locked_until) > new Date();
 }
 
-async function recordLoginAttempt(email: string, success: boolean): Promise<void> {
+async function recordLoginAttempt(key: string, success: boolean, limit: LoginLimit): Promise<void> {
   if (success) {
-    await supabaseAdmin.from("login_attempts").delete().eq("email", email);
+    await supabaseAdmin.from("login_attempts").delete().eq("email", key);
     return;
   }
 
@@ -38,7 +43,7 @@ async function recordLoginAttempt(email: string, success: boolean): Promise<void
   const { data: row } = await supabaseAdmin
     .from("login_attempts")
     .select("attempt_count, first_attempt_at")
-    .eq("email", email)
+    .eq("email", key)
     .maybeSingle();
 
   const windowExpired =
@@ -46,10 +51,10 @@ async function recordLoginAttempt(email: string, success: boolean): Promise<void
   const attemptCount = windowExpired ? 1 : row.attempt_count + 1;
 
   await supabaseAdmin.from("login_attempts").upsert({
-    email,
+    email: key,
     attempt_count: attemptCount,
     first_attempt_at: windowExpired ? now.toISOString() : row.first_attempt_at,
-    locked_until: attemptCount >= MAX_ATTEMPTS ? new Date(now.getTime() + LOCKOUT_MS).toISOString() : null,
+    locked_until: attemptCount >= limit.maxAttempts ? new Date(now.getTime() + limit.lockoutMs).toISOString() : null,
   });
 }
 
@@ -79,14 +84,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         // signup/forgot-password는 이메일을 소문자로 정규화해서 저장하므로,
         // 로그인 시에도 똑같이 정규화해야 대소문자 차이로 로그인이 실패하지 않는다.
         const email = (credentials?.email as string | undefined)?.trim().toLowerCase();
         const password = credentials?.password as string | undefined;
         if (!email || !password) return null;
 
-        if (await isLoginLocked(email)) return null;
+        // 접속 IP는 Vercel이 x-forwarded-for에 실제 값으로 채워준다.
+        const ip = request?.headers?.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+        const ipEmailKey = `${ip}|${email}`;
+
+        if ((await isLoginLocked(ipEmailKey)) || (await isLoginLocked(email))) return null;
 
         const { data: user } = await supabaseAdmin
           .from("users")
@@ -96,7 +105,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const isValid = await bcrypt.compare(password, user?.password_hash ?? DUMMY_HASH);
         const success = !!user && !!user.password_hash && isValid;
-        await recordLoginAttempt(email, success);
+        await recordLoginAttempt(ipEmailKey, success, PER_IP_EMAIL_LIMIT);
+        await recordLoginAttempt(email, success, PER_EMAIL_LIMIT);
         if (!success || !user) return null;
 
         // last_login_at 갱신 (재방문율 지표에 쓰임)

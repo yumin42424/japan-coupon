@@ -12,6 +12,11 @@
   --primary-foreground: #ffffff;
   --success: #16a34a;
 
+  /* 本文フォント — Webフォントを配信せず、端末標準の日本語UIフォントを使う（iOS: ヒラギノ角ゴ / Android: Noto Sans CJK JP /
+     Windows: 游ゴシックUI・メイリオ）。日本語Webフォントは数MBになるため、モバイル回線でも即表示できるようにしている。 */
+  --font-body: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Noto Sans CJK JP", "Yu Gothic UI", "Yu Gothic",
+    Meiryo, system-ui, -apple-system, "Segoe UI", sans-serif;
+
   /* 모바일 하단 탭바의 실제 높이 — 안전영역(홈 인디케이터 등)을 포함해서 계산한다.
      body의 하단 padding과 쿠폰상세 sticky CTA의 위치가 이 값 하나를 같이 참조해야
      기기에 따라 탭바 높이가 달라져도 서로 어긋나지 않는다. */

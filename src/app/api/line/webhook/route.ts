@@ -1,3 +1,4 @@
+import { todayKST } from "@/lib/date";
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { supabaseAdmin } from "@/lib/supabase-admin";
@@ -54,7 +55,7 @@ async function replyMessage(replyToken: string, messages: unknown[]) {
 }
 
 async function findNearbyCoupons(lat: number, lng: number) {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayKST();
   const { data } = await supabaseAdmin
     .from("coupons")
     .select(
@@ -190,14 +191,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "invalid signature" }, { status: 401 });
   }
 
-  let body: { events: LineEvent[] };
+  let body: { events?: LineEvent[] };
   try {
-    body = JSON.parse(rawBody) as { events: LineEvent[] };
+    body = JSON.parse(rawBody) as { events?: LineEvent[] };
   } catch {
     return NextResponse.json({ error: "invalid body" }, { status: 400 });
   }
+  if (!Array.isArray(body.events)) {
+    return NextResponse.json({ error: "invalid body" }, { status: 400 });
+  }
 
-  await Promise.all(body.events.map((event) => handleEvent(event)));
+  // 한 번의 요청에서 처리할 이벤트 수를 제한한다 (정상적인 LINE 요청은 이 한도보다 훨씬 적다).
+  await Promise.all(body.events.slice(0, 50).map((event) => handleEvent(event)));
 
   return NextResponse.json({});
 }

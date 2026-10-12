@@ -1,3 +1,4 @@
+import { todayKST } from "@/lib/date";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { NearbyList } from "./nearby-list";
 
@@ -17,7 +18,7 @@ export type NearbyCoupon = {
 };
 
 export default async function NearbyPage() {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayKST();
 
   const { data } = await supabaseAdmin
     .from("coupons")

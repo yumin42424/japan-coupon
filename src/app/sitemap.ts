@@ -1,3 +1,4 @@
+import { todayKST } from "@/lib/date";
 import type { MetadataRoute } from "next";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { AREAS } from "@/lib/taxonomy";
@@ -18,6 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/support",
     "/terms",
     "/privacy",
+    "/credits",
   ].map((path) => ({
     url: `${SITE_URL}${path}`,
     lastModified: new Date(),
@@ -28,7 +30,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
   }));
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayKST();
   const { data: coupons } = await supabaseAdmin
     .from("coupons")
     .select("id, created_at, stores!inner(is_active)")

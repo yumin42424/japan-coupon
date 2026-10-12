@@ -130,13 +130,20 @@ const signupSchema = z.object({
     .email("正しいメールアドレスを入力してください。"),
   password: z
     .string()
-    .min(8, "パスワードは8文字以上で入力してください。"),
+    .min(8, "パスワードは8文字以上で入力してください。")
+    .max(128, "パスワードは128文字以内で入力してください。"),
   nickname: z
     .string()
     .trim()
     .min(1, "ニックネームを入力してください。")
     .max(30),
-  acquisitionSource: z.string().trim().default("direct"),
+  // hidden 필드라서 외부에서 임의 문자열이 들어올 수 있다 — 유입경로 통계가 오염되지 않게 안전한 토큰 형태만 허용.
+  acquisitionSource: z
+    .string()
+    .trim()
+    .max(40)
+    .regex(/^[A-Za-z0-9_-]+$/)
+    .catch("direct"),
 });
 
 export type SignupState = {

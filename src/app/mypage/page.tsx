@@ -1,3 +1,4 @@
+import { todayKST, addDaysKST } from "@/lib/date";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Heart, Ticket, CheckCircle2, ChevronRight, Pencil, Sparkles, Settings, Coins, MailWarning } from "lucide-react";
@@ -7,6 +8,7 @@ import { CATEGORIES, AREAS, type CategoryValue } from "@/lib/taxonomy";
 import { CATEGORY_ICONS } from "@/lib/taxonomy-icons";
 import { CouponQR } from "@/components/coupon-qr";
 import { resendVerificationEmail } from "./verify-actions";
+import { POINT_UI_VISIBLE } from "@/lib/point-policy";
 
 type CouponEventItem = {
   id?: string;
@@ -33,7 +35,7 @@ export default async function MyPage({
   }
   const { resent } = await searchParams;
   const userId = session.user.id;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayKST();
 
   const [profileRes, categoriesRes, areasRes, favoritedRes, issuedRes, usedRes, allCouponsRes, pointsRes] =
     await Promise.all([
@@ -74,6 +76,8 @@ export default async function MyPage({
     ]);
 
   const profile = profileRes.data;
+  // LINEログインで作られた会員は実メールがなく "line_...@line.local" の仮アドレスが入っているので、画面には出さない
+  const hasPlaceholderEmail = !!profile?.email?.endsWith("@line.local");
   const pointBalance = ((pointsRes.data ?? []) as { points: number }[]).reduce(
     (sum, p) => sum + p.points,
     0
@@ -129,9 +133,7 @@ export default async function MyPage({
     return aUsable === bUsable ? 0 : aUsable ? -1 : 1;
   });
 
-  const soonCutoff = new Date();
-  soonCutoff.setDate(soonCutoff.getDate() + 3);
-  const soonCutoffStr = soonCutoff.toISOString().slice(0, 10);
+  const soonCutoffStr = addDaysKST(3);
   const expiringSoon = sortedIssued.filter(
     (i) =>
       i.coupons &&
@@ -146,7 +148,7 @@ export default async function MyPage({
         マイページ
       </h1>
 
-      {!profile?.email_verified_at && (
+      {!profile?.email_verified_at && !hasPlaceholderEmail && (
         <div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 p-3 text-body text-primary">
           <MailWarning className="h-4 w-4 shrink-0" />
           <span className="flex-1">
@@ -181,14 +183,20 @@ export default async function MyPage({
         <div className="flex items-center justify-between">
           <div>
             <p className="text-h3">{profile?.nickname}</p>
-            <p className="text-caption text-muted">{profile?.email}</p>
-            <p className="mt-1.5 flex items-center gap-1 text-body font-bold text-primary">
-              <Coins className="h-4 w-4" />
-              {pointBalance.toLocaleString()}
-              <span className="font-normal text-muted">
-                ポイント
-              </span>
+            <p className="text-caption text-muted">
+              {hasPlaceholderEmail ? "LINEアカウントでログイン中" : profile?.email}
             </p>
+            {POINT_UI_VISIBLE && (
+              <Link
+                href="/mypage/points"
+                className="mt-1.5 flex items-center gap-1 text-body font-bold text-primary hover:underline"
+              >
+                <Coins className="h-4 w-4" />
+                {pointBalance.toLocaleString()}
+                <span className="font-normal text-muted">ポイント</span>
+                <ChevronRight className="h-4 w-4 text-muted" />
+              </Link>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <Link
@@ -339,7 +347,7 @@ function CouponListSection({
                             </p>
                           </div>
                           <p className="mt-1.5 text-label text-muted">
-                            ※このページを一度開いておけば、オフラインでも表示できます。
+                            ※電波が届きにくい場所に備えて、QRコードとコードをスクリーンショットで保存しておくと安心です。
                           </p>
                         </div>
                       ) : null}

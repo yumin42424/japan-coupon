@@ -1,3 +1,4 @@
+import { todayKST } from "@/lib/date";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -60,7 +61,7 @@ export default async function AreaPage({
     .eq("stores.is_active", true)
     .eq("is_demo", false)
     .eq("stores.is_demo", false)
-    .gte("valid_to", new Date().toISOString().slice(0, 10))
+    .gte("valid_to", todayKST())
     .order("created_at", { ascending: false });
 
   const coupons = (couponRows ?? []) as unknown as CouponRow[];

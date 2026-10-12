@@ -20,6 +20,9 @@ export async function resetPassword(
   if (!password || password.length < 8) {
     return { error: "パスワードは8文字以上で入力してください。" };
   }
+  if (password.length > 128) {
+    return { error: "パスワードは128文字以内で入力してください。" };
+  }
 
   const userId = await consumeAuthToken(token, "password_reset");
   if (!userId) {

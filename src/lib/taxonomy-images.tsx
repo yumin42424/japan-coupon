@@ -1,32 +1,25 @@
-// 카테고리 타일용 대표 이미지. Wikimedia Commons의 CC 라이선스 사진을 사용 (저작권 문제 없음).
-// 실제 매장 사진이 아니라 카테고리를 상징하는 대표 이미지이며, 나중에 매장별 사진
-// 업로드 기능이 생기면 개별 매장 사진으로 교체 가능.
+// カテゴリ/エリア/ヒーロー用の代表画像。Wikimedia Commons の CC ライセンス写真を、リサイズ・トリミングしてこのサイト内
+// (public/images/stock) に置いている。外部サーバーを直接読み込まないので、相手側の障害・アクセス制限・レート制限の影響を受けない。
+// 撮影者・ライセンスは src/lib/image-credits.ts と /credits ページに掲載している（CC BY / BY-SA は表記が必須）。
+// 実際の店舗写真ではなくカテゴリやエリアを象徴するイメージで、店舗ごとの写真アップロード機能ができたら差し替える。
 export const CATEGORY_IMAGES: Record<string, string> = {
-  gourmet:
-    "https://commons.wikimedia.org/wiki/Special:FilePath/Korean_barbecue-Samgyeopsal-08.jpg?width=600",
-  beauty:
-    "https://commons.wikimedia.org/wiki/Special:FilePath/Korean_cosmetic_products.jpg?width=600",
-  medical:
-    "https://commons.wikimedia.org/wiki/Special:FilePath/Lark_Dermatology_4442.jpg?width=600",
-  shopping:
-    "https://commons.wikimedia.org/wiki/Special:FilePath/Lotte_Young_Plaza_at_Myeongdong.jpg?width=600",
-  cafe: "https://commons.wikimedia.org/wiki/Special:FilePath/Latte_art.jpg?width=600",
-  tour:
-    "https://commons.wikimedia.org/wiki/Special:FilePath/Gyeongbokgung_Palace,_Seoul,_1395_(88)_(40418692334).jpg?width=600",
-  transport:
-    "https://commons.wikimedia.org/wiki/Special:FilePath/Korail_KTX-2.jpg?width=600",
-  hotel:
-    "https://commons.wikimedia.org/wiki/Special:FilePath/Hotel_Niwa_Tokyo_standard_bedroom_20131027-001.jpg?width=600",
+  gourmet: "/images/stock/gourmet.jpg",
+  beauty: "/images/stock/beauty.jpg",
+  medical: "/images/stock/medical.jpg",
+  shopping: "/images/stock/shopping.jpg",
+  cafe: "/images/stock/cafe.jpg",
+  tour: "/images/stock/tour.jpg",
+  transport: "/images/stock/transport.jpg",
+  hotel: "/images/stock/hotel.jpg",
 };
 
-// 홈페이지 히어로 배너용 대표 이미지 (경복궁 야경/한복 컨셉).
-export const HERO_IMAGE =
-  "https://commons.wikimedia.org/wiki/Special:FilePath/Gyeongbokgung_Palace,_Seoul,_1395_(88)_(40418692334).jpg?width=1600";
+// ホームページのヒーロー用 (景福宮)
+export const HERO_IMAGE = "/images/stock/tour.jpg";
 
-// 인기 에리어 카드용 대표 이미지 (Wikimedia Commons CC 라이선스).
+// 人気エリアカード用の代表画像
 export const AREA_IMAGES: Partial<Record<string, string>> = {
-  myeongdong: "https://commons.wikimedia.org/wiki/Special:FilePath/Myeongdong%20at%20night.jpg?width=600",
-  hongdae: "https://commons.wikimedia.org/wiki/Special:FilePath/Hongdae_Street.jpg?width=600",
-  gangnam: "https://commons.wikimedia.org/wiki/Special:FilePath/Gangnam%20from%20Yeoksam%201.jpg?width=600",
-  seongsu: "https://commons.wikimedia.org/wiki/Special:FilePath/Seongsu-dong%20storefronts.jpg?width=600",
+  myeongdong: "/images/stock/area-myeongdong.jpg",
+  hongdae: "/images/stock/area-hongdae.jpg",
+  gangnam: "/images/stock/area-gangnam.jpg",
+  seongsu: "/images/stock/area-seongsu.jpg",
 };

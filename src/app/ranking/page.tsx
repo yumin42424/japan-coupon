@@ -1,3 +1,4 @@
+import { todayKST } from "@/lib/date";
 import type { Metadata } from "next";
 import { Trophy } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
@@ -23,7 +24,7 @@ type CouponRow = {
 };
 
 export default async function RankingPage() {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayKST();
 
   const [couponsRes, eventsRes] = await Promise.all([
     supabaseAdmin

@@ -1,5 +1,6 @@
 "use server";
 
+import { todayKST } from "@/lib/date";
 import { redirect, notFound } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
@@ -7,7 +8,21 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import { getIsAdmin } from "@/lib/admin";
 import { computeReissueKey } from "@/lib/reissue";
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// 조회수는 매장 영업(B2B)에 쓰는 지표라서, 존재하지 않거나 비공개인 쿠폰 ID로 임의로 쌓지 못하게 한다.
 export async function recordView(couponId: string) {
+  if (typeof couponId !== "string" || !UUID_RE.test(couponId)) return;
+
+  const { data: coupon } = await supabaseAdmin
+    .from("coupons")
+    .select("id, is_active, is_demo, valid_to, stores(is_active, is_demo)")
+    .eq("id", couponId)
+    .maybeSingle();
+  const store = coupon?.stores as unknown as { is_active: boolean; is_demo: boolean } | null;
+  if (!coupon || !coupon.is_active || coupon.is_demo || !store?.is_active || store.is_demo) return;
+  if (coupon.valid_to < todayKST()) return;
+
   const session = await auth();
   await supabaseAdmin.from("coupon_events").insert({
     coupon_id: couponId,
@@ -37,7 +52,7 @@ export async function issueCoupon(couponId: string) {
     redirect(`/coupons/${couponId}`);
   }
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayKST();
   if (coupon.valid_to < today) {
     redirect(`/coupons/${couponId}`);
   }
@@ -71,13 +86,32 @@ export async function issueCoupon(couponId: string) {
     }
   }
 
-  await supabaseAdmin.from("coupon_events").insert({
-    coupon_id: couponId,
-    user_id: session.user.id,
-    event_type: "issue",
-    reissue_key: reissueKey,
-  });
+  const { data: created, error: insertError } = await supabaseAdmin
+    .from("coupon_events")
+    .insert({
+      coupon_id: couponId,
+      user_id: session.user.id,
+      event_type: "issue",
+      reissue_key: reissueKey,
+    })
+    .select("id")
+    .single();
 
+  // 선착순 쿠폰은 위의 사전 확인만으로는 동시 요청에서 한도를 넘겨 발급될 수 있다.
+  // 그래서 발급 기록을 남긴 "뒤에" 다시 세어 보고, 한도를 넘었으면 방금 만든 기록을 되돌린다
+  // (정확히 동시에 몰린 드문 경우엔 둘 다 되돌려질 수 있지만, 한도를 초과해 발급되는 일은 없다).
+  if (!insertError && created && coupon.quantity_limit != null) {
+    const { count: afterCount } = await supabaseAdmin
+      .from("coupon_events")
+      .select("id", { count: "exact", head: true })
+      .eq("coupon_id", couponId)
+      .eq("event_type", "issue");
+    if ((afterCount ?? 0) > coupon.quantity_limit) {
+      await supabaseAdmin.from("coupon_events").delete().eq("id", created.id);
+    }
+  }
+
+  revalidatePath(`/coupons/${couponId}`);
   redirect(`/coupons/${couponId}`);
 }
 
@@ -128,6 +162,17 @@ async function hasUsedCouponAtStore(userId: string, storeId: string): Promise<bo
 }
 
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+
+// 클라이언트가 보낸 Content-Type만 믿지 않고, 파일 앞부분(매직 바이트)이 실제 JPEG/PNG/WebP인지 확인한다.
+async function looksLikeAllowedImage(file: File): Promise<boolean> {
+  const head = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+  const isJpeg = head[0] === 0xff && head[1] === 0xd8 && head[2] === 0xff;
+  const isPng = head[0] === 0x89 && head[1] === 0x50 && head[2] === 0x4e && head[3] === 0x47;
+  const isWebp =
+    head[0] === 0x52 && head[1] === 0x49 && head[2] === 0x46 && head[3] === 0x46 &&
+    head[8] === 0x57 && head[9] === 0x45 && head[10] === 0x42 && head[11] === 0x50;
+  return isJpeg || isPng || isWebp;
+}
 const ALLOWED_PHOTO_TYPES: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",
@@ -178,6 +223,9 @@ export async function submitReview(
     }
     if (photo.size > MAX_PHOTO_BYTES) {
       return { error: "写真のサイズは5MB以内にしてください。" };
+    }
+    if (!(await looksLikeAllowedImage(photo))) {
+      return { error: "写真はJPEG・PNG・WebP形式のみ対応しています。" };
     }
     const path = `${session.user.id}/${storeId}-${Date.now()}.${ext}`;
     const { error: uploadError } = await supabaseAdmin.storage

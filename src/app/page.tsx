@@ -1,7 +1,9 @@
+import { todayKST } from "@/lib/date";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Search, Gift, Store, Languages, MapPin, Smartphone, Ticket } from "lucide-react";
 import { auth, signOut } from "@/auth";
+import { ComingSoonNotice } from "@/components/coming-soon-notice";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS } from "@/lib/taxonomy-icons";
@@ -87,7 +89,7 @@ export default async function Home() {
       .eq("stores.is_active", true)
       .eq("is_demo", false)
       .eq("stores.is_demo", false)
-      .gte("valid_to", new Date().toISOString().slice(0, 10))
+      .gte("valid_to", todayKST())
       .order("created_at", { ascending: false })
       .limit(6),
     supabaseAdmin
@@ -97,7 +99,7 @@ export default async function Home() {
       .eq("stores.is_active", true)
       .eq("is_demo", false)
       .eq("stores.is_demo", false)
-      .gte("valid_to", new Date().toISOString().slice(0, 10)),
+      .gte("valid_to", todayKST()),
   ]);
 
   const recommended = (couponRows ?? []) as unknown as RecommendedCoupon[];
@@ -108,6 +110,8 @@ export default async function Home() {
     if (!area) continue;
     areaCounts.set(area, (areaCounts.get(area) ?? 0) + 1);
   }
+
+  const totalPublicCoupons = (areaCouponRows ?? []).length;
 
   const featuredAreas = FEATURED_AREA_VALUES.map((value) => AREAS.find((a) => a.value === value)).filter(
     (a): a is (typeof AREAS)[number] => !!a
@@ -151,9 +155,19 @@ export default async function Home() {
               韓国限定クーポンをかんたん検索。
             </p>
             <p className="animate-rise-in text-body leading-relaxed text-white/75 [animation-delay:260ms] lg:text-muted">
-              明洞・弘大・江南・聖水など、人気エリアの
-              <br className="lg:hidden" />
-              グルメ・美容・ショッピングのお得なクーポンが見つかります。
+              {totalPublicCoupons > 0 ? (
+                <>
+                  明洞・弘大・江南・聖水など、人気エリアの
+                  <br className="lg:hidden" />
+                  グルメ・美容・ショッピングのお得なクーポンが見つかります。
+                </>
+              ) : (
+                <>
+                  現在、提携店舗のクーポンを準備中です。
+                  <br className="lg:hidden" />
+                  公開までもうしばらくお待ちください。
+                </>
+              )}
             </p>
 
             {session?.user ? (
@@ -235,6 +249,15 @@ export default async function Home() {
           </div>
         </div>
       </main>
+
+      {/* ---- 準備中のお知らせ (公開クーポンが0件のときだけ) ---- */}
+      {totalPublicCoupons === 0 && (
+        <section className="border-t border-border px-6 py-10">
+          <div className="mx-auto max-w-2xl">
+            <ComingSoonNotice loggedIn={!!session?.user} />
+          </div>
+        </section>
+      )}
 
       {/* ---- 人気エリアから探す ---- */}
       <section className="border-t border-border px-6 py-14">
