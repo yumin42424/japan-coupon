@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { requireAdminPage } from "@/lib/admin";
 import { EditCouponForm } from "./edit-coupon-form";
 
 export default async function EditCouponPage({
@@ -7,6 +8,7 @@ export default async function EditCouponPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdminPage();
   const { id } = await params;
 
   const [{ data: coupon }, { data: stores }] = await Promise.all([

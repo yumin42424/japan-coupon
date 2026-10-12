@@ -1,6 +1,4 @@
-import { redirect } from "next/navigation";
-import { auth } from "@/auth";
-import { isAdminEmail } from "@/lib/admin";
+import { requireAdminPage } from "@/lib/admin";
 import { AdminNav } from "./admin-nav";
 
 export default async function AdminLayout({
@@ -8,14 +6,7 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
-
-  if (!session?.user) {
-    redirect("/login");
-  }
-  if (!isAdminEmail(session.user.email)) {
-    redirect("/");
-  }
+  await requireAdminPage();
 
   return (
     <>

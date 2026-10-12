@@ -1,7 +1,9 @@
 import { TicketCheck } from "lucide-react";
+import { requireAdminPage } from "@/lib/admin";
 import { RedeemForm } from "./redeem-form";
 
-export default function AdminRedeemPage() {
+export default async function AdminRedeemPage() {
+  await requireAdminPage();
   return (
     <main className="mx-auto max-w-md px-6 py-10">
       <h1 className="flex items-center gap-2 text-h1 font-display tracking-tight">

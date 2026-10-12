@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Pencil } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { requireAdminPage } from "@/lib/admin";
 import { NoticeForm } from "./notice-form";
 import { DeleteNoticeButton } from "./delete-notice-button";
 
@@ -11,6 +12,7 @@ type NoticeRow = {
 };
 
 export default async function AdminNoticesPage() {
+  await requireAdminPage();
   const { data } = await supabaseAdmin
     .from("notices")
     .select("id, title, published_at")

@@ -1,5 +1,6 @@
 import { Users, Eye, Ticket, CheckCircle2, CalendarHeart, Repeat } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { requireAdminPage } from "@/lib/admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 
 type UserRow = {
@@ -21,6 +22,7 @@ type CouponEventRow = {
 const REVISIT_THRESHOLD_MS = 5 * 60 * 1000; // 가입 직후 자동로그인과 구분하기 위한 최소 간격
 
 export default async function AdminPage() {
+  await requireAdminPage();
   const [usersRes, interestAreasRes, interestCategoriesRes, couponEventsRes] =
     await Promise.all([
       supabaseAdmin

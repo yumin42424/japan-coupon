@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { requireAdminPage } from "@/lib/admin";
 import { EditNoticeForm } from "./edit-notice-form";
 
 export default async function EditNoticePage({
@@ -7,6 +8,7 @@ export default async function EditNoticePage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdminPage();
   const { id } = await params;
 
   const { data: notice } = await supabaseAdmin

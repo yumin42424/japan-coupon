@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { isAdminEmail } from "@/lib/admin";
+import { getIsAdmin } from "@/lib/admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
 import { CATEGORY_IMAGES } from "@/lib/taxonomy-images";
@@ -120,6 +120,7 @@ export default async function CouponDetailPage({
 }) {
   const { id } = await params;
   const session = await auth();
+  const isAdmin = await getIsAdmin();
 
   const { data } = await supabaseAdmin
     .from("coupons")
@@ -462,8 +463,7 @@ export default async function CouponDetailPage({
         ) : (
           <ul className="flex flex-col gap-2.5">
             {reviews.map((review) => {
-              const canDelete =
-                session?.user?.id === review.user_id || isAdminEmail(session?.user?.email);
+              const canDelete = session?.user?.id === review.user_id || isAdmin;
               return (
                 <li key={review.id} className="rounded-2xl border border-border bg-card p-4">
                   <div className="flex items-start justify-between gap-2">

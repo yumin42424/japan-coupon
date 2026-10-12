@@ -4,7 +4,7 @@ import { redirect, notFound } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { isAdminEmail } from "@/lib/admin";
+import { getIsAdmin } from "@/lib/admin";
 import { computeReissueKey } from "@/lib/reissue";
 
 export async function recordView(couponId: string) {
@@ -215,7 +215,7 @@ export async function deleteReview(reviewId: string, couponId: string) {
     .maybeSingle();
 
   if (!review) return;
-  if (review.user_id !== session.user.id && !isAdminEmail(session.user.email)) {
+  if (review.user_id !== session.user.id && !(await getIsAdmin())) {
     return;
   }
 

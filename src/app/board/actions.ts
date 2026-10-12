@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { isAdminEmail } from "@/lib/admin";
+import { getIsAdmin } from "@/lib/admin";
 import { isBoardCategory, DEFAULT_BOARD_CATEGORY } from "@/lib/board-categories";
 
 export type PostFormState = { error?: string };
@@ -54,7 +54,7 @@ export async function deletePost(postId: string) {
 
   if (!post) return;
 
-  const canDelete = post.user_id === session.user.id || isAdminEmail(session.user.email);
+  const canDelete = post.user_id === session.user.id || (await getIsAdmin());
   if (!canDelete) return;
 
   await supabaseAdmin.from("posts").delete().eq("id", postId);

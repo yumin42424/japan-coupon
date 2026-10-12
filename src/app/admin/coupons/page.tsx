@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Pencil } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { requireAdminPage } from "@/lib/admin";
 import { CouponForm } from "./coupon-form";
 import { DeleteCouponButton } from "./delete-coupon-button";
 
@@ -16,6 +17,7 @@ type CouponRow = {
 };
 
 export default async function AdminCouponsPage() {
+  await requireAdminPage();
   const [couponsRes, storesRes] = await Promise.all([
     supabaseAdmin
       .from("coupons")

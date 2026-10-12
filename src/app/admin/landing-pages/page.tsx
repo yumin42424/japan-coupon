@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { requireAdminPage } from "@/lib/admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { LandingPageForm } from "./landing-page-form";
 import { DeleteLandingPageButton } from "./delete-landing-page-button";
@@ -15,6 +16,7 @@ type LandingPageRow = {
 };
 
 export default async function AdminLandingPagesPage() {
+  await requireAdminPage();
   const { data } = await supabaseAdmin
     .from("landing_pages")
     .select("id, slug, utm_source, utm_campaign, target_category, target_area")

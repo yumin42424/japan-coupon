@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ChevronLeft, Trash2 } from "lucide-react";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { isAdminEmail } from "@/lib/admin";
+import { getIsAdmin } from "@/lib/admin";
 import { BOARD_CATEGORIES } from "@/lib/board-categories";
 import { deletePost } from "../actions";
 
@@ -33,8 +33,7 @@ export default async function PostDetailPage({
   };
 
   const category = BOARD_CATEGORIES.find((c) => c.value === post.category);
-  const canDelete =
-    session?.user?.id === post.user_id || isAdminEmail(session?.user?.email);
+  const canDelete = session?.user?.id === post.user_id || (await getIsAdmin());
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Pencil } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { requireAdminPage } from "@/lib/admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { StoreForm } from "./store-form";
 import { DeleteStoreButton } from "./delete-store-button";
@@ -16,6 +17,7 @@ type StoreRow = {
 };
 
 export default async function AdminStoresPage() {
+  await requireAdminPage();
   const { data } = await supabaseAdmin
     .from("stores")
     .select("id, name, category, area, line_available, is_active, is_demo")

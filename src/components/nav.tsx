@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { Home, Ticket, User, Shield, LogIn, Trophy, BookOpen, Megaphone, MessagesSquare, LocateFixed } from "lucide-react";
 import { auth } from "@/auth";
-import { isAdminEmail } from "@/lib/admin";
+import { getIsAdmin } from "@/lib/admin";
 import { ScrollHeader } from "@/components/scroll-header";
 
 export async function Nav() {
   const session = await auth();
-  const isAdmin = isAdminEmail(session?.user?.email);
+  const isAdmin = await getIsAdmin();
 
   return (
     <>
