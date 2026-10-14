@@ -78,15 +78,15 @@ export const IMAGE_CREDITS: readonly ImageCredit[] = [
   {
     "slug": "hotel",
     "usage": "ホテル（カテゴリ画像）",
-    "title": "Hotel Niwa Tokyo standard bedroom 20131027-001",
-    "author": "J o",
-    "license": "CC BY-SA 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Hotel_Niwa_Tokyo_standard_bedroom_20131027-001.jpg"
+    "title": "Cool Corner Room (5574721196)（W Seoul Walkerhill）",
+    "author": "Matt @ PEK from Taipei, Taiwan",
+    "license": "CC BY-SA 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Cool_Corner_Room_(5574721196).jpg"
   },
   {
     "slug": "area-myeongdong",
-    "usage": "明洞（エリア画像・トップページ背景）",
+    "usage": "明洞（エリア画像・トップページ背景・SNS共有画像）",
     "title": "Myeongdong at night",
     "author": "Christian Bolz (크리스티안 볼츠)",
     "license": "CC BY-SA 4.0",

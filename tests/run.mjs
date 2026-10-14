@@ -5,7 +5,7 @@ import { rmSync } from "node:fs";
 
 rmSync(".test-build", { recursive: true, force: true });
 execSync(
-  "npx tsc src/lib/point-policy.ts src/lib/point-use.ts --outDir .test-build --module commonjs --target es2022 --skipLibCheck --strict",
+  "npx tsc src/lib/point-policy.ts src/lib/point-use.ts src/lib/date.ts src/lib/safe-redirect.ts src/lib/business-hours.ts src/lib/reissue.ts --outDir .test-build --module commonjs --target es2022 --skipLibCheck --strict",
   { stdio: "inherit" }
 );
 const r = spawnSync(process.execPath, ["--test", "tests/*.test.mjs"], { stdio: "inherit" });

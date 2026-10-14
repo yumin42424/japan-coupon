@@ -32,7 +32,8 @@ export default async function AdminPage() {
       supabaseAdmin.from("user_interest_categories").select("category"),
       supabaseAdmin
         .from("coupon_events")
-        .select("event_type, coupons(store_id, stores(id, name))"),
+        .select("event_type, coupons!inner(store_id, is_demo, stores(id, name))")
+        .eq("coupons.is_demo", false),
     ]);
 
   const users = (usersRes.data ?? []) as UserRow[];

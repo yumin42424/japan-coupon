@@ -131,10 +131,16 @@ export async function toggleFavorite(couponId: string) {
     .eq("coupon_id", couponId)
     .eq("user_id", userId)
     .eq("event_type", "favorite")
-    .maybeSingle();
+    .limit(1);
 
-  if (existing) {
-    await supabaseAdmin.from("coupon_events").delete().eq("id", existing.id);
+  if (existing && existing.length > 0) {
+    // 동시에 두 번 눌러 중복 행이 생겼더라도 한 번에 전부 지운다 (maybeSingle은 2행이면 오류가 나서 계속 쌓였다).
+    await supabaseAdmin
+      .from("coupon_events")
+      .delete()
+      .eq("coupon_id", couponId)
+      .eq("user_id", userId)
+      .eq("event_type", "favorite");
   } else {
     await supabaseAdmin.from("coupon_events").insert({
       coupon_id: couponId,

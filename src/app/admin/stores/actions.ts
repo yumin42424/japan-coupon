@@ -195,7 +195,27 @@ export async function updateStore(
 
 export async function deleteStore(storeId: string) {
   await requireAdmin();
-  await supabaseAdmin.from("stores").delete().eq("id", storeId);
+  // 매장을 지우면 소속 쿠폰·리뷰·회원의 이용 기록이 연쇄로 함께 지워진다 — 이력이 있으면 삭제 대신 "掲載停止"로 바꾼다.
+  const { data: coupons } = await supabaseAdmin.from("coupons").select("id").eq("store_id", storeId);
+  const couponIds = (coupons ?? []).map((c) => c.id);
+  let hasHistory = false;
+  if (couponIds.length > 0) {
+    const { count } = await supabaseAdmin
+      .from("coupon_events")
+      .select("id", { count: "exact", head: true })
+      .in("coupon_id", couponIds)
+      .in("event_type", ["issue", "use"]);
+    hasHistory = (count ?? 0) > 0;
+  }
+  if (!hasHistory) {
+    const { count } = await supabaseAdmin.from("reviews").select("id", { count: "exact", head: true }).eq("store_id", storeId);
+    hasHistory = (count ?? 0) > 0;
+  }
+  if (hasHistory) {
+    await supabaseAdmin.from("stores").update({ is_active: false }).eq("id", storeId);
+  } else {
+    await supabaseAdmin.from("stores").delete().eq("id", storeId);
+  }
   revalidatePath("/admin/stores");
   revalidatePath("/admin/coupons");
 }

@@ -34,7 +34,9 @@ export const metadata: Metadata = {
     siteName: "K-Coupon Japan",
     title: "K-Coupon Japan | 韓国旅行がもっとお得になるクーポンサイト",
     description: "日本人旅行者向けの韓国旅行クーポンサイト。人気エリア・カテゴリからお得なクーポンを無料でGET。",
+    images: [{ url: "/og.jpg", width: 1200, height: 630, alt: "K-Coupon Japan" }],
   },
+  twitter: { card: "summary_large_image", images: ["/og.jpg"] },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

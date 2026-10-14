@@ -171,7 +171,18 @@ export async function updateCoupon(
 
 export async function deleteCoupon(couponId: string) {
   await requireAdmin();
-  await supabaseAdmin.from("coupons").delete().eq("id", couponId);
+  // 쿠폰을 지우면 DB가 연쇄로 모든 회원의 받은/사용 기록까지 지워 버린다(포인트 내역과의 연결도 끊김).
+  // 이력이 있는 쿠폰은 삭제하지 않고 "掲載停止"로 바꿔서 기록을 지킨다.
+  const { count } = await supabaseAdmin
+    .from("coupon_events")
+    .select("id", { count: "exact", head: true })
+    .eq("coupon_id", couponId)
+    .in("event_type", ["issue", "use"]);
+  if ((count ?? 0) > 0) {
+    await supabaseAdmin.from("coupons").update({ is_active: false }).eq("id", couponId);
+  } else {
+    await supabaseAdmin.from("coupons").delete().eq("id", couponId);
+  }
   revalidatePath("/admin/coupons");
   revalidatePath("/coupons");
 }

@@ -112,7 +112,13 @@ export async function generateMetadata({
   return {
     title,
     description: description || undefined,
-    openGraph: { title, description: description || undefined },
+    // 페이지에서 openGraph를 지정하면 루트의 기본 이미지가 사라지므로, 카테고리 사진을 공유 미리보기 이미지로 직접 지정한다.
+    openGraph: {
+      title,
+      description: description || undefined,
+      images: [{ url: store ? `/images/stock/${store.category}.jpg` : "/og.jpg" }],
+    },
+    twitter: { card: "summary_large_image", images: [store ? `/images/stock/${store.category}.jpg` : "/og.jpg"] },
   };
 }
 
