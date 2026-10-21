@@ -74,10 +74,21 @@ export async function issueCoupon(couponId: string) {
     revalidatePath(`/coupons/${couponId}`);
     redirect(`/coupons/${couponId}`);
   }
-  // PGRST202: 함수가 아직 DB에 없음(마이그레이션 적용 전) → 아래의 기존 방식으로 처리한다. 그 외 오류는 기록만 남기고 화면으로 돌려보낸다.
+  // PGRST202: 함수가 아직 DB에 없음(마이그레이션 적용 전). 그 외 오류는 기록만 남기고 화면으로 돌려보낸다.
   if (rpcError.code !== "PGRST202") {
     Sentry.captureException(new Error(`issue_coupon failed (${rpcError.code ?? "no-code"}): ${rpcError.message}`));
     redirect(`/coupons/${couponId}`);
+  }
+
+  // 수량 제한(선착순) 쿠폰은 "세고 나서 넣는" 아래의 예비 경로로는 동시 요청에서 한도를 넘길 수 있다.
+  // 함수가 없는 채로 조용히 예비 경로로 넘어가면 이 보호가 꺼진 것을 아무도 모르므로, 이 경우에는 발급하지 않고 알린다.
+  // (수량 제한이 없는 쿠폰은 중복 발급만 막으면 되고 그건 DB 유니크 인덱스가 하므로 예비 경로를 그대로 쓴다.)
+  if (coupon.quantity_limit != null) {
+    Sentry.captureMessage(
+      "issue_coupon() is missing in the database: refusing to issue a quantity-limited coupon. Apply db/migrations/20261012_issue_coupon_atomic.sql.",
+      { level: "error", tags: { area: "coupon" } }
+    );
+    redirect(`/coupons/${couponId}?issue=unavailable`);
   }
 
   const { data: existingIssue } = await supabaseAdmin
@@ -93,18 +104,7 @@ export async function issueCoupon(couponId: string) {
     redirect(`/coupons/${couponId}`);
   }
 
-  if (coupon.quantity_limit != null) {
-    const { count } = await supabaseAdmin
-      .from("coupon_events")
-      .select("id", { count: "exact", head: true })
-      .eq("coupon_id", couponId)
-      .eq("event_type", "issue");
-    if ((count ?? 0) >= coupon.quantity_limit) {
-      redirect(`/coupons/${couponId}`);
-    }
-  }
-
-  // (DB 함수가 없는 동안의 임시 경로) 중복 발급은 DB 유니크 인덱스가 막아 준다.
+  // (DB 함수가 없는 동안의 임시 경로 — 수량 제한이 없는 쿠폰 전용) 중복 발급은 DB 유니크 인덱스가 막아 준다.
   await supabaseAdmin.from("coupon_events").insert({
     coupon_id: couponId,
     user_id: session.user.id,

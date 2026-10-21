@@ -14,6 +14,14 @@
 --
 -- The app keeps the feature OFF until POINT_USE_ENABLED is set in src/lib/point-policy.ts,
 -- so applying this migration changes nothing for users by itself.
+--
+-- AFTER RUNNING: run db/verify/post-apply-check.sql in another new tab and confirm every row says ok = true.
+--
+-- Security: SECURITY DEFINER + EXECUTE only for service_role. All table references are schema-qualified and search_path
+-- is pinned (public, pg_temp) (2026-10-21: pg_temp made explicit). The user id comes from the server's verified session;
+-- the function refuses unknown users and takes the amount from the server policy, never from the browser.
+--
+-- Result: jsonb {"status": ...} — ok | already_processed | insufficient | invalid_amount | invalid_request | request_conflict | user_not_found
 
 alter table public.point_events add column if not exists request_id uuid;
 alter table public.point_events add column if not exists purpose text;
@@ -31,7 +39,7 @@ create or replace function public.use_points(
 ) returns jsonb
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, pg_temp
 as $$
 declare
   v_balance  integer;

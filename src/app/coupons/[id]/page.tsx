@@ -124,10 +124,13 @@ export async function generateMetadata({
 
 export default async function CouponDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ issue?: string }>;
 }) {
   const { id } = await params;
+  const { issue } = await searchParams;
   const session = await auth();
   const isAdmin = await getIsAdmin();
 
@@ -463,6 +466,12 @@ export default async function CouponDetailPage({
               </p>
             ) : (
               <form action={issueCoupon.bind(null, id)}>
+                {issue === "unavailable" && (
+                  <p role="alert" className="mb-2 flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-center text-xs text-muted">
+                    <Info className="h-4 w-4 shrink-0" />
+                    ただいまこのクーポンを発行できません。しばらくしてからもう一度お試しください。
+                  </p>
+                )}
                 <button
                   type="submit"
                   className="w-full rounded-full bg-primary px-4 py-3 text-sm font-bold text-primary-foreground shadow-card transition hover:brightness-105 active:scale-[0.99] md:py-3.5"

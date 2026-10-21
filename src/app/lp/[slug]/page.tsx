@@ -6,6 +6,9 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
 
+// 광고 캠페인용 페이지라서 검색 결과에 따로 노출되지 않게 한다 (사이트맵에도 넣지 않는다).
+export const metadata = { robots: { index: false, follow: true } };
+
 type LandingPageRow = {
   slug: string;
   utm_source: string | null;
@@ -58,6 +61,8 @@ export default async function LandingPage({
   const Icon = category ? CATEGORY_ICONS[category.value] : null;
 
   const headlineJa = [category?.ja, area?.ja].filter(Boolean).join(" × ") || "韓国旅行";
+  // 이 조건에 맞는 공개 쿠폰이 하나도 없을 때는 "今すぐGETできます" 같은 약속을 하지 않는다.
+  const hasCoupons = coupons.length > 0;
 
   const signupHref = landing.utm_source
     ? `/signup?utm_source=${encodeURIComponent(landing.utm_source)}`
@@ -76,15 +81,19 @@ export default async function LandingPage({
             <Icon className="h-7 w-7" strokeWidth={2} />
           </span>
         )}
-        <h1 className="text-2xl font-extrabold tracking-tight">{`${headlineJa}で使えるお得なクーポン`}</h1>
+        <h1 className="text-2xl font-extrabold tracking-tight">
+          {hasCoupons ? `${headlineJa}で使えるお得なクーポン` : `${headlineJa}のクーポンは準備中です`}
+        </h1>
         <p className="text-sm text-muted">
-          無料会員登録で、今すぐクーポンをGETできます。
+          {hasCoupons
+            ? "無料会員登録で、今すぐクーポンをGETできます。"
+            : "提携店舗の準備ができ次第、順次公開します。公開までもうしばらくお待ちください。"}
         </p>
         <Link
           href={signupHref}
           className="btn-glossy group mt-2 flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold text-primary-foreground transition hover:brightness-105"
         >
-          無料でクーポンをGET
+          {hasCoupons ? "無料でクーポンをGET" : "無料会員登録はこちら"}
           <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
         </Link>
       </div>
