@@ -37,8 +37,8 @@ export async function generateMetadata({
   if (!area) return {};
 
   return {
-    title: `${area.ja} 日本人におすすめの韓国旅行スポット・限定クーポン`,
-    description: `${area.ja}エリアで日本語対応・日本人に人気の飲食店/美容室/カフェなどを口コミ評価順にチェック。会員限定クーポンも配布中。`,
+    title: `${area.ja} 日本人におすすめの韓国旅行スポット`,
+    description: `${area.ja}エリアの日本語対応・日本人に人気の飲食店/美容室/カフェなどを、口コミ評価順に掲載していきます。クーポンは提携店舗の準備ができ次第、順次公開します。`,
   };
 }
 

@@ -22,7 +22,7 @@ export default function ForgotPasswordPage() {
 
         {state.submitted ? (
           <p className="mt-6 rounded-xl border border-border bg-background p-4 text-body">
-            メールを送信しました。届かない場合は迷惑メールフォルダもご確認ください。
+            ご入力のメールアドレスが登録されている場合、再設定用のメールを送信しました。届かない場合は迷惑メールフォルダもご確認ください。
           </p>
         ) : (
           <form action={formAction} className="mt-8 flex flex-col gap-4">

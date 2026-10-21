@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node tests/run.mjs"
+    "test": "node tests/run.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "launch-check": "node scripts/launch-check.mjs"
   },
   "dependencies": {
     "@sentry/nextjs": "^11.1.0",

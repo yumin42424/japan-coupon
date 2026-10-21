@@ -431,22 +431,43 @@ export default async function Home() {
           <div className="absolute inset-0 bg-[rgba(20,16,14,0.72)]" />
         </div>
         <Reveal className="relative mx-auto flex max-w-sm flex-col items-center gap-3">
+          {/* 公開中のクーポンがないときは、「今すぐ使える」と受け取れる文言を出さない */}
           <h2 className="text-h1 text-white">
-            韓国旅行の前に
-            <br />
-            お得なクーポンをチェック。
+            {totalPublicCoupons > 0 ? (
+              <>
+                韓国旅行の前に
+                <br />
+                お得なクーポンをチェック。
+              </>
+            ) : (
+              <>
+                クーポンは
+                <br />
+                現在準備中です。
+              </>
+            )}
           </h2>
           <p className="text-body text-white/85">
-            旅行前に保存しておけば、
-            <br />
-            韓国に着いてからすぐ使えます。
+            {totalPublicCoupons > 0 ? (
+              <>
+                旅行前に保存しておけば、
+                <br />
+                韓国に着いてからすぐ使えます。
+              </>
+            ) : (
+              <>
+                提携店舗の準備ができ次第、
+                <br />
+                順次公開します。
+              </>
+            )}
           </p>
           <Link
             href="/coupons"
             className="mt-2 flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-body font-bold text-primary-foreground shadow-card transition hover:brightness-105"
           >
             <Ticket className="h-4 w-4" />
-            無料でクーポンを探す
+            {totalPublicCoupons > 0 ? "無料でクーポンを探す" : "エリア・カテゴリを見る"}
           </Link>
           <p className="text-caption text-white/70">登録無料</p>
         </Reveal>

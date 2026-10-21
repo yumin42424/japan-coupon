@@ -3,7 +3,44 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const { resolveSender, maskEmail, SANDBOX_SENDER } = require("../.test-build/email-config.js");
+const { resolveSender, maskEmail, mailReadiness, SANDBOX_SENDER } = require("../.test-build/email-config.js");
+
+test("mailReadiness: production without EMAIL_FROM is NOT ready (the sandbox sender is never the production default)", () => {
+  for (const emailFrom of [undefined, null, "", "   "]) {
+    assert.deepEqual(mailReadiness({ apiKey: "re_key", emailFrom, production: true }), { ready: false, reason: "no_sender" });
+  }
+});
+
+test("mailReadiness: production with a verified-domain sender is ready and not sandbox", () => {
+  const r = mailReadiness({ apiKey: "re_key", emailFrom: "K-Coupon Japan <noreply@mail.kcoupon.example>", production: true });
+  assert.deepEqual(r, { ready: true, from: "K-Coupon Japan <noreply@mail.kcoupon.example>", isSandbox: false });
+});
+
+test("mailReadiness: an operator who explicitly sets the sandbox address in production is allowed but flagged", () => {
+  const r = mailReadiness({ apiKey: "re_key", emailFrom: "Test <onboarding@resend.dev>", production: true });
+  assert.equal(r.ready, true);
+  assert.equal(r.isSandbox, true);
+});
+
+test("mailReadiness: a malformed EMAIL_FROM is never ready, in any environment", () => {
+  for (const production of [true, false]) {
+    assert.deepEqual(mailReadiness({ apiKey: "re_key", emailFrom: "not-an-address", production }), { ready: false, reason: "invalid_sender" });
+    assert.deepEqual(mailReadiness({ apiKey: "re_key", emailFrom: "A <a@example.com>\r\nBcc: x@example.net", production }), { ready: false, reason: "invalid_sender" });
+  }
+});
+
+test("mailReadiness: no API key is never ready (checked before the sender)", () => {
+  for (const apiKey of [undefined, null, "", "  "]) {
+    for (const production of [true, false]) {
+      assert.deepEqual(mailReadiness({ apiKey, emailFrom: "noreply@kcoupon.example", production }), { ready: false, reason: "no_api_key" });
+    }
+  }
+});
+
+test("mailReadiness: outside production an empty EMAIL_FROM falls back to the sandbox sender (local development only)", () => {
+  const r = mailReadiness({ apiKey: "re_key", emailFrom: "", production: false });
+  assert.deepEqual(r, { ready: true, from: SANDBOX_SENDER, isSandbox: true });
+});
 
 test("resolveSender: an empty EMAIL_FROM falls back to the Resend sandbox sender and says it is not configured", () => {
   for (const empty of [undefined, null, "", "   "]) {

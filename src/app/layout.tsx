@@ -27,13 +27,13 @@ export const metadata: Metadata = {
     template: "%s | K-Coupon Japan",
   },
   description:
-    "日本人旅行者向けの韓国旅行クーポンサイト。明洞・弘大・江南・聖水など人気エリアのグルメ・美容・ショッピングでお得なクーポンを無料でGET。会員登録・利用は無料です。",
+    "日本人旅行者向けの韓国旅行クーポンサイト。明洞・弘大・江南・聖水など人気エリアに対応。現在は提携店舗のクーポンを準備中です。会員登録・利用は無料です。",
   openGraph: {
     type: "website",
     locale: "ja_JP",
     siteName: "K-Coupon Japan",
     title: "K-Coupon Japan | 韓国旅行がもっとお得になるクーポンサイト",
-    description: "日本人旅行者向けの韓国旅行クーポンサイト。人気エリア・カテゴリからお得なクーポンを無料でGET。",
+    description: "日本人旅行者向けの韓国旅行クーポンサイト。現在は提携店舗のクーポンを準備中です。",
     images: [{ url: "/og.jpg", width: 1200, height: 630, alt: "K-Coupon Japan" }],
   },
   twitter: { card: "summary_large_image", images: ["/og.jpg"] },

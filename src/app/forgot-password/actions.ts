@@ -3,7 +3,7 @@
 import { after } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { createAuthToken } from "@/lib/auth-tokens";
-import { sendEmail } from "@/lib/email";
+import { getMailReadiness, reportMailNotReady, sendEmail } from "@/lib/email";
 import { getClientIp, isRateLimited } from "@/lib/rate-limit";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://japan-coupon-five.vercel.app";
@@ -22,6 +22,14 @@ export async function requestPasswordReset(
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   if (!email || email.length > 254) {
     return { error: "メールアドレスを入力してください。" };
+  }
+
+  // 메일 발송 설정이 갖춰지지 않은 상태에서는 "送信しました"라고 말하지 않는다.
+  // 이 검사는 입력한 주소와 무관하게 모든 요청에 똑같이 적용되므로 계정 존재 여부를 알려주지 않는다.
+  const readiness = getMailReadiness();
+  if (!readiness.ready) {
+    reportMailNotReady(readiness);
+    return { error: "現在、メールを送信できません。しばらくしてからもう一度お試しください。" };
   }
 
   const ip = await getClientIp();

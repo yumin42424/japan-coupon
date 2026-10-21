@@ -12,6 +12,7 @@ import { fileURLToPath } from "url";
 const MIGRATION = fileURLToPath(new URL("../migrations/20261012_issue_coupon_atomic.sql", import.meta.url));
 const POINT_MIGRATION = fileURLToPath(new URL("../migrations/20261012_point_use.sql", import.meta.url));
 const VERIFY = fileURLToPath(new URL("../verify/post-apply-check.sql", import.meta.url));
+const PRE_VERIFY = fileURLToPath(new URL("../verify/pre-apply-check.sql", import.meta.url));
 const PORT = 54330;
 const DATA_DIR = "./pgdata-issue-" + Date.now();
 let passed = 0, failed = 0;
@@ -58,6 +59,27 @@ try {
   const falseBefore = verifyBefore.filter((r) => !r.ok).map((r) => r.check_name);
   check("0a. verify query before migrations: function/column checks are false", falseBefore.length >= 14 && falseBefore.some((n) => n.startsWith("issue_coupon")) && falseBefore.some((n) => n.startsWith("use_points")), `false=${falseBefore.length}`);
   check("0b. verify query before migrations: pre-existing safeguards (indexes, RLS) are already true", verifyBefore.filter((r) => r.ord >= 30).every((r) => r.ok), JSON.stringify(verifyBefore.filter((r) => r.ord >= 30 && !r.ok)));
+
+  // 0d. the PRE-apply check passes on a database that has what the migrations expect (and reports the functions as not installed yet)
+  const preOk = (await admin.query(readFileSync(PRE_VERIFY, "utf-8"))).rows;
+  check("0d. pre-apply check: every real check is ok on a compatible database", preOk.filter((r) => r.ord < 900).length === 9 && preOk.filter((r) => r.ord < 900).every((r) => r.ok === true), JSON.stringify(preOk.filter((r) => !r.ok)));
+  check("0e. pre-apply check: INFO rows say the functions are not installed yet", preOk.find((r) => r.ord === 910).detail.startsWith("no") && preOk.find((r) => r.ord === 920).detail.startsWith("no"));
+
+  // 0f-j. ...and it STOPS (false) when a prerequisite is missing — each case on a throw-away copy of the broken condition
+  { const failing = async (id, why, ord, breakSql, repairSql) => {
+      await admin.query(breakSql);
+      const rows = (await admin.query(readFileSync(PRE_VERIFY, "utf-8"))).rows;
+      await admin.query(repairSql);
+      const row = rows.find((r) => r.ord === ord);
+      check(`${id}. pre-apply check turns false when ${why}`, row.ok === false && rows.filter((r) => r.ord < 900 && r.ord !== ord).every((r) => r.ok === true), JSON.stringify(rows.filter((r) => !r.ok)));
+    };
+    await failing("0f", "the unique ISSUE index is missing", 40, `drop index coupon_events_unique_issue`, `create unique index coupon_events_unique_issue on public.coupon_events (user_id, coupon_id, reissue_key) where event_type = 'issue'`);
+    await failing("0g", "the unique USE index is missing", 50, `drop index coupon_events_unique_use`, `create unique index coupon_events_unique_use on public.coupon_events (user_id, coupon_id, reissue_key) where event_type = 'use'`);
+    await failing("0h", "RLS is off on coupon_events", 70, `alter table public.coupon_events disable row level security`, `alter table public.coupon_events enable row level security`);
+    await failing("0i", "reissue_key is not text", 30, `alter table public.coupon_events alter column reissue_key drop default; alter table public.coupon_events alter column reissue_key type integer using 0`,
+      `alter table public.coupon_events alter column reissue_key type text using reissue_key::text; alter table public.coupon_events alter column reissue_key set default '0'`);
+    await failing("0j", "valid_to is not a date", 10, `alter table public.coupons alter column valid_to drop default; alter table public.coupons alter column valid_to type text using valid_to::text`, `alter table public.coupons alter column valid_to type date using valid_to::date; alter table public.coupons alter column valid_to set default '2999-12-31'`);
+  }
 
   await admin.query(readFileSync(MIGRATION, "utf-8"));
   await admin.query(readFileSync(MIGRATION, "utf-8"));

@@ -10,22 +10,27 @@ import { safeRedirectPath } from "@/lib/safe-redirect";
 export default async function OnboardingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ callbackUrl?: string }>;
+  searchParams: Promise<{ callbackUrl?: string; mail?: string }>;
 }) {
   const session = await auth();
   if (!session?.user) {
     redirect("/login");
   }
-  const { callbackUrl: rawCallbackUrl } = await searchParams;
+  const { callbackUrl: rawCallbackUrl, mail } = await searchParams;
   const callbackUrl = safeRedirectPath(rawCallbackUrl, "");
 
   return (
     <main className="mx-auto flex min-h-[calc(100vh-65px)] max-w-md flex-col justify-center px-6 py-12">
+      {mail === "failed" && (
+        <p role="alert" className="mb-6 rounded-xl border border-border bg-card px-4 py-3 text-caption text-muted">
+          登録は完了しましたが、確認メールを送信できませんでした。メールアドレスの確認は、あとでマイページから再送できます。
+        </p>
+      )}
       <h1 className="text-h1 font-display tracking-tight">
         韓国旅行について教えてください
       </h1>
       <p className="mt-2 text-body text-muted">
-        興味に合わせて、お得なクーポンをご紹介します。
+        クーポンが公開されたときに、興味に合わせてご紹介します。
       </p>
 
       <form action={saveOnboarding} className="mt-8 flex flex-col gap-8">

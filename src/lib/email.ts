@@ -1,6 +1,6 @@
 import "server-only";
 import * as Sentry from "@sentry/nextjs";
-import { maskEmail, resolveSender } from "@/lib/email-config";
+import { mailReadiness, maskEmail, type MailReadiness } from "@/lib/email-config";
 
 // Resend REST API를 직접 호출한다 (SDK 없이 fetch 한 번).
 // 이 함수는 절대 예외를 던지지 않고, 호출하는 쪽이 "정말 보냈는지"를 알 수 있게 결과를 돌려준다.
@@ -10,7 +10,35 @@ export type SendEmailResult =
   | { ok: true }
   | { ok: false; reason: "not_configured" | "invalid_sender" | "rejected" | "network_error" };
 
+const isProduction = () => process.env.NODE_ENV === "production";
+
+// 환경변수만 보고 "지금 메일을 보낼 수 있는 설정인가"를 돌려준다 (네트워크 호출 없음).
+// 비밀번호 재설정처럼 응답을 먼저 돌려주는 화면이, 설정이 안 된 상태에서 "보냈습니다"라고 말하지 않게 하는 데 쓴다.
+export function getMailReadiness(): MailReadiness {
+  return mailReadiness({
+    apiKey: process.env.RESEND_API_KEY,
+    emailFrom: process.env.EMAIL_FROM,
+    production: isProduction(),
+  });
+}
+
 let warnedSandboxSender = false;
+const reportedNotReady = new Set<string>();
+
+// 설정 문제는 모든 발송이 실패한다는 뜻이다. 같은 오류를 인스턴스당 한 번만 Sentry에 올려 알림이 쏟아지지 않게 한다.
+export function reportMailNotReady(readiness: Extract<MailReadiness, { ready: false }>): void {
+  if (reportedNotReady.has(readiness.reason)) return;
+  reportedNotReady.add(readiness.reason);
+  const why =
+    readiness.reason === "no_api_key"
+      ? "RESEND_API_KEY is not set"
+      : readiness.reason === "no_sender"
+        ? "EMAIL_FROM is not set (the Resend sandbox sender is not used in production)"
+        : "EMAIL_FROM is malformed";
+  if (isProduction()) {
+    Sentry.captureMessage(`email: ${why}; mail will not be sent`, { level: "error", tags: { area: "email", reason: readiness.reason } });
+  }
+}
 
 export async function sendEmail({
   to,
@@ -21,29 +49,19 @@ export async function sendEmail({
   subject: string;
   html: string;
 }): Promise<SendEmailResult> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const isProduction = process.env.NODE_ENV === "production";
+  const readiness = getMailReadiness();
 
-  if (!apiKey) {
-    if (isProduction) {
-      Sentry.captureMessage("email: RESEND_API_KEY is not set, mail was not sent", { level: "error", tags: { area: "email" } });
-    } else {
-      console.log(`[email] RESEND_API_KEY未設定のため送信スキップ — to=${maskEmail(to)}`);
-    }
-    return { ok: false, reason: "not_configured" };
+  if (!readiness.ready) {
+    reportMailNotReady(readiness);
+    console.error(`[email] not sent (${readiness.reason}) to=${maskEmail(to)}`);
+    return { ok: false, reason: readiness.reason === "invalid_sender" ? "invalid_sender" : "not_configured" };
   }
 
-  const sender = resolveSender(process.env.EMAIL_FROM);
-  if (!sender.ok) {
-    Sentry.captureMessage("email: EMAIL_FROM is malformed, mail was not sent", { level: "error", tags: { area: "email" } });
-    console.error("[email] EMAIL_FROM has an invalid format");
-    return { ok: false, reason: "invalid_sender" };
-  }
-  if (isProduction && sender.isSandbox && !warnedSandboxSender) {
-    // 공용 샌드박스 주소로는 Resend 계정 소유자에게만 보낼 수 있다. 값이 비어 있는 상태로 운영 중이라는 사실을 한 번 알린다.
+  if (isProduction() && readiness.isSandbox && !warnedSandboxSender) {
+    // 운영자가 EMAIL_FROM에 샌드박스 주소를 명시한 상태 — 본인 주소 테스트용으로는 허용하지만 일반 이용자에게는 도착하지 않는다.
     warnedSandboxSender = true;
     Sentry.captureMessage(
-      "email: sending from the Resend sandbox address in production; only the Resend account owner can receive mail. Verify a domain and set EMAIL_FROM.",
+      "email: EMAIL_FROM is the Resend sandbox address in production; only the Resend account owner can receive mail. Verify a domain and set EMAIL_FROM.",
       { level: "warning", tags: { area: "email" } }
     );
   }
@@ -53,10 +71,10 @@ export async function sendEmail({
     res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ from: sender.from, to, subject, html }),
+      body: JSON.stringify({ from: readiness.from, to, subject, html }),
       signal: AbortSignal.timeout(10_000),
     });
   } catch (err) {

@@ -38,7 +38,7 @@ export default async function SignupPage({
           無料会員登録
         </h1>
         <p className="mt-2 text-body text-muted">
-          会員登録すると、会員限定クーポンをGETできます。
+          会員登録（無料）すると、会員限定クーポンが公開されたときにGETできます。
         </p>
 
         <SignupForm acquisitionSource={utm_source ?? "direct"} callbackUrl={callbackUrl} />
