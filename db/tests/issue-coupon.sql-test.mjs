@@ -7,12 +7,14 @@ import EmbeddedPostgres from "embedded-postgres";
 import pg from "pg";
 import { readFileSync, rmSync, existsSync } from "fs";
 import { randomUUID } from "crypto";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 
 const MIGRATION = fileURLToPath(new URL("../migrations/20261012_issue_coupon_atomic.sql", import.meta.url));
 const POINT_MIGRATION = fileURLToPath(new URL("../migrations/20261012_point_use.sql", import.meta.url));
 const VERIFY = fileURLToPath(new URL("../verify/post-apply-check.sql", import.meta.url));
 const PRE_VERIFY = fileURLToPath(new URL("../verify/pre-apply-check.sql", import.meta.url));
+const APPLY_FILE = fileURLToPath(new URL("../apply/apply-issue-coupon.sql", import.meta.url));
+const APPLY_BUILDER = fileURLToPath(new URL("../../scripts/build-apply-script.mjs", import.meta.url));
 const PORT = 54330;
 const DATA_DIR = "./pgdata-issue-" + Date.now();
 let passed = 0, failed = 0;
@@ -79,6 +81,29 @@ try {
     await failing("0i", "reissue_key is not text", 30, `alter table public.coupon_events alter column reissue_key drop default; alter table public.coupon_events alter column reissue_key type integer using 0`,
       `alter table public.coupon_events alter column reissue_key type text using reissue_key::text; alter table public.coupon_events alter column reissue_key set default '0'`);
     await failing("0j", "valid_to is not a date", 10, `alter table public.coupons alter column valid_to drop default; alter table public.coupons alter column valid_to type text using valid_to::text`, `alter table public.coupons alter column valid_to type date using valid_to::date; alter table public.coupons alter column valid_to set default '2999-12-31'`);
+  }
+
+  // 0k-o. the one-paste operator script (db/apply/apply-issue-coupon.sql)
+  const { buildApplyScript } = await import(pathToFileURL(APPLY_BUILDER).href);
+  const APPLY = buildApplyScript();
+  check("0k. the committed apply script is exactly what the builder produces now (no drift from the verified source files)", readFileSync(APPLY_FILE, "utf-8").replace(/\r\n/g, "\n") === APPLY);
+  {
+    // a prerequisite is missing -> the whole script stops with STOP and NOTHING is installed
+    await admin.query(`drop index coupon_events_unique_issue`);
+    let err = null; try { await admin.query(APPLY); } catch (e) { err = e.message; }
+    const installed = (await admin.query(`select to_regprocedure('public.issue_coupon(uuid, uuid, text)') is not null as yes`)).rows[0].yes;
+    check("0l. apply script on a database missing a prerequisite: stops with the STOP message", !!err && err.startsWith("STOP - prerequisites missing, nothing was changed"), String(err));
+    check("0m. ...and the function was NOT installed (everything rolled back)", installed === false);
+    await admin.query(`create unique index coupon_events_unique_issue on public.coupon_events (user_id, coupon_id, reissue_key) where event_type = 'issue'`);
+  }
+  {
+    // compatible database -> installs and the final table is all ok (runs as one multi-statement query, like the SQL editor)
+    const res = await admin.query(APPLY);
+    const rows = (Array.isArray(res) ? res[res.length - 1] : res).rows;
+    check("0n. apply script on a compatible database: final table has the issue_coupon checks + the call test, all ok", rows.length === 8 && rows.every((r) => r.ok === true), JSON.stringify(rows.filter((r) => !r.ok)));
+    const again = await admin.query(APPLY);
+    const rows2 = (Array.isArray(again) ? again[again.length - 1] : again).rows;
+    check("0o. running the apply script a second time is safe and still all ok", rows2.length === 8 && rows2.every((r) => r.ok === true));
   }
 
   await admin.query(readFileSync(MIGRATION, "utf-8"));

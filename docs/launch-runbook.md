@@ -40,19 +40,16 @@
 
 같은 서비스에 두 번 들어가지 않도록 제공자별로 묶었습니다. 자세한 설명은 각 번호의 본문을 보세요. **값(비밀키·비밀번호)은 어디에도 붙여 넣지 마세요.**
 
-### A. Supabase — 쿠폰 발급 안전 함수 설치 (베타 필수, 약 10분)
-- **접속**: Supabase Dashboard → 운영 프로젝트 → **SQL Editor** → `New query` (매번 **새 탭**)
+### A. Supabase — 쿠폰 발급 안전 함수 설치 (베타 필수, 약 3분 · **붙여넣고 Run 한 번**)
+- **접속**: Supabase Dashboard → 운영 프로젝트 → **SQL Editor** → `New query` (새 탭)
 - **순서**
-  1. 새 탭에 `db/verify/pre-apply-check.sql` 전체를 붙여넣고 Run → `ord` 10~90이 **모두 `ok = true`**
-  2. 새 탭에 `db/migrations/20261012_issue_coupon_atomic.sql` **파일 하나만** 붙여넣고 Run → `Success. No rows returned`
-  3. 새 탭에 `db/verify/post-apply-check.sql`을 Run → `ord` 10~16이 모두 true (20번대는 포인트 SQL을 적용하지 않았으므로 false가 정상)
-  4. 새 탭에 아래를 Run → 결과가 `{"status": "user_not_found"}` (아무것도 기록되지 않음)
-     ```sql
-     select public.issue_coupon('00000000-0000-0000-0000-000000000000'::uuid, '00000000-0000-0000-0000-000000000000'::uuid, '0');
-     ```
-- **성공 확인**: 위 3·4번 + 이후 Sentry에 `issue_coupon() is missing` 이슈가 새로 생기지 않음
-- **중단 조건**: 1번에서 `false`가 하나라도 있음 / 2번에서 오류 문구가 나옴 / 3번의 10~16행 중 `false` / 4번 결과가 다름 → **멈추고** 해당 결과를 전달. 이미 적용했다면 복구: `drop function if exists public.issue_coupon(uuid, uuid, text);` (그러면 수량 제한 쿠폰만 다시 "발급 불가"로 막히고 나머지는 정상)
-- **포인트 SQL(`20261012_point_use.sql`)은 이번 베타에 필요 없습니다.** 포인트 "사용"은 꺼져 있고(적립만 동작) 사용처 정책도 없습니다. 사용처가 확정되어 기능을 켤 때 5번 절차로 적용하세요 — 그 전에 적용하면 아무 이점 없이 DB 표면만 늘어납니다.
+  1. 프로젝트의 `db/apply/apply-issue-coupon.sql` 파일을 열어 **전체를 복사**해 새 탭에 붙여넣고 **Run 한 번**
+  2. 맨 아래 결과 표를 확인
+- **성공 확인**: 결과 표 8행이 **모두 `ok = true`** (마지막 행은 존재하지 않는 사용자로 호출해 보는 안전한 시험이라 아무것도 기록되지 않음). 이후 Sentry에 `issue_coupon() is missing` 이슈가 새로 생기지 않음
+- **중단 조건 / 자동 안전장치**: 이 파일은 맨 앞에서 운영 DB가 함수가 기대하는 전제(컬럼 타입, 발급/사용 유니크 인덱스, RLS, 중복 행 없음)를 갖췄는지 먼저 검사하고, **하나라도 틀리면 빨간 오류 `STOP - prerequisites missing, nothing was changed: …`로 전체가 취소됩니다 (아무것도 바뀌지 않음).** 그 오류 문구 전체를 개발자에게 전달하세요. 한 번의 트랜잭션이라 중간 실패도 전부 취소되고, 여러 번 실행해도 안전합니다.
+- 이미 적용한 뒤 되돌려야 한다면: `drop function if exists public.issue_coupon(uuid, uuid, text);` (수량 제한 쿠폰만 다시 "발급 불가"로 막히고 나머지는 정상)
+- 이 파일은 `db/verify/pre-apply-check.sql` + `db/migrations/20261012_issue_coupon_atomic.sql` + `db/verify/post-apply-check.sql`을 `node scripts/build-apply-script.mjs`로 조립한 것이고, DB 테스트가 "저장된 파일 = 새로 조립한 결과"와 "전제가 깨지면 STOP + 아무것도 설치되지 않음"을 매번 확인합니다. (원본 SQL을 고치면 이 명령으로 다시 만들어야 합니다.)
+- **포인트 SQL(`20261012_point_use.sql`)은 이번 베타에 필요 없습니다.** 포인트 "사용"은 꺼져 있고(적립만 동작) 사용처 정책도 없습니다. 사용처가 확정되어 기능을 켤 때 5번 절차로 적용하세요.
 
 ### B. Resend + 도메인 DNS — 일반 이용자에게 메일이 가게 하기 (베타 필수)
 - **접속**: ① 도메인을 산 곳(가비아/Cloudflare 등)의 DNS 관리 ② Resend Dashboard
@@ -319,6 +316,8 @@ Preview/Production 차이: 이 프로젝트는 Production만 쓰는 것으로 �
 | 롤백 시 앱 영향 | 함수를 지우면 수량 제한 쿠폰만 다시 "발급 불가"로 막힘 | 함수를 지워도 포인트 사용 UI는 원래 꺼져 있음 |
 
 ### 적용 절차 (각 파일 공통)
+> **`issue_coupon`만 설치한다면 이 단계들을 직접 하지 말고 0-1번의 A(`db/apply/apply-issue-coupon.sql` 한 번 붙여넣기)를 쓰세요** — 아래 1~4단계를 자동으로 하고, 전제가 틀리면 아무것도 바꾸지 않고 멈춥니다. 아래는 단계를 나눠서 직접 확인하고 싶을 때, 그리고 포인트 SQL을 적용할 때의 설명입니다.
+
 1. **적용 전 확인 (필수 — 이 결과가 나오기 전에는 적용하지 않습니다)**: SQL Editor → **새 쿼리 탭**에 `db/verify/pre-apply-check.sql` 내용만 붙여넣고 Run. `ord` 10~90행(컬럼 타입, `coupon_events`의 발급/사용 유니크 인덱스, RLS, 중복 행 없음)이 **모두 `ok = true`여야 합니다.** 하나라도 `false`면 **멈추고** 그 행의 `check_name`·`detail`을 개발자에게 전달하세요 (함수가 기대하는 DB 전제가 운영 DB에 없다는 뜻이며, 이 상태에서 적용하면 함수가 오류를 낼 수 있습니다). `ord` 900번대는 정보(INFO)이고 항상 true입니다 — 함수가 아직 없다는 "no — expected before applying"가 정상입니다. (운영 DB의 컬럼 타입은 2026-10-21에 API로 읽어 이 전제와 일치함을 이미 확인했지만, 유니크 인덱스·RLS는 API로 볼 수 없어 이 쿼리로만 확인됩니다.)
 2. **적용**: **새 쿼리 탭**에 파일 내용**만** 붙여넣고 Run (기존 저장 스크립트 뒤에 이어 붙이지 마세요 — 에디터가 탭 전체를 하나의 트랜잭션으로 실행합니다). "Success. No rows returned"가 나오면 정상.
 3. **적용 후 확인**: 다시 새 탭에서 `db/verify/post-apply-check.sql`을 실행 → **모든 행 `ok = true`** (10~16행은 issue_coupon, 20~29행은 use_points/컬럼이라, 한 파일만 적용했다면 다른 쪽 행은 계속 `false`인 것이 정상). **하나라도 `false`이면 그 파일에 대해서는 적용이 끝난 것으로 보지 않습니다** — 아래 6번(실패했을 때)을 따르세요.
