@@ -8,7 +8,7 @@ function kstDateString(date: Date): string {
 }
 
 export function todayKST(): string {
-  return kstDateString(new Date());
+  return kstDateString(new Date(Date.now()));
 }
 
 export function addDaysKST(days: number): string {
