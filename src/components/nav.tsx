@@ -20,7 +20,7 @@ export async function Nav() {
           </Link>
 
           {/* 데스크탑 중앙 내비 — 로고/우측 액션 사이에 남는 공간을 채워서 오른쪽으로 쏠리지 않게 가운데 정렬 */}
-          <nav className="hidden flex-1 items-center justify-center gap-0.5 text-sm md:flex">
+          <nav aria-label="メインメニュー" className="hidden flex-1 items-center justify-center gap-0.5 text-sm md:flex">
             <Link
               href="/coupons"
               className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:px-3"
@@ -128,6 +128,7 @@ export async function Nav() {
       {/* 모바일 전용 하단 탭바 — 높이를 --bottom-nav-h 하나로 고정해서
           body의 여백/쿠폰상세 sticky CTA와 항상 같은 기준으로 맞물리게 한다. */}
       <nav
+        aria-label="タブメニュー"
         className="fixed inset-x-0 bottom-0 z-10 flex items-stretch border-t border-border bg-background/95 backdrop-blur-md md:hidden"
         style={{ height: "var(--bottom-nav-h)", paddingBottom: "env(safe-area-inset-bottom)" }}
       >

@@ -84,9 +84,20 @@ body::after {
   opacity: 0.16;
 }
 
-/* text-primary(글자색)만 접근성 기준을 만족하는 진한 코랄로 — 버튼·배지·장식의 배경색(bg-primary)은 브랜드 색 그대로 */
+/* text-primary(글자색)만 접근성 기준을 만족하는 진한 코랄로 — 장식·옅은 배경(bg-primary/10 등)은 브랜드 색 그대로 */
 .text-primary {
   color: var(--primary-text);
+}
+
+/* 흰 글자가 올라가는 단색 배경(버튼·배지)은 브랜드 코랄(#ec5f71)이면 대비가 3.3:1 이라 AA(4.5:1)에 못 미친다.
+   팔레트에 이미 있는 진한 톤(#ce4155, 흰 글자 4.65:1)을 쓴다. */
+.bg-primary {
+  background-color: var(--primary-dark);
+}
+
+/* 성공 메시지 글자색 — 기본 초록(#16a34a)은 흰/연한 배경에서 3.3:1 이라 진하게 (#15803d, 약 5:1) */
+.text-success {
+  color: #15803d;
 }
 
 h1, h2, h3, h4, .font-display {
@@ -100,7 +111,7 @@ h1, h2, h3, h4, .font-display {
 
   /* 주요 액션 버튼 — 단색 + 은은한 그림자. 그라데이션이나 광택 효과는 쓰지 않는다 */
   .btn-glossy {
-    background-color: var(--primary);
+    background-color: var(--primary-dark);
     box-shadow: var(--shadow-card);
   }
 

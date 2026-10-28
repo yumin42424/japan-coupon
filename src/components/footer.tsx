@@ -29,7 +29,7 @@ export function Footer() {
         </div>
 
         <div className="flex flex-col gap-6 sm:flex-row sm:gap-10">
-          <nav className="flex flex-col gap-1.5 text-body">
+          <nav aria-label="フッターメニュー" className="flex flex-col gap-1.5 text-body">
             <p className="mb-1 text-label font-bold uppercase tracking-wider text-muted">Menu</p>
             {MENU_LINKS.map((l) => (
               <Link
@@ -42,7 +42,7 @@ export function Footer() {
             ))}
           </nav>
 
-          <nav className="flex flex-col gap-1.5 text-body">
+          <nav aria-label="規約・ポリシー" className="flex flex-col gap-1.5 text-body">
             <p className="mb-1 text-label font-bold uppercase tracking-wider text-muted">Legal</p>
             {LEGAL_LINKS.map((l) => (
               <Link
