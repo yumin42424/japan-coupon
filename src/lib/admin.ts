@@ -37,6 +37,15 @@ export async function requireAdmin() {
   }
 }
 
+// requireAdmin()과 같은 검사를 한 뒤, 처리한 관리자의 회원 ID를 돌려준다 (감사 기록에 "누가 처리했는가"를 남기는 용도).
+export async function requireAdminUser(): Promise<string> {
+  await requireAdmin();
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) throw new Error("管理者権限が必要です。");
+  return userId;
+}
+
 // 관리자 페이지(Server Component)는 layout의 가드만 믿으면 안 된다 — layout과 page는 병렬로
 // 렌더링되고, `RSC: 1` 요청에서는 layout이 redirect를 던져도 page가 읽은 데이터가 같은 응답
 // 본문에 실려 나간다. 그래서 모든 관리자 page가 데이터를 읽기 "전에" 이 함수를 await 해야 한다.

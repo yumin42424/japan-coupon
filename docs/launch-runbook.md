@@ -51,6 +51,14 @@
 - 이 파일은 `db/verify/pre-apply-check.sql` + `db/migrations/20261012_issue_coupon_atomic.sql` + `db/verify/post-apply-check.sql`을 `node scripts/build-apply-script.mjs`로 조립한 것이고, DB 테스트가 "저장된 파일 = 새로 조립한 결과"와 "전제가 깨지면 STOP + 아무것도 설치되지 않음"을 매번 확인합니다. (원본 SQL을 고치면 이 명령으로 다시 만들어야 합니다.)
 - **포인트 SQL(`20261012_point_use.sql`)은 이번 베타에 필요 없습니다.** 포인트 "사용"은 꺼져 있고(적립만 동작) 사용처 정책도 없습니다. 사용처가 확정되어 기능을 켤 때 5번 절차로 적용하세요.
 
+### A-2. (권장 · 베타 필수는 아님) 쿠폰 사용 처리자 기록 — 붙여넣고 Run 한 번
+- **무엇**: 매장에서 쿠폰을 사용 처리할 때 "어느 관리자가 처리했는가"를 기록하는 컬럼(`coupon_events.redeemed_by`)을 추가합니다. 매장 분쟁이나 잘못 처리했을 때 추적하려는 용도입니다. 기존 데이터는 바꾸지 않습니다.
+- **접속**: Supabase Dashboard → 운영 프로젝트 → **SQL Editor** → `New query`(새 탭)
+- **순서**: 프로젝트의 `db/apply/apply-redeem-audit.sql` 전체를 복사해 붙여넣고 **Run 한 번** → 맨 아래 표의 `ok`가 **true**
+- **중단 조건**: 빨간 오류 `STOP - prerequisites missing, nothing was changed: …`가 나오면 아무것도 바뀌지 않은 것이니 문구 전체를 알려주세요 (1번 A와 같은 안전 구조).
+- **이 작업을 안 해도**: 사용 처리는 정상으로 동작합니다. 처리자만 기록되지 않고, Sentry에 `coupon_events.redeemed_by is missing` 경고가 한 번 올라옵니다.
+- **되돌리기**: 필요하면 `alter table public.coupon_events drop column redeemed_by;` (기록된 처리자 정보만 사라지고 사용 기록은 그대로).
+
 ### B. Resend + 도메인 DNS — 일반 이용자에게 메일이 가게 하기 (베타 필수)
 - **접속**: ① 도메인을 산 곳(가비아/Cloudflare 등)의 DNS 관리 ② Resend Dashboard
 - **순서**: Resend → **Domains** → `Add Domain`(발신에 쓸 도메인, 예: `mail.<서비스 도메인>`) → Resend가 **화면에 보여주는** SPF/DKIM(필요 시 DMARC) 레코드를 **그 값 그대로** DNS에 추가 → Resend에서 `Verify`
@@ -119,13 +127,13 @@
 | QR에는 무엇이 들어 있는가 | 발급 이벤트 UUID 하나뿐. 이름·이메일 등 개인정보 없음. 사용 처리되면 무효 |
 | 중복 사용은 어떻게 막는가 | 처리 직전 재확인 + DB 부분 유니크 인덱스(회원·쿠폰·사이클). 동시 처리돼도 한쪽 insert가 실패(23505)하며 그때는 포인트도 안 줌 |
 | 만료·중지 쿠폰은 | 처리 직전에 유효기간(KST)·쿠폰/매장 활성 여부를 다시 확인해 거부 |
-| 사용 이력을 추적할 수 있는가 | `coupon_events`의 `use` 행(쿠폰·회원·시각)은 남음. **"누가 처리했는지"는 남지 않음** (B안에서 `redeemed_by` 추가 필요) |
+| 사용 이력을 추적할 수 있는가 | `coupon_events`의 `use` 행(쿠폰·회원·시각)이 남음. **처리한 관리자는 `db/apply/apply-redeem-audit.sql`을 적용한 뒤부터 `redeemed_by`에 기록됩니다** (적용 전에는 기록되지 않음 — 앱은 둘 다 정상 동작). 처리자 계정이 삭제돼도 사용 기록은 남고 처리자 칸만 비워집니다 |
 | QR 스크린샷이 공유되면 | 사용 처리는 1회만 되지만, 스크린샷을 가진 다른 사람이 먼저 처리를 요청할 수는 있음. 매장은 마이페이지 화면의 닉네임·쿠폰명과 대조하도록 안내 |
 
 ### B안 최소 설계안 (구현 전에 승인 필요 — 현재 코드에는 없음)
 기존 권한 구조(관리자 = `ADMIN_EMAILS` + DB 조회, `users`에 role 컬럼 없음)를 바꾸지 않고 **매장별 직원 연결만 추가**합니다.
 1. 테이블 `store_staff(user_id → users, store_id → stores, created_at, primary key(user_id, store_id))` — RLS 켜고 정책 없음(서버만 접근)
-2. `coupon_events.redeemed_by uuid null` 컬럼 추가 (처리한 직원/관리자 기록)
+2. (처리자 기록 컬럼 `coupon_events.redeemed_by`는 이미 추가돼 있음 — 직원이 처리하면 직원의 회원 ID가 같은 컬럼에 기록됨)
 3. 서버 검사 `requireStaffForStore(storeId)`: 세션 사용자가 그 매장의 직원이거나 관리자일 때만 통과
 4. 직원 화면 `/staff/redeem`: 코드의 쿠폰이 **본인 소속 매장**의 것일 때만 조회·처리, 아니면 "この店舗のクーポンではありません" (기존 `processRedeem` 로직 재사용)
 5. 직원 계정은 관리자 화면에서만 연결·해제 (직원 자가 가입 없음). 퇴사·계약 종료 시 즉시 해제

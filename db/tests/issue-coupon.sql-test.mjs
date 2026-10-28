@@ -15,6 +15,7 @@ const VERIFY = fileURLToPath(new URL("../verify/post-apply-check.sql", import.me
 const PRE_VERIFY = fileURLToPath(new URL("../verify/pre-apply-check.sql", import.meta.url));
 const APPLY_FILE = fileURLToPath(new URL("../apply/apply-issue-coupon.sql", import.meta.url));
 const APPLY_BUILDER = fileURLToPath(new URL("../../scripts/build-apply-script.mjs", import.meta.url));
+const AUDIT_APPLY_FILE = fileURLToPath(new URL("../apply/apply-redeem-audit.sql", import.meta.url));
 const PORT = 54330;
 const DATA_DIR = "./pgdata-issue-" + Date.now();
 let passed = 0, failed = 0;
@@ -208,6 +209,45 @@ try {
     const r = (await cl.query(`select public.issue_coupon($1::uuid,$2::uuid,'0') r`, [u, c])).rows[0].r; await cl.end();
     const evilRows = Number((await admin.query(`select count(*) c from evil.coupon_events`)).rows[0].c);
     check("9. caller's search_path cannot redirect the function to a look-alike table", r.status === "ok" && evilRows === 0 && (await issued(c)) === 1, `status=${r.status} evil=${evilRows}`); }
+
+  // 10. redeem audit column (db/migrations/20261028_redeem_audit.sql) through its one-paste script
+  {
+    const { buildAuditApplyScript } = await import(pathToFileURL(APPLY_BUILDER).href);
+    const AUDIT = buildAuditApplyScript();
+    check("10a. the committed audit apply script is exactly what the builder produces now", readFileSync(AUDIT_APPLY_FILE, "utf-8").replace(/\r\n/g, "\n") === AUDIT);
+
+    // before the migration: writing the column fails with PostgreSQL's 'undefined column' (the app retries without it)
+    const [admin1, buyer] = await mkUsers(2); const c = await mkCoupon(null);
+    let code = null; try { await admin.query(`insert into public.coupon_events(coupon_id,user_id,event_type,reissue_key,redeemed_by) values($1,$2,'use','0',$3)`, [c, buyer, admin1]); } catch (e) { code = e.code; }
+    check("10b. before the migration the column is missing (42703) — the case the app falls back from", code === "42703", String(code));
+
+    // a missing prerequisite stops the script and adds nothing
+    await admin.query(`drop index coupon_events_unique_use`);
+    let err = null; try { await admin.query(AUDIT); } catch (e) { err = e.message; }
+    const hasCol = async () => (await admin.query(`select count(*)::int n from information_schema.columns where table_schema='public' and table_name='coupon_events' and column_name='redeemed_by'`)).rows[0].n === 1;
+    check("10c. audit script with a missing prerequisite stops with STOP", !!err && err.startsWith("STOP - prerequisites missing, nothing was changed"), String(err));
+    check("10d. ...and the column was NOT added (rolled back)", (await hasCol()) === false);
+    await admin.query(`create unique index coupon_events_unique_use on public.coupon_events (user_id, coupon_id, reissue_key) where event_type = 'use'`);
+
+    // compatible database: installs; running it again is safe
+    const res = await admin.query(AUDIT);
+    const rows = (Array.isArray(res) ? res[res.length - 1] : res).rows;
+    check("10e. audit script on a compatible database: result table is all ok", rows.length === 1 && rows[0].ok === true, JSON.stringify(rows));
+    const again = await admin.query(AUDIT);
+    check("10f. running the audit script a second time is safe", (Array.isArray(again) ? again[again.length - 1] : again).rows.every((r) => r.ok === true));
+
+    // the column records who processed it; duplicates are still blocked; deleting the admin keeps the record
+    await admin.query(`insert into public.coupon_events(coupon_id,user_id,event_type,reissue_key,redeemed_by) values($1,$2,'use','0',$3)`, [c, buyer, admin1]);
+    const stored = (await admin.query(`select redeemed_by from public.coupon_events where coupon_id=$1 and user_id=$2 and event_type='use'`, [c, buyer])).rows[0];
+    check("10g. a redemption stores the processing admin", stored.redeemed_by === admin1);
+    let dup = null; try { await admin.query(`insert into public.coupon_events(coupon_id,user_id,event_type,reissue_key,redeemed_by) values($1,$2,'use','0',$3)`, [c, buyer, admin1]); } catch (e) { dup = e.code; }
+    check("10h. a second redemption of the same coupon is still rejected by the unique index (23505)", dup === "23505", String(dup));
+    await admin.query(`delete from public.users where id=$1`, [admin1]);
+    const kept = (await admin.query(`select redeemed_by from public.coupon_events where coupon_id=$1 and user_id=$2 and event_type='use'`, [c, buyer])).rows;
+    check("10i. deleting the admin account keeps the redemption record and only clears the processor", kept.length === 1 && kept[0].redeemed_by === null);
+    const rowsBefore = Number((await admin.query(`select count(*) c from public.coupon_events where redeemed_by is null`)).rows[0].c);
+    check("10j. older rows keep a NULL processor (nothing was rewritten)", rowsBefore > 5);
+  }
 } finally {
   await admin.end().catch(() => {}); await server.stop().catch(() => {}); rmSync(DATA_DIR, { recursive: true, force: true });
 }

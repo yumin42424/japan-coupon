@@ -1,6 +1,7 @@
 import { todayKST } from "@/lib/date";
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   Heart,
@@ -28,6 +29,7 @@ import { daysUntil, isUrgentDeadline } from "@/lib/urgency";
 import { isOpenNow } from "@/lib/business-hours";
 import { getKrwToJpyRate, formatJpy } from "@/lib/exchange-rate";
 import { computeReissueKey } from "@/lib/reissue";
+import { storeMapUrl } from "@/lib/map-link";
 import { issueCoupon, toggleFavorite, deleteReview } from "./actions";
 import { ReviewForm } from "./review-form";
 import { ViewTracker } from "./view-tracker";
@@ -57,6 +59,8 @@ type CouponDetail = {
     line_available: boolean;
     popular_with_japanese: boolean;
     address: string | null;
+    latitude: number | null;
+    longitude: number | null;
     business_hours: string | null;
     reservation_info: string | null;
     is_active: boolean;
@@ -137,7 +141,7 @@ export default async function CouponDetailPage({
   const { data } = await supabaseAdmin
     .from("coupons")
     .select(
-      "id, title, discount_info, valid_from, valid_to, member_only, regular_price, discounted_price, usage_condition, quantity_limit, is_active, is_demo, reusable_after_days, stores(id, name, category, area, line_available, popular_with_japanese, address, business_hours, reservation_info, is_active, is_demo)"
+      "id, title, discount_info, valid_from, valid_to, member_only, regular_price, discounted_price, usage_condition, quantity_limit, is_active, is_demo, reusable_after_days, stores(id, name, category, area, line_available, popular_with_japanese, address, latitude, longitude, business_hours, reservation_info, is_active, is_demo)"
     )
     .eq("id", id)
     .maybeSingle();
@@ -245,6 +249,7 @@ export default async function CouponDetailPage({
       ? Math.round((1 - coupon.discounted_price / coupon.regular_price) * 100)
       : null;
   const openNow = isOpenNow(store.business_hours);
+  const mapHref = storeMapUrl(store);
   const jpyRate = await getKrwToJpyRate();
   const shareTitle = `${store.name}｜${coupon.title}`;
 
@@ -393,6 +398,17 @@ export default async function CouponDetailPage({
                 {store.address}
               </p>
             )}
+            {mapHref && (
+              <a
+                href={mapHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 font-medium text-primary underline underline-offset-4"
+              >
+                <MapPin className="h-4 w-4 shrink-0" />
+                地図で見る（Googleマップ）
+              </a>
+            )}
             {store.business_hours && (
               <p className="flex items-center gap-2 text-muted">
                 <Clock className="h-4 w-4 shrink-0" />
@@ -432,6 +448,30 @@ export default async function CouponDetailPage({
           </p>
         </div>
       )}
+
+      <div className="mt-4 rounded-2xl border border-border bg-card px-4 py-3.5 text-xs leading-relaxed text-muted">
+        <p className="font-bold text-foreground">ご利用方法</p>
+        <ol className="mt-1.5 list-decimal space-y-1 pl-4">
+          <li>
+            「無料でGET」を押してクーポンを取得します
+            {!session?.user && "（ログインまたは会員登録が必要です）"}。
+          </li>
+          <li>マイページに表示されるQRコード（またはコード）を、お店で提示してください。</li>
+          <li>
+            利用期間と利用条件をご確認のうえ、ご利用ください。
+            {coupon.reusable_after_days
+              ? `このクーポンは${coupon.reusable_after_days}日ごとに再取得できます。`
+              : "お一人様1回までご利用いただけます。"}
+          </li>
+        </ol>
+        <p className="mt-2">
+          ご不明な点やトラブルがあった場合は、
+          <Link href="/support" className="font-medium text-primary underline underline-offset-4">
+            お問い合わせ
+          </Link>
+          からご連絡ください。
+        </p>
+      </div>
 
       {/* モバイルでは画面下部に固定して常に見える状態にする（店頭で提示する導線を優先）。
           下部タブバーと同じ --bottom-nav-h を基準にするので、機種によってタブバーの

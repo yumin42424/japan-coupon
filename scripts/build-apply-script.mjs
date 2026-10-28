@@ -66,9 +66,59 @@ order by ord;
 `;
 }
 
+// 사용 처리자 기록(redeemed_by) 컬럼 추가용 한 번짜리 스크립트 — 같은 구조: 전제 검사(틀리면 전체 중단) → 마이그레이션 → 결과 표
+export function buildAuditApplyScript() {
+  const pre = asSubquery(read("db/verify/pre-apply-check.sql"));
+  const migration = read("db/migrations/20261028_redeem_audit.sql").trimEnd();
+
+  return `-- ============================================================================================
+-- K-Coupon Japan — 쿠폰 사용 처리자 기록 컬럼 추가 (한 번에 실행)      [자동 생성 파일 — 직접 고치지 마세요]
+-- 사용법: Supabase Dashboard > SQL Editor > New query(새 탭) > 이 파일 전체를 붙여넣고 Run 한 번.
+--
+-- 결과 1) 맨 아래에 표가 나오고 ok 가 true  → 설치 완료. 이후 사용 처리마다 처리한 관리자가 기록됩니다.
+-- 결과 2) 빨간 오류 "STOP - prerequisites missing, nothing was changed: ..."  → 아무것도 바뀌지 않았습니다.
+--         그 문구 전체를 개발자에게 보여 주세요.
+-- 한 번의 트랜잭션이라 중간에 실패하면 전부 취소되고, 여러 번 실행해도 안전합니다. 기존 행은 바뀌지 않습니다.
+-- 이 컬럼이 없어도 앱은 정상 동작합니다 (처리자만 기록되지 않음). 만드는 방법: node scripts/build-apply-script.mjs
+-- ============================================================================================
+
+-- ① 전제 조건 검사 — 하나라도 틀리면 여기서 예외가 나서 아래 ②는 실행되지 않습니다
+do $guard$
+declare
+  bad text;
+begin
+  select string_agg(q.check_name || coalesce(' [' || q.detail || ']', ''), '; ' order by q.ord) into bad
+  from (
+${pre}
+  ) q
+  where q.ord < 900 and not q.ok;
+
+  if bad is not null then
+    raise exception 'STOP - prerequisites missing, nothing was changed: %', bad;
+  end if;
+end
+$guard$;
+
+-- ② 컬럼 추가 (db/migrations/20261028_redeem_audit.sql 와 같은 내용)
+${migration}
+
+-- ③ 결과 확인 — ok 가 true 여야 합니다
+select 1 as ord,
+       'coupon_events.redeemed_by exists (uuid), references users, and is set to NULL if that user is deleted' as check_name,
+       exists (select 1 from information_schema.columns
+                where table_schema = 'public' and table_name = 'coupon_events' and column_name = 'redeemed_by' and data_type = 'uuid')
+       and exists (select 1 from pg_constraint c
+                     join pg_class t on t.oid = c.conrelid
+                     join pg_attribute a on a.attrelid = t.oid and a.attnum = any (c.conkey)
+                    where c.contype = 'f' and t.relname = 'coupon_events' and a.attname = 'redeemed_by' and c.confdeltype = 'n') as ok,
+       null::text as detail;
+`;
+}
+
 // 직접 실행하면 파일을 만든다 (import 해서 쓸 때는 아무것도 쓰지 않는다)
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   mkdirSync(join(root, "db/apply"), { recursive: true });
   writeFileSync(join(root, "db/apply/apply-issue-coupon.sql"), buildApplyScript());
-  console.log("wrote db/apply/apply-issue-coupon.sql");
+  writeFileSync(join(root, "db/apply/apply-redeem-audit.sql"), buildAuditApplyScript());
+  console.log("wrote db/apply/apply-issue-coupon.sql and db/apply/apply-redeem-audit.sql");
 }

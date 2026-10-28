@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import * as Sentry from "@sentry/nextjs";
 import { ChevronLeft, LocateFixed, Search } from "lucide-react";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
@@ -11,6 +13,15 @@ import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
 import { CATEGORY_IMAGES } from "@/lib/taxonomy-images";
 import { isUrgentDeadline, daysUntil } from "@/lib/urgency";
+import {
+  COUPON_SORTS,
+  couponListHref,
+  pageRange,
+  parseCouponListParams,
+  sanitizeKeyword,
+  totalPages,
+  type RawCouponListParams,
+} from "@/lib/coupon-list";
 import { CouponCard } from "@/components/coupon-card";
 import { EmptyState } from "@/components/empty-state";
 import { CouponCardSkeleton } from "@/components/coupon-card-skeleton";
@@ -27,6 +38,7 @@ type CouponListItem = {
   discount_info: string | null;
   valid_to: string;
   member_only: boolean;
+  quantity_limit: number | null;
   stores: {
     id: string;
     name: string;
@@ -40,10 +52,10 @@ type CouponListItem = {
 export default async function CouponsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; area?: string; q?: string }>;
+  searchParams: Promise<RawCouponListParams>;
 }) {
-  const { category, area, q } = await searchParams;
-  const hasFilter = !!(category || area || q?.trim());
+  const raw = await searchParams;
+  const hasFilter = !!(raw.category || raw.area || raw.q?.trim());
 
   // 카테고리/지역을 아직 고르지 않았으면 먼저 큰 타일로 골라 들어가게 하고,
   // 하나라도 고른 뒤에는 실제 쿠폰 목록 화면을 보여준다.
@@ -56,7 +68,7 @@ export default async function CouponsPage({
   // ストリーミング開始後の 200 で固定されてしまう不具合があった。
   return (
     <Suspense fallback={<FilteredCouponListFallback />}>
-      <FilteredCouponList category={category} area={area} q={q} />
+      <FilteredCouponList raw={raw} />
     </Suspense>
   );
 }
@@ -193,32 +205,28 @@ async function CategoryAreaHub() {
   );
 }
 
-async function FilteredCouponList({
-  category,
-  area: areaParam,
-  q,
-}: {
-  category?: string;
-  area?: string;
-  q?: string;
-}) {
-  const area = areaParam === "all" ? undefined : areaParam;
-  const keyword = q?.trim().slice(0, 50);
-  // PostgREST의 or() 필터에서는 쉼표·괄호·따옴표·백슬래시가 문법 기호라서, 검색어를 그대로 넣으면
-  // 조건이 깨지거나(에러 → 빈 결과) 다른 조건을 끼워 넣을 수 있다. ilike 와일드카드(%, _)도 함께 뺀다.
-  const safeKeyword = keyword?.replace(/[,()"'\\%*_:;]/g, " ").replace(/\s+/g, " ").trim();
+async function FilteredCouponList({ raw }: { raw: RawCouponListParams }) {
+  // 주소 파라미터는 허용된 값만 통과시킨다 (없는 카테고리·지역·이상한 페이지 번호는 "조건 없음"으로 취급).
+  const { category, area, q: keyword, sort, page } = parseCouponListParams(raw);
+  const safeKeyword = sanitizeKeyword(keyword);
+  const { from, to } = pageRange(page);
 
   let query = supabaseAdmin
     .from("coupons")
     .select(
-      "id, title, discount_info, valid_to, member_only, stores!inner(id, name, category, area, line_available, popular_with_japanese)"
+      "id, title, discount_info, valid_to, member_only, quantity_limit, stores!inner(id, name, category, area, line_available, popular_with_japanese)",
+      { count: "exact" }
     )
     .eq("is_active", true)
     .eq("stores.is_active", true)
     .eq("is_demo", false)
     .eq("stores.is_demo", false)
-    .gte("valid_to", todayKST())
-    .order("created_at", { ascending: false });
+    .gte("valid_to", todayKST());
+
+  query =
+    sort === "ending"
+      ? query.order("valid_to", { ascending: true }).order("created_at", { ascending: false })
+      : query.order("created_at", { ascending: false });
 
   if (category) query = query.eq("stores.category", category);
   if (area) query = query.eq("stores.area", area);
@@ -241,17 +249,50 @@ async function FilteredCouponList({
     query = query.or(orParts.join(","));
   }
 
-  const { data } = await query;
+  const { data, count, error } = await query.range(from, to);
+
+  const hrefFor = (next: { category?: string; area?: string; sort?: typeof sort; page?: number }) =>
+    couponListHref({ category, area, q: keyword, sort, ...next });
+
+  // 결과보다 뒤쪽의 페이지(예: 쿠폰이 줄어든 뒤의 옛 주소, 손으로 고친 page=9999)를 요청하면 PostgREST가
+  // "범위 초과(PGRST103)"를 돌려준다. 이것은 장애가 아니므로 오류 화면·알림 없이 첫 페이지로 보낸다.
+  if (error?.code === "PGRST103" && page > 1) redirect(hrefFor({ page: 1 }));
+
+  // 조회에 실패했는데 "該当するクーポンがありません"라고 보여주면 거짓 안내가 된다 — 오류는 오류로 알린다.
+  if (error) {
+    Sentry.captureException(new Error(`coupon list query failed (${error.code ?? "no-code"})`));
+    return (
+      <main className="mx-auto max-w-2xl px-6 py-10">
+        <h1 className="text-h1 font-display tracking-tight">クーポンを探す</h1>
+        <div className="mt-8">
+          <EmptyState
+            message="クーポンを読み込めませんでした。時間をおいてもう一度お試しください。"
+            ctaLabel="もう一度読み込む"
+            ctaHref={hrefFor({ page })}
+          />
+        </div>
+      </main>
+    );
+  }
+
+  const total = count ?? 0;
+  const pages = totalPages(total);
+  // 존재하지 않는 뒤쪽 페이지(예: 쿠폰이 줄어든 뒤의 즐겨찾기 주소)는 마지막 페이지로 보낸다.
+  if (page > pages) redirect(hrefFor({ page: pages }));
+
   const coupons = (data ?? []) as unknown as CouponListItem[];
 
-  const buildHref = (next: { category?: string; area?: string }) => {
-    const params = new URLSearchParams();
-    if (next.category) params.set("category", next.category);
-    if (next.area) params.set("area", next.area);
-    if (keyword) params.set("q", keyword);
-    const qs = params.toString();
-    return qs ? `/coupons?${qs}` : "/coupons";
-  };
+  // 수량 제한이 있는 쿠폰은 목록 카드에도 남은 수량을 보여준다 (발급 수는 발급 기록에서 센다).
+  const limitedIds = coupons.filter((c) => c.quantity_limit != null).map((c) => c.id);
+  const issuedCount = new Map<string, number>();
+  if (limitedIds.length > 0) {
+    const { data: issued } = await supabaseAdmin
+      .from("coupon_events")
+      .select("coupon_id")
+      .eq("event_type", "issue")
+      .in("coupon_id", limitedIds);
+    for (const row of issued ?? []) issuedCount.set(row.coupon_id, (issuedCount.get(row.coupon_id) ?? 0) + 1);
+  }
 
   const chip = (active: boolean) =>
     `flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition ${
@@ -262,6 +303,9 @@ async function FilteredCouponList({
 
   const currentCategory = CATEGORIES.find((c) => c.value === category);
   const currentArea = AREAS.find((a) => a.value === area);
+  const pagerLink =
+    "rounded-full border border-border px-4 py-2 text-body font-medium text-foreground transition hover:border-foreground/30";
+  const pagerOff = "rounded-full border border-border px-4 py-2 text-body font-medium text-muted opacity-40";
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
@@ -280,10 +324,12 @@ async function FilteredCouponList({
         {!keyword && currentArea ? currentArea.ja : null}
         {!keyword && !currentCategory && !currentArea && "すべてのクーポン"}
       </h1>
+      {total > 0 && <p className="mt-1 text-caption text-muted">{total}件</p>}
 
       <form action="/coupons" className="relative mt-4">
         {category && <input type="hidden" name="category" value={category} />}
         {area && <input type="hidden" name="area" value={area} />}
+        {sort !== "new" && <input type="hidden" name="sort" value={sort} />}
         <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
         <input
           type="text"
@@ -295,7 +341,7 @@ async function FilteredCouponList({
       </form>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <Link href={buildHref({ area })} className={chip(!category)}>
+        <Link href={hrefFor({ category: undefined, page: 1 })} className={chip(!category)}>
           すべて
         </Link>
         {CATEGORIES.map((c) => {
@@ -303,7 +349,7 @@ async function FilteredCouponList({
           return (
             <Link
               key={c.value}
-              href={buildHref({ category: c.value, area })}
+              href={hrefFor({ category: c.value, page: 1 })}
               className={chip(category === c.value)}
             >
               <Icon className="h-3.5 w-3.5" strokeWidth={2.25} />
@@ -314,13 +360,13 @@ async function FilteredCouponList({
       </div>
 
       <div className="mt-2 flex flex-wrap gap-2">
-        <Link href={buildHref({ category })} className={chip(!area)}>
+        <Link href={hrefFor({ area: undefined, page: 1 })} className={chip(!area)}>
           全エリア
         </Link>
         {AREAS.map((a) => (
           <Link
             key={a.value}
-            href={buildHref({ category, area: a.value })}
+            href={hrefFor({ area: a.value, page: 1 })}
             className={chip(area === a.value)}
           >
             <AreaIcon className="h-3.5 w-3.5" strokeWidth={2.25} />
@@ -329,27 +375,69 @@ async function FilteredCouponList({
         ))}
       </div>
 
+      <div className="mt-4 flex flex-wrap items-center gap-2" role="group" aria-label="並び替え">
+        <span className="text-caption text-muted">並び替え</span>
+        {COUPON_SORTS.map((s) => (
+          <Link key={s.value} href={hrefFor({ sort: s.value, page: 1 })} className={chip(sort === s.value)} aria-current={sort === s.value ? "true" : undefined}>
+            {s.ja}
+          </Link>
+        ))}
+      </div>
+
       {coupons.length ? (
         <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {coupons.map((coupon) => (
-            <CouponCard
-              key={coupon.id}
-              href={`/coupons/${coupon.id}`}
-              category={coupon.stores.category as (typeof CATEGORIES)[number]["value"]}
-              area={coupon.stores.area as (typeof AREAS)[number]["value"]}
-              storeName={coupon.stores.name}
-              benefit={coupon.title}
-              memberOnly={coupon.member_only}
-              popularWithJapanese={coupon.stores.popular_with_japanese}
-              urgent={isUrgentDeadline(coupon.valid_to)}
-              daysLeft={daysUntil(coupon.valid_to)}
-            />
-          ))}
+          {coupons.map((coupon) => {
+            const remaining =
+              coupon.quantity_limit != null
+                ? Math.max(0, coupon.quantity_limit - (issuedCount.get(coupon.id) ?? 0))
+                : null;
+            return (
+              <CouponCard
+                key={coupon.id}
+                href={`/coupons/${coupon.id}`}
+                category={coupon.stores.category as (typeof CATEGORIES)[number]["value"]}
+                area={coupon.stores.area as (typeof AREAS)[number]["value"]}
+                storeName={coupon.stores.name}
+                benefit={coupon.title}
+                memberOnly={coupon.member_only}
+                popularWithJapanese={coupon.stores.popular_with_japanese}
+                urgent={isUrgentDeadline(coupon.valid_to)}
+                daysLeft={daysUntil(coupon.valid_to)}
+                stock={remaining !== null ? { remaining } : undefined}
+              />
+            );
+          })}
         </div>
       ) : (
         <div className="mt-8">
           <EmptyState message="該当するクーポンがありません。" ctaLabel="すべてのクーポンを見る" ctaHref="/coupons" />
         </div>
+      )}
+
+      {pages > 1 && (
+        <nav aria-label="ページ送り" className="mt-10 flex items-center justify-center gap-4">
+          {page > 1 ? (
+            <Link href={hrefFor({ page: page - 1 })} rel="prev" className={pagerLink}>
+              前へ
+            </Link>
+          ) : (
+            <span className={pagerOff} aria-disabled="true">
+              前へ
+            </span>
+          )}
+          <span className="text-body text-muted">
+            {page} / {pages}
+          </span>
+          {page < pages ? (
+            <Link href={hrefFor({ page: page + 1 })} rel="next" className={pagerLink}>
+              次へ
+            </Link>
+          ) : (
+            <span className={pagerOff} aria-disabled="true">
+              次へ
+            </span>
+          )}
+        </nav>
       )}
     </main>
   );

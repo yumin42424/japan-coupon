@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Flame, Lock, Timer, LocateFixed, Star } from "lucide-react";
+import { Flame, Lock, Timer, LocateFixed, Star, Users } from "lucide-react";
 import { CATEGORIES, AREAS, type CategoryValue, type AreaValue } from "@/lib/taxonomy";
 import { CATEGORY_ICONS } from "@/lib/taxonomy-icons";
 import { CATEGORY_IMAGES } from "@/lib/taxonomy-images";
@@ -17,6 +17,8 @@ export type CouponCardProps = {
   popularWithJapanese?: boolean;
   urgent?: boolean;
   daysLeft?: number;
+  /** 수량 제한이 있는 쿠폰만 전달 — remaining 0이면 '満了' */
+  stock?: { remaining: number };
   /** /nearby でのみ使用 */
   distance?: string;
   /** レビューの平均評価 — 実データがある店舗のみ渡す */
@@ -39,6 +41,7 @@ export function CouponCard({
   popularWithJapanese,
   urgent,
   daysLeft,
+  stock,
   distance,
   rating,
   className,
@@ -67,12 +70,22 @@ export function CouponCard({
         <span className="absolute left-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-primary shadow-soft">
           <Icon className="h-3.5 w-3.5" strokeWidth={2.25} />
         </span>
-        {(urgent || memberOnly) && (
+        {(urgent || memberOnly || stock) && (
           <div className="absolute right-2.5 top-2.5 flex flex-col items-end gap-1">
             {urgent && daysLeft != null && (
               <span className="flex items-center gap-0.5 rounded-full bg-primary px-1.5 py-0.5 text-label font-bold text-primary-foreground">
                 <Timer className="h-2.5 w-2.5" />
                 {daysLeft <= 0 ? "本日締切" : `あと${daysLeft}日`}
+              </span>
+            )}
+            {stock && (
+              <span
+                className={`flex items-center gap-0.5 rounded-full bg-white/90 px-1.5 py-0.5 text-label font-bold ${
+                  stock.remaining === 0 ? "text-muted" : "text-primary"
+                }`}
+              >
+                <Users className="h-2.5 w-2.5" />
+                {stock.remaining === 0 ? "満了" : `残り${stock.remaining}枚`}
               </span>
             )}
             {memberOnly && (

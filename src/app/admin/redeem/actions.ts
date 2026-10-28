@@ -2,7 +2,8 @@
 
 import * as Sentry from "@sentry/nextjs";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { requireAdmin } from "@/lib/admin";
+import { requireAdminUser } from "@/lib/admin";
+import { isMissingColumnError } from "@/lib/audit";
 import { todayKST } from "@/lib/date";
 import { POINTS_PER_USE } from "@/lib/point-policy";
 
@@ -26,13 +27,24 @@ type IssueRow = {
   users: { nickname: string } | null;
 };
 
+let warnedMissingAuditColumn = false;
+function warnMissingAuditColumn() {
+  if (warnedMissingAuditColumn) return;
+  warnedMissingAuditColumn = true;
+  Sentry.captureMessage(
+    "coupon_events.redeemed_by is missing: redemptions are recorded without the processing admin. Apply db/apply/apply-redeem-audit.sql.",
+    { level: "warning", tags: { area: "redeem" } }
+  );
+}
+
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function processRedeem(
   _prevState: RedeemState,
   formData: FormData
 ): Promise<RedeemState> {
-  await requireAdmin();
+  // 처리한 관리자의 ID — 사용 기록에 "누가 처리했는가"를 남기는 데 쓴다.
+  const adminId = await requireAdminUser();
 
   const confirm = formData.get("confirm") === "true";
 
@@ -81,12 +93,19 @@ export async function processRedeem(
 
     // 사용 기록은 (회원, 쿠폰, 사이클) 부분 유니크 인덱스가 최종 방어선이다. 동시에 두 번 처리되면
     // 한쪽 insert가 실패하는데, 그때는 포인트도 주지 않아야 한다(이전엔 insert 결과를 무시해서 포인트가 두 번 적립될 수 있었음).
-    const { error: useError } = await supabaseAdmin.from("coupon_events").insert({
+    const useRow = {
       coupon_id: couponId,
       user_id: userId,
       event_type: "use",
       reissue_key: reissueKey,
-    });
+    };
+    // redeemed_by(처리한 관리자)는 db/migrations/20261028_redeem_audit.sql 로 추가되는 컬럼이다.
+    // 아직 운영 DB에 적용되지 않았으면(컬럼 없음 오류일 때만) 컬럼 없이 다시 시도해서 사용 처리 자체는 멈추지 않게 한다.
+    let { error: useError } = await supabaseAdmin.from("coupon_events").insert({ ...useRow, redeemed_by: adminId });
+    if (isMissingColumnError(useError, "redeemed_by")) {
+      warnMissingAuditColumn();
+      ({ error: useError } = await supabaseAdmin.from("coupon_events").insert(useRow));
+    }
     if (useError) {
       if (useError.code === "23505") return { step: "used" };
       Sentry.captureException(new Error(`redeem: use event insert failed (${useError.code})`));
