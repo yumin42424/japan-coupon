@@ -1,7 +1,7 @@
 import { todayKST, addDaysKST } from "@/lib/date";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Heart, Ticket, CheckCircle2, ChevronRight, Pencil, Sparkles, Settings, Coins, MailWarning } from "lucide-react";
+import { Heart, Ticket, CheckCircle2, ChevronRight, Pencil, Sparkles, Settings, Coins, MailWarning, TicketCheck } from "lucide-react";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS, type CategoryValue } from "@/lib/taxonomy";
@@ -9,6 +9,7 @@ import { CATEGORY_ICONS } from "@/lib/taxonomy-icons";
 import { CouponQR } from "@/components/coupon-qr";
 import { resendVerificationEmail } from "./verify-actions";
 import { POINT_UI_VISIBLE } from "@/lib/point-policy";
+import { getStaffStoreIds } from "@/lib/staff";
 
 type CouponEventItem = {
   id?: string;
@@ -37,7 +38,7 @@ export default async function MyPage({
   const userId = session.user.id;
   const today = todayKST();
 
-  const [profileRes, categoriesRes, areasRes, favoritedRes, issuedRes, usedRes, allCouponsRes, pointsRes] =
+  const [profileRes, categoriesRes, areasRes, favoritedRes, issuedRes, usedRes, allCouponsRes, pointsRes, staffStoreIds] =
     await Promise.all([
       supabaseAdmin
         .from("users")
@@ -73,6 +74,7 @@ export default async function MyPage({
         .eq("stores.is_demo", false)
         .gte("valid_to", today),
       supabaseAdmin.from("point_events").select("points").eq("user_id", userId),
+      getStaffStoreIds(userId),
     ]);
 
   const profile = profileRes.data;
@@ -168,6 +170,17 @@ export default async function MyPage({
             </form>
           )}
         </div>
+      )}
+
+      {staffStoreIds.length > 0 && (
+        <Link
+          href="/staff/redeem"
+          className="mt-4 flex items-center gap-2 rounded-xl border border-border bg-card p-3 text-body font-medium transition hover:bg-background"
+        >
+          <TicketCheck className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+          <span className="flex-1">店舗スタッフ用：クーポンの使用処理</span>
+          <ChevronRight className="h-4 w-4 text-muted" aria-hidden="true" />
+        </Link>
       )}
 
       {expiringSoon.length > 0 && (

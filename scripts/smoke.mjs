@@ -31,16 +31,16 @@ for (const p of ["/nonexistent-page", "/areas/nope", `/coupons/${ZERO_UUID}`, `/
 }
 
 // 3. 로그인이 필요한 곳은 비로그인 상태에서 로그인으로 보낸다
-for (const p of ["/admin", "/admin/coupons", "/admin/stores", "/admin/redeem", "/admin/notices", "/admin/landing-pages", "/mypage", "/mypage/points", "/mypage/settings", "/onboarding", "/board/write"]) {
+for (const p of ["/admin", "/admin/coupons", "/admin/stores", "/admin/redeem", "/admin/staff", "/staff/redeem", "/admin/notices", "/admin/landing-pages", "/mypage", "/mypage/points", "/mypage/settings", "/onboarding", "/board/write"]) {
   const r = await get(p);
   check(`protected ${p} -> redirect to /login`, [302, 307, 308].includes(r.status) && r.location.includes("/login"), `got ${r.status} ${r.location}`);
 }
 
 // 4. RSC(클라이언트 이동용) 요청으로도 관리자 데이터가 새지 않는다
-for (const p of ["/admin", "/admin/coupons", "/admin/stores", "/admin/redeem", "/admin/notices", "/admin/landing-pages"]) {
+for (const p of ["/admin", "/admin/coupons", "/admin/stores", "/admin/redeem", "/admin/staff", "/staff/redeem", "/admin/notices", "/admin/landing-pages"]) {
   for (const extra of [{}, { "Next-Router-Prefetch": "1" }]) {
     const r = await get(p, { headers: { RSC: "1", ...extra } });
-    const leaked = /管理者ダッシュボード|会員登録数|クーポン発行数|店舗別|使用処理する/.test(r.body);
+    const leaked = /管理者ダッシュボード|会員登録数|クーポン発行数|店舗別|使用処理する|スタッフを追加|担当する店舗/.test(r.body);
     check(`RSC ${p}${Object.keys(extra).length ? " (prefetch)" : ""} leaks no admin content`, !leaked, "admin text found in RSC payload");
   }
 }

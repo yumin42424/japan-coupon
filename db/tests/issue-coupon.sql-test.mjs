@@ -16,6 +16,7 @@ const PRE_VERIFY = fileURLToPath(new URL("../verify/pre-apply-check.sql", import
 const APPLY_FILE = fileURLToPath(new URL("../apply/apply-issue-coupon.sql", import.meta.url));
 const APPLY_BUILDER = fileURLToPath(new URL("../../scripts/build-apply-script.mjs", import.meta.url));
 const AUDIT_APPLY_FILE = fileURLToPath(new URL("../apply/apply-redeem-audit.sql", import.meta.url));
+const STAFF_APPLY_FILE = fileURLToPath(new URL("../apply/apply-store-staff.sql", import.meta.url));
 const PORT = 54330;
 const DATA_DIR = "./pgdata-issue-" + Date.now();
 let passed = 0, failed = 0;
@@ -28,7 +29,9 @@ const conn = () => new pg.Client({ host: "localhost", port: PORT, user: "postgre
 const admin = conn(); await admin.connect();
 try {
   await admin.query(`
-    create role anon nologin; create role authenticated nologin; create role service_role nologin;
+    create role anon nologin; create role authenticated nologin;
+    -- Supabase's service_role has BYPASSRLS (that is how the server reads/writes tables that have RLS on and no policies)
+    create role service_role nologin bypassrls;
     create table public.users (id uuid primary key default gen_random_uuid(), email text not null, nickname text not null);
     create table public.stores (id uuid primary key default gen_random_uuid(), name text not null);
     create table public.coupons (
@@ -247,6 +250,71 @@ try {
     check("10i. deleting the admin account keeps the redemption record and only clears the processor", kept.length === 1 && kept[0].redeemed_by === null);
     const rowsBefore = Number((await admin.query(`select count(*) c from public.coupon_events where redeemed_by is null`)).rows[0].c);
     check("10j. older rows keep a NULL processor (nothing was rewritten)", rowsBefore > 5);
+  }
+  // 11. store_staff (db/migrations/20261028_store_staff.sql) through its one-paste script
+  {
+    const { buildStaffApplyScript } = await import(pathToFileURL(APPLY_BUILDER).href);
+    const STAFF = buildStaffApplyScript();
+    check("11a. the committed staff apply script is exactly what the builder produces now", readFileSync(STAFF_APPLY_FILE, "utf-8").replace(/\r\n/g, "\n") === STAFF);
+    const tableExists = async () => (await admin.query(`select to_regclass('public.store_staff') is not null as yes`)).rows[0].yes;
+
+    // a missing prerequisite stops the script and creates nothing
+    await admin.query(`drop index coupon_events_unique_use`);
+    let err = null; try { await admin.query(STAFF); } catch (e) { err = e.message; }
+    check("11b. staff script with a missing prerequisite stops with STOP", !!err && err.startsWith("STOP - prerequisites missing, nothing was changed"), String(err));
+    check("11c. ...and the table was NOT created (rolled back)", (await tableExists()) === false);
+    await admin.query(`create unique index coupon_events_unique_use on public.coupon_events (user_id, coupon_id, reissue_key) where event_type = 'use'`);
+
+    // compatible database: installs; running it again is safe
+    const res = await admin.query(STAFF);
+    const rows = (Array.isArray(res) ? res[res.length - 1] : res).rows;
+    check("11d. staff script on a compatible database: result table (5 rows) is all ok", rows.length === 5 && rows.every((r) => r.ok === true), JSON.stringify(rows.filter((r) => !r.ok)));
+    const again = await admin.query(STAFF);
+    check("11e. running the staff script a second time is safe", (Array.isArray(again) ? again[again.length - 1] : again).rows.every((r) => r.ok === true));
+
+    // privileges: only the server role can touch it
+    for (const role of ["anon", "authenticated"]) {
+      const c = conn(); await c.connect(); const codes = {};
+      for (const [op, sql] of [["select", `select * from public.store_staff`], ["insert", `insert into public.store_staff(user_id, store_id) values (gen_random_uuid(), gen_random_uuid())`], ["delete", `delete from public.store_staff`]]) {
+        try { await c.query(`set role ${role}`); await c.query(sql); codes[op] = "allowed"; } catch (e) { codes[op] = e.code; } finally { await c.query(`reset role`).catch(() => {}); }
+      }
+      await c.end();
+      check(`11f. role ${role} cannot select, insert or delete store_staff (42501)`, Object.values(codes).every((x) => x === "42501"), JSON.stringify(codes));
+    }
+    const [staffUser, other, creator] = await mkUsers(3);
+    const [storeA, storeB] = [store, (await admin.query(`insert into public.stores(name) values('s2') returning id`)).rows[0].id];
+    { const c = conn(); await c.connect(); let out = null;
+      try {
+        await c.query(`set role service_role`);
+        await c.query(`insert into public.store_staff(user_id, store_id, created_by) values ($1,$2,$3)`, [staffUser, storeA, creator]);
+        out = (await c.query(`select store_id from public.store_staff where user_id=$1`, [staffUser])).rows.map((r) => r.store_id);
+      } catch (e) { out = e.code + " " + e.message; }
+      await c.end();
+      check("11g. role service_role can insert and read store_staff", Array.isArray(out) && out.length === 1 && out[0] === storeA, JSON.stringify(out)); }
+
+    // the same member + store cannot be linked twice; the same member can have several stores
+    let dup = null; try { await admin.query(`insert into public.store_staff(user_id, store_id) values ($1,$2)`, [staffUser, storeA]); } catch (e) { dup = e.code; }
+    check("11h. linking the same member to the same store twice is rejected (23505)", dup === "23505", String(dup));
+    await admin.query(`insert into public.store_staff(user_id, store_id) values ($1,$2)`, [staffUser, storeB]);
+    check("11i. one member can be linked to several stores", Number((await admin.query(`select count(*) c from public.store_staff where user_id=$1`, [staffUser])).rows[0].c) === 2);
+
+    // foreign keys: unknown member / store are rejected
+    let fk1 = null; try { await admin.query(`insert into public.store_staff(user_id, store_id) values ($1,$2)`, [randomUUID(), storeA]); } catch (e) { fk1 = e.code; }
+    let fk2 = null; try { await admin.query(`insert into public.store_staff(user_id, store_id) values ($1,$2)`, [other, randomUUID()]); } catch (e) { fk2 = e.code; }
+    check("11j. an unknown member or an unknown store cannot be linked (23503)", fk1 === "23503" && fk2 === "23503", `${fk1}/${fk2}`);
+
+    // deleting the creator keeps the link (created_by cleared); deleting the member or the store removes the link
+    await admin.query(`delete from public.users where id=$1`, [creator]);
+    const kept = (await admin.query(`select created_by from public.store_staff where user_id=$1 and store_id=$2`, [staffUser, storeA])).rows;
+    check("11k. deleting the admin who created a link keeps the link and clears created_by", kept.length === 1 && kept[0].created_by === null);
+    await admin.query(`insert into public.store_staff(user_id, store_id) values ($1,$2)`, [other, storeB]);
+    await admin.query(`delete from public.users where id=$1`, [other]);
+    check("11l. deleting a member removes their staff links", Number((await admin.query(`select count(*) c from public.store_staff where user_id=$1`, [other])).rows[0].c) === 0);
+    const storeC = (await admin.query(`insert into public.stores(name) values('s3') returning id`)).rows[0].id;
+    await admin.query(`insert into public.store_staff(user_id, store_id) values ($1,$2)`, [staffUser, storeC]);
+    await admin.query(`delete from public.stores where id=$1`, [storeC]);
+    check("11m. deleting a store removes its staff links", Number((await admin.query(`select count(*) c from public.store_staff where store_id=$1`, [storeC])).rows[0].c) === 0);
+    check("11n. the other links of that member are untouched", Number((await admin.query(`select count(*) c from public.store_staff where user_id=$1`, [staffUser])).rows[0].c) === 2);
   }
 } finally {
   await admin.end().catch(() => {}); await server.stop().catch(() => {}); rmSync(DATA_DIR, { recursive: true, force: true });

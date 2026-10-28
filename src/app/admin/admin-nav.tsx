@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { LayoutDashboard, Store, Tag, Link2, TicketCheck, Megaphone } from "lucide-react";
+import { LayoutDashboard, Store, Tag, Link2, TicketCheck, Megaphone, Users } from "lucide-react";
 
 const LINKS = [
   { href: "/admin", icon: LayoutDashboard, ja: "ダッシュボード" },
   { href: "/admin/stores", icon: Store, ja: "店舗管理" },
   { href: "/admin/coupons", icon: Tag, ja: "クーポン管理" },
   { href: "/admin/redeem", icon: TicketCheck, ja: "使用処理" },
+  { href: "/admin/staff", icon: Users, ja: "スタッフ管理" },
   { href: "/admin/notices", icon: Megaphone, ja: "お知らせ管理" },
   { href: "/admin/landing-pages", icon: Link2, ja: "LP管理" },
 ];

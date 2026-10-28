@@ -10,6 +10,8 @@ export default function robots(): MetadataRoute.Robots {
       disallow: [
         "/admin",
         "/admin/*",
+        "/staff",
+        "/staff/*",
         "/login",
         "/signup",
         "/onboarding",

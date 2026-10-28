@@ -115,10 +115,77 @@ select 1 as ord,
 `;
 }
 
+// 매장 직원 연결 테이블(store_staff) 생성용 한 번짜리 스크립트 — 같은 구조: 전제 검사 → 마이그레이션 → 결과 표
+export function buildStaffApplyScript() {
+  const pre = asSubquery(read("db/verify/pre-apply-check.sql"));
+  const migration = read("db/migrations/20261028_store_staff.sql").trimEnd();
+
+  return `-- ============================================================================================
+-- K-Coupon Japan — 매장 직원 연결 테이블 만들기 (한 번에 실행)         [자동 생성 파일 — 직접 고치지 마세요]
+-- 사용법: Supabase Dashboard > SQL Editor > New query(새 탭) > 이 파일 전체를 붙여넣고 Run 한 번.
+--
+-- 결과 1) 맨 아래에 표가 나오고 모든 행의 ok 가 true  → 설치 완료.
+-- 결과 2) 빨간 오류 "STOP - prerequisites missing, nothing was changed: ..."  → 아무것도 바뀌지 않았습니다.
+--         그 문구 전체를 개발자에게 보여 주세요.
+-- 한 번의 트랜잭션이라 중간에 실패하면 전부 취소되고, 여러 번 실행해도 안전합니다. 새 테이블 하나만 만들고 기존 데이터는 건드리지 않습니다.
+-- 설치만으로는 아무에게도 새 권한이 생기지 않습니다 (관리자 화면 /admin/staff 에서 직원을 연결해야 함).
+-- 만드는 방법: node scripts/build-apply-script.mjs
+-- ============================================================================================
+
+-- ① 전제 조건 검사 — 하나라도 틀리면 여기서 예외가 나서 아래 ②는 실행되지 않습니다
+do $guard$
+declare
+  bad text;
+begin
+  select string_agg(q.check_name || coalesce(' [' || q.detail || ']', ''), '; ' order by q.ord) into bad
+  from (
+${pre}
+  ) q
+  where q.ord < 900 and not q.ok;
+
+  -- 이 테이블이 참조하는 users(id), stores(id) 도 uuid 여야 합니다
+  if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'stores' and column_name = 'id' and data_type = 'uuid') then
+    bad := coalesce(bad || '; ', '') || 'stores.id is not uuid';
+  end if;
+
+  if bad is not null then
+    raise exception 'STOP - prerequisites missing, nothing was changed: %', bad;
+  end if;
+end
+$guard$;
+
+-- ② 테이블 만들기 (db/migrations/20261028_store_staff.sql 와 같은 내용)
+${migration}
+
+-- ③ 결과 확인 — 모든 행의 ok 가 true 여야 합니다
+select * from (
+  select 1 as ord, 'table public.store_staff exists with primary key (user_id, store_id)' as check_name,
+         exists (select 1 from pg_constraint c join pg_class t on t.oid = c.conrelid
+                  where c.contype = 'p' and t.relname = 'store_staff' and t.relnamespace = 'public'::regnamespace and array_length(c.conkey, 1) = 2) as ok
+  union all
+  select 2, 'RLS is enabled on store_staff', coalesce((select relrowsecurity from pg_class where oid = 'public.store_staff'::regclass), false)
+  union all
+  select 3, 'anon CANNOT read or write store_staff',
+         not (has_table_privilege('anon', 'public.store_staff', 'select') or has_table_privilege('anon', 'public.store_staff', 'insert')
+              or has_table_privilege('anon', 'public.store_staff', 'update') or has_table_privilege('anon', 'public.store_staff', 'delete'))
+  union all
+  select 4, 'authenticated CANNOT read or write store_staff',
+         not (has_table_privilege('authenticated', 'public.store_staff', 'select') or has_table_privilege('authenticated', 'public.store_staff', 'insert')
+              or has_table_privilege('authenticated', 'public.store_staff', 'update') or has_table_privilege('authenticated', 'public.store_staff', 'delete'))
+  union all
+  select 5, 'service_role CAN read and write store_staff',
+         has_table_privilege('service_role', 'public.store_staff', 'select') and has_table_privilege('service_role', 'public.store_staff', 'insert')
+         and has_table_privilege('service_role', 'public.store_staff', 'delete')
+) result
+order by ord;
+`;
+}
+
 // 직접 실행하면 파일을 만든다 (import 해서 쓸 때는 아무것도 쓰지 않는다)
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   mkdirSync(join(root, "db/apply"), { recursive: true });
   writeFileSync(join(root, "db/apply/apply-issue-coupon.sql"), buildApplyScript());
   writeFileSync(join(root, "db/apply/apply-redeem-audit.sql"), buildAuditApplyScript());
-  console.log("wrote db/apply/apply-issue-coupon.sql and db/apply/apply-redeem-audit.sql");
+  writeFileSync(join(root, "db/apply/apply-store-staff.sql"), buildStaffApplyScript());
+  console.log("wrote db/apply/apply-issue-coupon.sql, apply-redeem-audit.sql and apply-store-staff.sql");
 }

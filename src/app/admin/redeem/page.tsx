@@ -1,6 +1,7 @@
 import { TicketCheck } from "lucide-react";
 import { requireAdminPage } from "@/lib/admin";
 import { RedeemForm } from "./redeem-form";
+import { processRedeem } from "./actions";
 
 export default async function AdminRedeemPage() {
   await requireAdminPage();
@@ -15,7 +16,7 @@ export default async function AdminRedeemPage() {
       </p>
 
       <div className="mt-6">
-        <RedeemForm />
+        <RedeemForm action={processRedeem} resetHref="/admin/redeem" />
       </div>
     </main>
   );

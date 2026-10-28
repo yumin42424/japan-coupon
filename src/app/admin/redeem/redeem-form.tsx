@@ -2,13 +2,20 @@
 
 import { useActionState, useRef, useState } from "react";
 import { CheckCircle2, AlertCircle, Search, TicketCheck } from "lucide-react";
-import { processRedeem, type RedeemState } from "./actions";
+import type { RedeemState } from "./actions";
 import { QrScanner } from "@/components/qr-scanner";
 
 const initialState: RedeemState = { step: "input" };
 
-export function RedeemForm() {
-  const [state, formAction, pending] = useActionState(processRedeem, initialState);
+// 관리자 화면과 매장 직원 화면이 같은 폼을 쓴다. 어떤 처리 함수를 부를지는 서버 컴포넌트(page)가 정해서 넘겨준다.
+export function RedeemForm({
+  action,
+  resetHref,
+}: {
+  action: (prevState: RedeemState, formData: FormData) => Promise<RedeemState>;
+  resetHref: string;
+}) {
+  const [state, formAction, pending] = useActionState(action, initialState);
   const [code, setCode] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -29,7 +36,7 @@ export function RedeemForm() {
           10ポイントが付与されました。
         </p>
         <a
-          href="/admin/redeem"
+          href={resetHref}
           className="mt-3 inline-block text-body text-primary underline underline-offset-4"
         >
           別のクーポンを処理する
@@ -96,6 +103,18 @@ export function RedeemForm() {
         <p className="flex items-center gap-1.5 text-body text-primary">
           <AlertCircle className="h-4 w-4 shrink-0" />
           このクーポンは有効期限が終了しています。
+        </p>
+      )}
+      {state.step === "forbidden" && (
+        <p className="flex items-center gap-1.5 text-body text-primary">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          このクーポンは、あなたが担当する店舗のものではありません。
+        </p>
+      )}
+      {state.step === "own" && (
+        <p className="flex items-center gap-1.5 text-body text-primary">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          ご自身に発行されたクーポンは処理できません。
         </p>
       )}
       {state.step === "unavailable" && (
