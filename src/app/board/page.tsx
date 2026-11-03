@@ -73,12 +73,12 @@ export default async function BoardPage({
         ))}
       </div>
 
+      {posts.length === 0 && (
+        <p className="mt-6 border-y border-border py-8 text-body text-muted">
+          まだ投稿がありません。韓国旅行で気になることを、最初に質問してみませんか。
+        </p>
+      )}
       <ul className="mt-6 flex flex-col gap-2">
-        {posts.length === 0 && (
-          <p className="text-body text-muted">
-            まだ投稿がありません。
-          </p>
-        )}
         {posts.map((post) => {
           const category = BOARD_CATEGORIES.find((c) => c.value === post.category);
           return (

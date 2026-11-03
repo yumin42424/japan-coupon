@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 import {
   Heart,
   Languages,
@@ -31,6 +32,7 @@ import { getKrwToJpyRate, formatJpy } from "@/lib/exchange-rate";
 import { computeReissueKey } from "@/lib/reissue";
 import { storeMapUrl } from "@/lib/map-link";
 import { issueCoupon, toggleFavorite, deleteReview } from "./actions";
+import { SubmitButton } from "@/components/submit-button";
 import { ReviewForm } from "./review-form";
 import { ViewTracker } from "./view-tracker";
 import { ShareButton } from "@/components/share-button";
@@ -135,6 +137,9 @@ export default async function CouponDetailPage({
 }) {
   const { id } = await params;
   const { issue } = await searchParams;
+  // 방금 누른 GET의 결과 (actions.ts 의 flashIssueResult). 이 쿠폰의 것일 때만 쓴다.
+  const flash = (await cookies()).get("issue_result")?.value;
+  const issueResult = flash?.startsWith(`${id}:`) ? flash.slice(id.length + 1) : null;
   const session = await auth();
   const isAdmin = await getIsAdmin();
 
@@ -449,8 +454,8 @@ export default async function CouponDetailPage({
         </div>
       )}
 
-      <div className="mt-4 rounded-2xl border border-border bg-card px-4 py-3.5 text-xs leading-relaxed text-muted">
-        <p className="font-bold text-foreground">ご利用方法</p>
+      <div className="mt-4 rounded-xl border border-border bg-card px-4 py-3.5 text-caption text-muted">
+        <p className="text-body font-bold text-foreground">ご利用方法</p>
         <ol className="mt-1.5 list-decimal space-y-1 pl-4">
           <li>
             「無料でGET」を押してクーポンを取得します
@@ -484,11 +489,27 @@ export default async function CouponDetailPage({
             </span>
           )}
           <div className="min-w-0 flex-1">
-            {alreadyIssued ? (
-              <p className="flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-3 text-center text-sm font-medium text-muted md:py-3.5">
-                <CheckCircle2 className="h-4 w-4 text-success" />
-                GET済み
-              </p>
+            {alreadyIssued && issueResult === "done" ? (
+              <div role="status" className="rounded-lg border border-success/30 bg-card px-4 py-3">
+                <p className="flex items-center gap-2 text-body font-bold text-success">
+                  <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  クーポンをGETしました
+                </p>
+                <p className="mt-1 text-caption text-muted">
+                  お店では、マイページのQRコード（またはコード）を見せてください。
+                  <Link href="/mypage" className="ml-1 font-bold text-primary underline underline-offset-4">
+                    マイページで見る
+                  </Link>
+                </p>
+              </div>
+            ) : alreadyIssued ? (
+              <Link
+                href="/mypage"
+                className="flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-3 text-center text-body font-medium text-muted transition-colors hover:border-foreground/30 hover:text-foreground md:py-3.5"
+              >
+                <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />
+                GET済み・マイページで表示
+              </Link>
             ) : isUnavailable ? (
               <p className="flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-3 text-center text-sm font-medium text-muted md:py-3.5">
                 <Info className="h-4 w-4" />
@@ -506,18 +527,18 @@ export default async function CouponDetailPage({
               </p>
             ) : (
               <form action={issueCoupon.bind(null, id)}>
-                {issue === "unavailable" && (
-                  <p role="alert" className="mb-2 flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-center text-xs text-muted">
-                    <Info className="h-4 w-4 shrink-0" />
+                {(issue === "unavailable" || issueResult === "failed") && (
+                  <p role="alert" className="mb-2 flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-center text-caption text-muted">
+                    <Info className="h-4 w-4 shrink-0" aria-hidden="true" />
                     ただいまこのクーポンを発行できません。しばらくしてからもう一度お試しください。
                   </p>
                 )}
-                <button
-                  type="submit"
-                  className="w-full rounded-lg bg-primary px-4 py-3 text-sm font-bold text-primary-foreground shadow-card transition hover:brightness-105 active:scale-[0.99] md:py-3.5"
+                <SubmitButton
+                  pendingLabel="処理中…"
+                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3.5 text-body font-bold text-primary-foreground disabled:cursor-wait disabled:opacity-70"
                 >
                   無料でGET
-                </button>
+                </SubmitButton>
               </form>
             )}
           </div>

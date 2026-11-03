@@ -16,7 +16,7 @@ export function SectionHeading({
     <div className={align === "center" ? "text-center" : undefined}>
       <div className="flex items-baseline justify-between gap-4">
         <h2 className="text-h2 font-display tracking-tight">{title}</h2>
-        {action}
+        {action && <div className="shrink-0 whitespace-nowrap">{action}</div>}
       </div>
       {subtitle && <p className="mt-1.5 text-body text-muted">{subtitle}</p>}
     </div>

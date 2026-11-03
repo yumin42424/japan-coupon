@@ -21,12 +21,10 @@ export default async function NoticesPage() {
     <main className="mx-auto max-w-4xl px-6 py-10">
       <h1 className="text-h1 font-display tracking-tight">お知らせ</h1>
 
+      {notices.length === 0 && (
+        <p className="mt-8 border-y border-border py-8 text-body text-muted">お知らせはまだありません。</p>
+      )}
       <ul className="mt-8 flex flex-col gap-2">
-        {notices.length === 0 && (
-          <p className="text-body text-muted">
-            お知らせはまだありません。
-          </p>
-        )}
         {notices.map((notice) => (
           <li key={notice.id}>
             <Link

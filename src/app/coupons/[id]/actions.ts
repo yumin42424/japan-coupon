@@ -4,6 +4,7 @@ import { todayKST } from "@/lib/date";
 import * as Sentry from "@sentry/nextjs";
 import { redirect, notFound } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { getIsAdmin } from "@/lib/admin";
@@ -75,12 +76,14 @@ export async function issueCoupon(couponId: string) {
   const decision = decideIssuePath(rpcError, coupon.quantity_limit);
 
   if (decision === "done") {
+    await flashIssueResult(couponId, "done");
     revalidatePath(`/coupons/${couponId}`);
     redirect(`/coupons/${couponId}`);
   }
   if (decision === "failed") {
     // 함수는 있는데 오류가 난 경우: 발급하지 않고 기록만 남긴 뒤 화면으로 돌려보낸다.
     Sentry.captureException(new Error(`issue_coupon failed (${rpcError?.code ?? "no-code"}): ${rpcError?.message}`));
+    await flashIssueResult(couponId, "failed");
     redirect(`/coupons/${couponId}`);
   }
 
@@ -118,10 +121,26 @@ export async function issueCoupon(couponId: string) {
   // 23505 = 동시에 눌러 이미 발급된 경우(정상). 그 밖의 오류는 조용히 지나가지 않게 기록한다.
   if (insertError && insertError.code !== "23505") {
     Sentry.captureException(new Error(`issue (legacy path) failed (${insertError.code ?? "no-code"})`));
+    await flashIssueResult(couponId, "failed");
+    redirect(`/coupons/${couponId}`);
   }
 
+  await flashIssueResult(couponId, "done");
   revalidatePath(`/coupons/${couponId}`);
   redirect(`/coupons/${couponId}`);
+}
+
+// GET 결과를 바로 다음 화면 한 번에만 알려주는 짧은 표시(15초). 주소(?issue=...)에 붙이지 않는 이유:
+// 쿼리가 바뀌면 상세 화면이 새로 마운트돼 조회(view) 이벤트가 한 번 더 기록될 수 있다.
+// 이 값은 화면 안내용일 뿐이고, 성공 안내는 화면이 실제로 "발급됨" 상태일 때만 보인다.
+async function flashIssueResult(couponId: string, result: "done" | "failed") {
+  (await cookies()).set("issue_result", `${couponId}:${result}`, {
+    maxAge: 15,
+    path: `/coupons/${couponId}`,
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
 }
 
 export async function toggleFavorite(couponId: string) {

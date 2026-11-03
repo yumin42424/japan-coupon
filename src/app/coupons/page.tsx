@@ -1,7 +1,6 @@
 import { todayKST } from "@/lib/date";
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import * as Sentry from "@sentry/nextjs";
@@ -10,8 +9,8 @@ import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { ComingSoonNotice } from "@/components/coming-soon-notice";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
-import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
-import { CATEGORY_IMAGES } from "@/lib/taxonomy-images";
+import { CATEGORY_ICONS } from "@/lib/taxonomy-icons";
+import { CategoryGrid } from "@/components/category-grid";
 import { isUrgentDeadline, daysUntil } from "@/lib/urgency";
 import {
   COUPON_SORTS,
@@ -135,33 +134,8 @@ async function CategoryAreaHub() {
 
       <section className="mt-8">
         <h2 className="text-h3">カテゴリから探す</h2>
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
-          {CATEGORIES.map((c) => {
-            return (
-              <Link
-                key={c.value}
-                href={`/coupons?category=${c.value}`}
-                className="group relative block w-full overflow-hidden rounded-xl"
-              >
-                <div className="relative aspect-square w-full">
-                  <Image
-                    src={CATEGORY_IMAGES[c.value]}
-                    alt=""
-                    fill
-                    sizes="(min-width: 896px) 200px, (min-width: 640px) 30vw, 45vw"
-                    className="object-cover transition duration-300 group-hover:scale-[1.03]"
-                  />
-                  <div
-                    className="absolute inset-0"
-                    style={{ background: "linear-gradient(180deg, rgba(20,16,14,0) 50%, rgba(20,16,14,0.65) 100%)" }}
-                  />
-                  <h3 className="absolute inset-x-0 bottom-2 px-2.5 text-caption font-bold leading-tight text-white sm:text-h3 sm:font-normal sm:bottom-2.5">
-                    {c.ja}
-                  </h3>
-                </div>
-              </Link>
-            );
-          })}
+        <div className="mt-3">
+          <CategoryGrid />
         </div>
       </section>
 
@@ -183,7 +157,7 @@ async function CategoryAreaHub() {
       <div className="mt-10 text-center">
         <Link
           href="/coupons?area=all"
-          className="text-body text-muted underline underline-offset-4 hover:text-foreground"
+          className="inline-block py-2 text-body text-muted underline underline-offset-4 hover:text-foreground"
         >
           すべてのクーポンを見る
         </Link>
@@ -298,9 +272,9 @@ async function FilteredCouponList({ raw }: { raw: RawCouponListParams }) {
     <main className="mx-auto max-w-4xl px-6 py-10">
       <Link
         href="/coupons"
-        className="flex items-center gap-1 text-sm text-muted hover:text-foreground"
+        className="-my-2 inline-flex items-center gap-1 py-2 text-body text-muted hover:text-foreground"
       >
-        <ChevronLeft className="h-4 w-4" />
+        <ChevronLeft className="h-4 w-4" aria-hidden="true" />
         カテゴリ・エリア選択に戻る
       </Link>
 
@@ -327,7 +301,8 @@ async function FilteredCouponList({ raw }: { raw: RawCouponListParams }) {
         />
       </form>
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      {/* モバイルでは横スクロールの1行にして、絞り込みで画面が埋まりクーポンが下に押し出されないようにする */}
+      <div className="mt-4 flex gap-2 overflow-x-auto pb-1 -mx-6 px-6 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&>*]:shrink-0" role="group" aria-label="カテゴリ">
         <Link href={hrefFor({ category: undefined, page: 1 })} className={chip(!category)}>
           すべて
         </Link>
@@ -338,6 +313,7 @@ async function FilteredCouponList({ raw }: { raw: RawCouponListParams }) {
               key={c.value}
               href={hrefFor({ category: c.value, page: 1 })}
               className={chip(category === c.value)}
+              aria-current={category === c.value ? "true" : undefined}
             >
               <Icon className="h-3.5 w-3.5" strokeWidth={2.25} />
               {c.ja}
@@ -346,7 +322,7 @@ async function FilteredCouponList({ raw }: { raw: RawCouponListParams }) {
         })}
       </div>
 
-      <div className="mt-2 flex flex-wrap gap-2">
+      <div className="mt-2 flex gap-2 overflow-x-auto pb-1 -mx-6 px-6 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&>*]:shrink-0" role="group" aria-label="エリア">
         <Link href={hrefFor({ area: undefined, page: 1 })} className={chip(!area)}>
           全エリア
         </Link>
@@ -355,8 +331,8 @@ async function FilteredCouponList({ raw }: { raw: RawCouponListParams }) {
             key={a.value}
             href={hrefFor({ area: a.value, page: 1 })}
             className={chip(area === a.value)}
+            aria-current={area === a.value ? "true" : undefined}
           >
-            <AreaIcon className="h-3.5 w-3.5" strokeWidth={2.25} />
             {a.ja}
           </Link>
         ))}
@@ -397,7 +373,20 @@ async function FilteredCouponList({ raw }: { raw: RawCouponListParams }) {
         </div>
       ) : (
         <div className="mt-8">
-          <EmptyState message="該当するクーポンがありません。" ctaLabel="すべてのクーポンを見る" ctaHref="/coupons" />
+          {/* 絞り込みなしで0件 = まだ公開中のクーポンがない。絞り込みありで0件 = 条件に合うものがない。言い分ける */}
+          {category || area || keyword ? (
+            <EmptyState
+              message="条件に合うクーポンがありません。"
+              ctaLabel="すべてのクーポンを見る"
+              ctaHref={couponListHref({})}
+            />
+          ) : (
+            <EmptyState
+              message="クーポンは現在準備中です。提携店舗の準備ができ次第、順次公開します。"
+              ctaLabel="ご利用ガイドを見る"
+              ctaHref="/guide"
+            />
+          )}
         </div>
       )}
 

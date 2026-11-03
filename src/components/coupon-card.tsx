@@ -52,16 +52,16 @@ export function CouponCard({
   return (
     <Link
       href={href}
-      className={`group block overflow-hidden rounded-xl border border-border bg-card transition hover:border-foreground/30 ${className ?? ""}`}
+      className={`group block overflow-hidden rounded-xl border border-border bg-card transition-[transform,box-shadow,border-color] duration-200 ease-out hover:border-foreground/25 active:scale-[0.99] md:hover:-translate-y-0.5 md:hover:shadow-elevated motion-reduce:transform-none ${className ?? ""}`}
     >
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-primary/10">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-background-alt">
         {image && (
           <Image
             src={image}
             alt=""
             fill
             sizes="(min-width: 1024px) 320px, (min-width: 640px) 45vw, 90vw"
-            className="object-cover transition duration-300 group-hover:scale-[1.04]"
+            className="object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03] motion-reduce:group-hover:scale-100"
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/0 to-black/0" />

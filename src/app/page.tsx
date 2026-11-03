@@ -11,11 +11,12 @@ import { FaqAccordion, type FaqItem } from "@/components/faq-accordion";
 import { CouponCard } from "@/components/coupon-card";
 import { SectionHeading } from "@/components/section-heading";
 import { HeroImageCarousel } from "@/components/hero-image-carousel";
+import { CategoryGrid } from "@/components/category-grid";
 
 const FEATURED_AREA_VALUES = ["myeongdong", "hongdae", "gangnam", "seongsu"] as const;
 
 const STEPS = [
-  { title: "クーポンを探す", desc: "行きたいエリアやカテゴリーから、気になるお店を探します。" },
+  { title: "クーポンを探す", desc: "行きたいエリアやカテゴリから、気になるお店を探します。" },
   { title: "無料でGET", desc: "会員登録をして、使いたいクーポンを保存します。" },
   { title: "お店で見せる", desc: "韓国のお店でクーポン画面を見せると、特典を受けられます。" },
 ];
@@ -114,21 +115,26 @@ export default async function Home() {
           />
           <div
             className="absolute inset-0"
-            style={{ background: "linear-gradient(180deg, rgba(20,16,14,0.45) 0%, rgba(20,16,14,0.82) 100%)" }}
+            style={{ background: "linear-gradient(180deg, rgba(20,16,14,0.5) 0%, rgba(20,16,14,0.86) 100%)" }}
           />
         </div>
 
-        <div className="relative mx-auto max-w-5xl py-16 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12 lg:py-24">
-          <div className="relative flex flex-col items-center gap-5 text-center lg:items-start lg:gap-6 lg:text-left">
-            <h1 className="text-display text-balance text-white lg:text-foreground">
-              韓国旅行を、
+        <div className="relative mx-auto max-w-5xl pb-12 pt-20 sm:py-16 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12 lg:py-24">
+          <div className="relative flex flex-col items-start gap-4 lg:gap-5">
+            <p className="text-caption font-bold tracking-wide text-white/80 lg:text-primary">
+              ソウル・釜山・済州の旅行に
+            </p>
+            {/* 何のサービスかが一目で伝わる見出し — 「韓国旅行」「クーポン」「日本語」の3点。
+                改行位置は固定する: 見出しフォントの読み込み前後で折り返しが変わると、下の内容がずれる(CLS)。 */}
+            <h1 className="text-display text-white lg:text-foreground">
+              韓国旅行の
+              <br className="sm:hidden lg:inline xl:hidden" />
+              クーポンを、
               <br />
-              もっとお得に。
+              日本語で。
             </h1>
-            <p className="text-body-lg text-white/90 lg:text-foreground/80">
-              日本人旅行者向けの
-              <br className="lg:hidden" />
-              韓国限定クーポンをかんたん検索。
+            <p className="max-w-md text-body-lg text-white/90 lg:text-foreground/80">
+              韓国のお店のクーポンを日本語で探して、店頭で画面を見せるだけ。日本人旅行者のためのクーポンサイトです。
             </p>
             {/* 公開中のクーポンがないときは、すぐ下の「準備中」のお知らせが説明するのでここでは繰り返さない */}
             {totalPublicCoupons > 0 && (
@@ -140,16 +146,16 @@ export default async function Home() {
             )}
 
             {session?.user ? (
-              <div className="mt-1 flex flex-col items-center gap-3 lg:items-start">
+              <div className="mt-2 flex w-full flex-col items-start gap-3">
                 <p className="text-body text-white lg:text-foreground">
                   ようこそ、<strong className="font-bold">{session.user.name}</strong>さん
                 </p>
                 <Link
                   href="/coupons"
-                  className="group flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-body font-bold text-primary-foreground transition hover:brightness-105"
+                  className="group flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3.5 text-body font-bold text-primary-foreground sm:w-auto"
                 >
                   クーポンを探す
-                  <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
                 </Link>
                 <form
                   action={async () => {
@@ -163,25 +169,25 @@ export default async function Home() {
                 </form>
               </div>
             ) : (
-              <div className="flex flex-col items-center gap-3 sm:flex-row lg:items-start">
+              <div className="mt-2 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
                 <Link
                   href="/coupons"
-                  className="group mt-1 flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-body font-bold text-primary-foreground transition hover:brightness-105"
+                  className="group flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3.5 text-body font-bold text-primary-foreground"
                 >
                   クーポンを探す
-                  <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
                 </Link>
                 <Link
                   href="/nearby"
-                  className="mt-1 flex items-center gap-2 rounded-lg border border-white/40 px-6 py-3 text-body font-bold text-white transition hover:bg-white/10 lg:border-border lg:bg-card lg:text-foreground lg:hover:bg-background"
+                  className="flex items-center justify-center gap-2 rounded-lg border border-white/50 px-6 py-3.5 text-body font-bold text-white transition-colors hover:bg-white/10 lg:border-border lg:bg-card lg:text-foreground lg:hover:bg-background"
                 >
-                  <MapPin className="h-4 w-4" />
+                  <MapPin className="h-4 w-4" aria-hidden="true" />
                   現在地から探す
                 </Link>
               </div>
             )}
 
-            <p className="text-caption text-white/70 lg:text-muted">登録無料 ・ 韓国旅行ですぐ使える</p>
+            <p className="text-caption text-white/75 lg:text-muted">会員登録・ご利用は無料です</p>
           </div>
 
           {/* デスクトップのみ: 人気エリアの写真が数枚順番に切り替わる + 実データで作った小さなクーポンプレビュー */}
@@ -232,7 +238,7 @@ export default async function Home() {
           <SectionHeading
             title="人気エリアから探す"
             action={
-              <Link href="/coupons" className="text-body font-medium text-primary underline underline-offset-4">
+              <Link href="/coupons" className="-my-1 py-2 text-body font-medium text-primary underline underline-offset-4">
                 すべてのエリア
               </Link>
             }
@@ -247,7 +253,7 @@ export default async function Home() {
                   href={`/areas/${area.value}`}
                   className="group relative block overflow-hidden rounded-xl"
                 >
-                  <div className="relative aspect-[4/3] w-full">
+                  <div className="relative aspect-[4/3] w-full bg-background-alt">
                     {image && (
                       <Image
                         src={image}
@@ -307,7 +313,7 @@ export default async function Home() {
           <SectionHeading
             title="クーポンの使い方"
             action={
-              <Link href="/guide" className="text-body font-medium text-primary underline underline-offset-4">
+              <Link href="/guide" className="-my-1 py-2 text-body font-medium text-primary underline underline-offset-4">
                 くわしく見る
               </Link>
             }
@@ -326,25 +332,12 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ---- カテゴリーから探す ---- */}
+      {/* ---- カテゴリから探す ---- */}
       <section className="border-t border-border px-6 py-14">
         <div className="mx-auto max-w-5xl">
-          <SectionHeading title="カテゴリーから探す" />
-          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-            {CATEGORIES.map((c) => (
-              <Link key={c.value} href={`/coupons?category=${c.value}`} className="group block">
-                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl">
-                  <Image
-                    src={CATEGORY_IMAGES[c.value]}
-                    alt=""
-                    fill
-                    sizes="(min-width: 1024px) 240px, (min-width: 640px) 22vw, 45vw"
-                    className="object-cover transition duration-300 group-hover:scale-[1.03]"
-                  />
-                </div>
-                <h3 className="mt-2 text-body font-bold leading-tight">{c.ja}</h3>
-              </Link>
-            ))}
+          <SectionHeading title="カテゴリから探す" />
+          <div className="mt-6">
+            <CategoryGrid />
           </div>
         </div>
       </section>
@@ -379,7 +372,7 @@ export default async function Home() {
       )}
 
       {/* ---- FAQ ---- */}
-      <section id="faq" className="border-t border-border bg-background-alt px-6 py-14">
+      <section id="faq" className="border-t border-border px-6 py-14">
         <div className="mx-auto max-w-5xl lg:grid lg:grid-cols-[1fr_2fr] lg:gap-12">
           <div>
             <SectionHeading title="よくある質問" />

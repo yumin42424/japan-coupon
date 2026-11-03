@@ -63,7 +63,7 @@ export function HeroImageCarousel({
             type="button"
             onClick={prev}
             aria-label="前の写真"
-            className="absolute left-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/30 text-white opacity-0 backdrop-blur-sm transition hover:bg-black/50 group-hover/carousel:opacity-100 focus-visible:opacity-100"
+            className="absolute left-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white opacity-0 transition hover:bg-black/60 group-hover/carousel:opacity-100 focus-visible:opacity-100"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -71,14 +71,14 @@ export function HeroImageCarousel({
             type="button"
             onClick={next}
             aria-label="次の写真"
-            className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/30 text-white opacity-0 backdrop-blur-sm transition hover:bg-black/50 group-hover/carousel:opacity-100 focus-visible:opacity-100"
+            className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white opacity-0 transition hover:bg-black/60 group-hover/carousel:opacity-100 focus-visible:opacity-100"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
         </>
       )}
 
-      <div className="absolute inset-x-0 bottom-0 flex justify-center gap-1.5 p-3">
+      <div className="absolute inset-x-0 bottom-0 flex justify-center p-1.5">
         {images.map((image, i) => (
           <button
             key={image.src}
@@ -86,7 +86,7 @@ export function HeroImageCarousel({
             onClick={() => goTo(i)}
             aria-label={image.label}
             aria-current={i === index}
-            className="p-1"
+            className="flex h-8 min-w-8 items-center justify-center px-1"
           >
             <span
               className={`block h-1.5 rounded-full transition-all duration-500 ${

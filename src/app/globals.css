@@ -10,6 +10,8 @@
   --muted: #6f5d59;
   --primary: #ec5f71;
   --primary-dark: #ce4155;
+  /* 주요 버튼에 마우스를 올렸을 때 — 한 단계 진한 같은 계열 (흰 글자 대비가 더 올라간다) */
+  --primary-hover: #b8394c;
   /* 브랜드 코랄(#ec5f71)은 배경/장식용으로 그대로 두고, "글자"로 쓸 때만 쓰는 진한 톤 (연한 배경에서 4.5:1 이상) */
   --primary-text: #bf3349;
   --primary-foreground: #ffffff;
@@ -59,6 +61,26 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-body), "Noto Sans JP", sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 일본어 줄바꿈 — 제목은 문절 단위로 끊고(지원 브라우저만, 나머지는 기존대로), 본문은 행두 금칙을 엄격하게 */
+h1, h2, h3 {
+  word-break: auto-phrase;
+  text-wrap: balance;
+}
+p, li, dd {
+  line-break: strict;
+  text-wrap: pretty;
+}
+
+@layer base {
+  /* 키보드로 이동할 때만 보이는 포커스 표시를 사이트 전체에서 하나로 통일한다.
+     입력칸처럼 자체 포커스 스타일(outline-none + 테두리색)이 있는 요소는 utilities 쪽이 이긴다. */
+  :focus-visible {
+    outline: 2px solid var(--primary-text);
+    outline-offset: 2px;
+  }
 }
 
 /* text-primary(글자색)만 접근성 기준을 만족하는 진한 코랄로 — 장식·옅은 배경(bg-primary/10 등)은 브랜드 색 그대로 */
@@ -72,6 +94,19 @@ body {
   background-color: var(--primary-dark);
 }
 
+/* 주요 버튼(단색 코랄)의 반응 — 올리면 한 톤 진해지고, 누르면 1px 내려간다. 배지(span)에는 걸지 않는다. */
+:is(a, button).bg-primary,
+:is(a, button).btn-glossy {
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+:is(a, button).bg-primary:hover,
+:is(a, button).btn-glossy:not(:disabled):hover {
+  background-color: var(--primary-hover);
+}
+:is(a, button):is(.bg-primary, .btn-glossy):active:not(:disabled) {
+  transform: translateY(1px);
+}
+
 /* 성공 메시지 글자색 — 기본 초록(#16a34a)은 흰/연한 배경에서 3.3:1 이라 진하게 (#15803d, 약 5:1) */
 .text-success {
   color: #15803d;
@@ -81,45 +116,59 @@ h1, h2, h3, h4, .font-display {
   font-family: var(--font-display), var(--font-body), sans-serif;
 }
 
+/* 움직임을 줄이도록 설정한 사용자에게는 전환·애니메이션을 사실상 끈다 (위치 이동 효과 포함) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
 
-  /* 주요 액션 버튼 — 단색 + 은은한 그림자. 그라데이션이나 광택 효과는 쓰지 않는다 */
+  /* 주요 액션 버튼 — 단색. 그라데이션이나 광택 효과는 쓰지 않는다 */
   .btn-glossy {
     background-color: var(--primary-dark);
   }
 
-
   /* Type scale — 페이지마다 제각각이던 제목/본문 크기를 여기 하나로 통일한다.
-     일본어 가독성을 위해 line-height를 라틴 문자 기준보다 넉넉하게 잡는다. */
+     일본어 가독성을 위해 line-height를 라틴 문자 기준보다 넉넉하게 잡는다.
+     제목 폰트(Zen Kaku Gothic New)는 700 한 굵기만 받아오므로, 그보다 굵게 지정하면 브라우저가
+     글자를 인위적으로 번지게 만든다(가짜 볼드) — 제목 굵기는 700으로 맞춘다. */
   .text-display {
-    font-size: 2.25rem;
-    line-height: 1.25;
-    letter-spacing: -0.01em;
-    font-weight: 900;
+    font-size: 2.125rem;
+    line-height: 1.3;
+    letter-spacing: 0;
+    font-weight: 700;
   }
   .text-h1 {
-    font-size: 1.75rem;
-    line-height: 1.35;
-    letter-spacing: -0.01em;
-    font-weight: 800;
+    font-size: 1.625rem;
+    line-height: 1.4;
+    letter-spacing: 0;
+    font-weight: 700;
   }
   .text-h2 {
-    font-size: 1.375rem;
-    line-height: 1.4;
-    letter-spacing: -0.005em;
-    font-weight: 800;
-  }
-  .text-h3 {
-    font-size: 1.0625rem;
+    font-size: 1.3125rem;
     line-height: 1.45;
     font-weight: 700;
   }
+  .text-h3 {
+    font-size: 1.0625rem;
+    line-height: 1.5;
+    font-weight: 700;
+  }
+  /* 리드 문장(제목 아래 한두 줄)은 단어 중간("日/本人")에서 끊기지 않게 문절 단위로 줄바꿈한다 */
   .text-body-lg {
     font-size: 1rem;
-    line-height: 1.7;
+    line-height: 1.75;
+    word-break: auto-phrase;
   }
   .text-body {
     font-size: 0.9375rem;
@@ -127,7 +176,7 @@ h1, h2, h3, h4, .font-display {
   }
   .text-caption {
     font-size: 0.8125rem;
-    line-height: 1.5;
+    line-height: 1.6;
   }
   .text-label {
     font-size: 0.75rem;
@@ -137,10 +186,10 @@ h1, h2, h3, h4, .font-display {
 
   @media (min-width: 1024px) {
     .text-display {
-      font-size: 3.25rem;
+      font-size: 2.625rem;
     }
     .text-h1 {
-      font-size: 2rem;
+      font-size: 1.875rem;
     }
   }
 }

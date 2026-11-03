@@ -110,14 +110,14 @@ export function SignupForm({
         </label>
 
         <div className="flex flex-col gap-2 rounded-xl border border-border bg-card p-3.5 text-body">
-          <label className="flex items-start gap-2">
+          <label className="flex cursor-pointer items-start gap-2.5 py-1">
             <input
               type="checkbox"
               name="agreeTerms"
               required
               checked={agreeTerms}
               onChange={(e) => setAgreeTerms(e.target.checked)}
-              className="mt-0.5"
+              className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--primary-dark)]"
             />
             <span>
               <span className="font-medium text-primary">(必須)</span>{" "}
@@ -127,14 +127,14 @@ export function SignupForm({
               に同意します。
             </span>
           </label>
-          <label className="flex items-start gap-2">
+          <label className="flex cursor-pointer items-start gap-2.5 py-1">
             <input
               type="checkbox"
               name="agreePrivacy"
               required
               checked={agreePrivacy}
               onChange={(e) => setAgreePrivacy(e.target.checked)}
-              className="mt-0.5"
+              className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--primary-dark)]"
             />
             <span>
               <span className="font-medium text-primary">(必須)</span>{" "}
@@ -144,13 +144,13 @@ export function SignupForm({
               を確認しました。
             </span>
           </label>
-          <label className="flex items-start gap-2">
+          <label className="flex cursor-pointer items-start gap-2.5 py-1">
             <input
               type="checkbox"
               name="agreeMarketing"
               checked={agreeMarketing}
               onChange={(e) => setAgreeMarketing(e.target.checked)}
-              className="mt-0.5"
+              className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--primary-dark)]"
             />
             <span>
               <span className="font-medium text-muted">(任意)</span>{" "}
