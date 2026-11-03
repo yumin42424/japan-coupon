@@ -1,126 +1,74 @@
 import Link from "next/link";
-import {
-  UserPlus,
-  Heart,
-  Search,
-  Ticket,
-  Store,
-  Languages,
-  ShieldCheck,
-} from "lucide-react";
 
 const STEPS = [
   {
-    icon: UserPlus,
-    ja: "無料会員登録",
-    ko: "무료 회원가입",
-    descJa: "メールアドレスだけで簡単に登録できます。",
-    descKo: "이메일만 있으면 간단하게 가입할 수 있어요.",
+    title: "無料会員登録",
+    // 가입에는 이메일 외에 비밀번호·닉네임도 필요하므로 "メールアドレスだけ"라고 쓰지 않는다.
+    desc: "メールアドレスとパスワード、ニックネームを入力して登録します。登録は無料です。",
   },
   {
-    icon: Heart,
-    ja: "興味・エリアを選択",
-    ko: "관심사·지역 선택",
-    descJa: "旅行の予定と好みに合わせてクーポンをおすすめします。",
-    descKo: "여행 일정과 취향에 맞춰 쿠폰을 추천해드려요.",
+    title: "興味・エリアを選択",
+    desc: "旅行の予定と好みを登録しておくと、マイページで合うクーポンをおすすめします。",
   },
   {
-    icon: Search,
-    ja: "クーポンを探す",
-    ko: "쿠폰 찾기",
-    descJa: "カテゴリ・エリアから気になるクーポンを探せます。",
-    descKo: "카테고리·지역별로 원하는 쿠폰을 찾을 수 있어요.",
+    title: "クーポンを探す",
+    desc: "カテゴリ・エリアから気になるクーポンを探せます。",
   },
   {
-    icon: Ticket,
-    ja: "クーポンをGET",
-    ko: "쿠폰 받기",
-    descJa: "気に入ったクーポンはワンタップで受け取れます。",
-    descKo: "마음에 드는 쿠폰은 한 번의 터치로 받을 수 있어요.",
+    title: "クーポンをGET",
+    desc: "気に入ったクーポンはワンタップで受け取れます。",
   },
   {
-    icon: Store,
-    ja: "韓国で使う",
-    ko: "한국에서 사용",
-    descJa: "マイページのクーポンを店舗で見せるだけでOK。",
-    descKo: "마이페이지의 쿠폰을 매장에서 보여주기만 하면 끝!",
+    title: "韓国で使う",
+    desc: "マイページのクーポン画面を、お店で見せてください。",
   },
 ];
 
-const PROMISES = [
+const NOTES = [
   {
-    icon: Languages,
-    ja: "日本語対応の有無がひと目でわかる",
-    ko: "일본어 대응 여부를 한눈에 확인",
-    descJa: "各店舗ページに日本語対応の可否を表示しているので、言葉の不安を事前に確認してから安心してご利用いただけます。",
-    descKo: "매장 페이지마다 일본어 대응 가능 여부를 표시해두어서, 미리 확인하고 안심하고 이용하실 수 있습니다.",
+    // 상세 페이지는 일본어 대응이 "가능한" 매장에만 표시한다(불가 표시는 없음) — 그 사실대로 쓴다.
+    title: "日本語で対応できるお店がわかる",
+    desc: "日本語で対応できるお店には、クーポンページに「日本語対応可能」と表示しています。",
   },
   {
-    icon: ShieldCheck,
-    // 이전 문구("ぼったくりの心配なし / 외국인 요금을 걱정할 필요 없음")는 실제로 보장하는 장치가 없는 절대적 표현이라 사실에 맞게 바꿨다.
-    ja: "クーポンの内容を事前に確認できる",
-    ko: "쿠폰 내용을 미리 확인",
-    descJa: "割引の内容・対象・有効期限を、お店に行く前にクーポンページで確認できます。",
-    descKo: "할인 내용, 적용 대상, 유효기간을 매장에 가기 전에 쿠폰 페이지에서 확인할 수 있어요.",
+    // 이전 문구("ぼったくりの心配なし")는 실제로 보장하는 장치가 없는 절대적 표현이라 사실에 맞게 바꿨다.
+    title: "クーポンの内容を事前に確認できる",
+    desc: "割引の内容・対象・有効期限を、お店に行く前にクーポンページで確認できます。",
   },
 ];
 
 export default function GuidePage() {
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
-      <h1 className="text-h1 font-display tracking-tight">
-        初めての方へ
-      </h1>
-      <p className="mt-2 text-body text-muted">
-        K-Coupon Japanの使い方は、たったの5ステップです。
-      </p>
+    <main className="mx-auto max-w-3xl px-6 py-10">
+      <h1 className="text-h1 font-display tracking-tight">初めての方へ</h1>
+      <p className="mt-2 text-body-lg text-foreground/80">K-Coupon Japanの使い方は、次の5つの手順です。</p>
 
-      <ol className="mt-8 flex flex-col gap-4">
+      <ol className="mt-8 divide-y divide-border border-y border-border">
         {STEPS.map((step, i) => (
-          <li
-            key={step.ja}
-            className="flex items-start gap-4 rounded-2xl border border-border bg-card p-4 shadow-card"
-          >
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-body font-extrabold text-primary">
-              {i + 1}
-            </span>
+          <li key={step.title} className="grid grid-cols-[2rem_1fr] gap-2 py-4">
+            <span className="text-h3 text-primary">{i + 1}</span>
             <div className="min-w-0">
-              <p className="flex items-center gap-1.5 text-h3">
-                <step.icon className="h-4 w-4 text-primary" />
-                {step.ja}
-              </p>
-              <p className="mt-1 text-body text-muted">
-                {step.descJa}
-              </p>
+              <p className="text-h3">{step.title}</p>
+              <p className="mt-1 text-body text-muted">{step.desc}</p>
             </div>
           </li>
         ))}
       </ol>
 
-      <h2 className="mt-12 text-h2 font-display tracking-tight">
-        安心してご利用いただくために
-      </h2>
-      <div className="mt-4 flex flex-col gap-4">
-        {PROMISES.map((promise) => (
-          <div
-            key={promise.ja}
-            className="rounded-2xl border border-border bg-primary/5 p-5"
-          >
-            <p className="flex items-center gap-2 text-h3 text-primary">
-              <promise.icon className="h-5 w-5" />
-              {promise.ja}
-            </p>
-            <p className="mt-1.5 text-body text-foreground/80">
-              {promise.descJa}
-            </p>
+      <h2 className="mt-12 text-h2 font-display tracking-tight">ご利用にあたって</h2>
+      <dl className="mt-4 divide-y divide-border border-y border-border">
+        {NOTES.map((note) => (
+          <div key={note.title} className="py-4">
+            <dt className="text-h3">{note.title}</dt>
+            <dd className="mt-1 text-body text-foreground/80">{note.desc}</dd>
           </div>
         ))}
-      </div>
+      </dl>
 
-      <div className="mt-10 flex justify-center">
+      <div className="mt-10">
         <Link
           href="/signup"
-          className="btn-glossy rounded-full px-6 py-3 text-body font-bold text-primary-foreground transition hover:brightness-105"
+          className="btn-glossy inline-block rounded-lg px-6 py-3 text-body font-bold text-primary-foreground transition hover:brightness-105"
         >
           無料会員登録はこちら
         </Link>

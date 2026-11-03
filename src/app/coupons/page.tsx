@@ -75,7 +75,7 @@ export default async function CouponsPage({
 
 function FilteredCouponListFallback() {
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
+    <main className="mx-auto max-w-4xl px-6 py-10">
       <div className="h-7 w-40 animate-pulse rounded bg-border/60" />
       <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {Array.from({ length: 8 }).map((_, i) => (
@@ -101,7 +101,7 @@ async function CategoryAreaHub() {
   ]);
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
+    <main className="mx-auto max-w-4xl px-6 py-10">
       <h1 className="text-h1 font-display tracking-tight">
         クーポンを探す
       </h1>
@@ -115,7 +115,7 @@ async function CategoryAreaHub() {
           type="text"
           name="q"
           placeholder="店舗名やクーポン名で検索"
-          className="w-full rounded-full border border-border bg-card py-3 pl-11 pr-4 text-body outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
+          className="w-full rounded-lg border border-border bg-card py-3 pl-11 pr-4 text-body outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
         />
       </form>
 
@@ -127,40 +127,34 @@ async function CategoryAreaHub() {
 
       <Link
         href="/nearby"
-        className="mt-4 flex items-center justify-center gap-2 rounded-2xl border border-primary/25 bg-primary/5 px-4 py-3 text-body font-bold text-primary shadow-card transition hover:-translate-y-0.5 hover:shadow-elevated"
+        className="mt-4 inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-body font-medium transition hover:bg-background"
       >
         <LocateFixed className="h-4 w-4" />
         現在地から探す
       </Link>
 
       <section className="mt-8">
-        <h2 className="text-label font-bold uppercase tracking-wider text-muted">
-          カテゴリから探す
-        </h2>
+        <h2 className="text-h3">カテゴリから探す</h2>
         <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
           {CATEGORIES.map((c) => {
-            const Icon = CATEGORY_ICONS[c.value];
             return (
               <Link
                 key={c.value}
                 href={`/coupons?category=${c.value}`}
-                className="group relative block w-full overflow-hidden rounded-2xl shadow-card transition-shadow duration-300 hover:shadow-elevated"
+                className="group relative block w-full overflow-hidden rounded-xl"
               >
                 <div className="relative aspect-square w-full">
                   <Image
                     src={CATEGORY_IMAGES[c.value]}
                     alt=""
                     fill
-                    sizes="(min-width: 672px) 160px, 45vw"
+                    sizes="(min-width: 896px) 200px, (min-width: 640px) 30vw, 45vw"
                     className="object-cover transition duration-300 group-hover:scale-[1.03]"
                   />
                   <div
                     className="absolute inset-0"
                     style={{ background: "linear-gradient(180deg, rgba(20,16,14,0) 50%, rgba(20,16,14,0.65) 100%)" }}
                   />
-                  <span className="absolute left-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-primary">
-                    <Icon className="h-3.5 w-3.5" strokeWidth={2.25} />
-                  </span>
                   <h3 className="absolute inset-x-0 bottom-2 px-2.5 text-caption font-bold leading-tight text-white sm:text-h3 sm:font-normal sm:bottom-2.5">
                     {c.ja}
                   </h3>
@@ -172,22 +166,15 @@ async function CategoryAreaHub() {
       </section>
 
       <section className="mt-10">
-        <h2 className="text-label font-bold uppercase tracking-wider text-muted">
-          エリアから探す
-        </h2>
-        <div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-4">
+        <h2 className="text-h3">エリアから探す</h2>
+        <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
           {AREAS.map((a) => (
             <Link
               key={a.value}
               href={`/areas/${a.value}`}
-              className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-elevated"
+              className="rounded-lg border border-border bg-card px-3 py-3 text-center text-body font-bold transition hover:border-foreground/30"
             >
-              <span className="btn-glossy flex h-9 w-9 items-center justify-center rounded-full text-primary-foreground">
-                <AreaIcon className="h-4 w-4" />
-              </span>
-              <span className="text-center text-caption font-bold leading-tight">
-                {a.ja}
-              </span>
+              {a.ja}
             </Link>
           ))}
         </div>
@@ -262,7 +249,7 @@ async function FilteredCouponList({ raw }: { raw: RawCouponListParams }) {
   if (error) {
     Sentry.captureException(new Error(`coupon list query failed (${error.code ?? "no-code"})`));
     return (
-      <main className="mx-auto max-w-2xl px-6 py-10">
+      <main className="mx-auto max-w-4xl px-6 py-10">
         <h1 className="text-h1 font-display tracking-tight">クーポンを探す</h1>
         <div className="mt-8">
           <EmptyState
@@ -295,7 +282,7 @@ async function FilteredCouponList({ raw }: { raw: RawCouponListParams }) {
   }
 
   const chip = (active: boolean) =>
-    `flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+    `flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition ${
       active
         ? "btn-glossy border-transparent text-primary-foreground"
         : "border-border text-muted hover:border-foreground/30 hover:text-foreground"
@@ -304,11 +291,11 @@ async function FilteredCouponList({ raw }: { raw: RawCouponListParams }) {
   const currentCategory = CATEGORIES.find((c) => c.value === category);
   const currentArea = AREAS.find((a) => a.value === area);
   const pagerLink =
-    "rounded-full border border-border px-4 py-2 text-body font-medium text-foreground transition hover:border-foreground/30";
-  const pagerOff = "rounded-full border border-border px-4 py-2 text-body font-medium text-muted opacity-40";
+    "rounded-lg border border-border px-4 py-2 text-body font-medium text-foreground transition hover:border-foreground/30";
+  const pagerOff = "rounded-lg border border-border px-4 py-2 text-body font-medium text-muted opacity-40";
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
+    <main className="mx-auto max-w-4xl px-6 py-10">
       <Link
         href="/coupons"
         className="flex items-center gap-1 text-sm text-muted hover:text-foreground"
@@ -336,7 +323,7 @@ async function FilteredCouponList({ raw }: { raw: RawCouponListParams }) {
           name="q"
           defaultValue={keyword}
           placeholder="店舗名やクーポン名で検索"
-          className="w-full rounded-full border border-border bg-card py-2.5 pl-11 pr-4 text-body outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
+          className="w-full rounded-lg border border-border bg-card py-2.5 pl-11 pr-4 text-body outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
         />
       </form>
 

@@ -485,22 +485,22 @@ export default async function CouponDetailPage({
           )}
           <div className="min-w-0 flex-1">
             {alreadyIssued ? (
-              <p className="flex items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-3 text-center text-sm font-medium text-muted md:py-3.5">
+              <p className="flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-3 text-center text-sm font-medium text-muted md:py-3.5">
                 <CheckCircle2 className="h-4 w-4 text-success" />
                 GET済み
               </p>
             ) : isUnavailable ? (
-              <p className="flex items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-3 text-center text-sm font-medium text-muted md:py-3.5">
+              <p className="flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-3 text-center text-sm font-medium text-muted md:py-3.5">
                 <Info className="h-4 w-4" />
                 現在ご利用いただけません
               </p>
             ) : isExpired ? (
-              <p className="flex items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-3 text-center text-sm font-medium text-muted md:py-3.5">
+              <p className="flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-3 text-center text-sm font-medium text-muted md:py-3.5">
                 <CalendarClock className="h-4 w-4" />
                 有効期限が終了しました
               </p>
             ) : isSoldOut ? (
-              <p className="flex items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-3 text-center text-sm font-medium text-muted md:py-3.5">
+              <p className="flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-3 text-center text-sm font-medium text-muted md:py-3.5">
                 <Users className="h-4 w-4" />
                 先着順の受付は終了しました
               </p>
@@ -514,7 +514,7 @@ export default async function CouponDetailPage({
                 )}
                 <button
                   type="submit"
-                  className="w-full rounded-full bg-primary px-4 py-3 text-sm font-bold text-primary-foreground shadow-card transition hover:brightness-105 active:scale-[0.99] md:py-3.5"
+                  className="w-full rounded-lg bg-primary px-4 py-3 text-sm font-bold text-primary-foreground shadow-card transition hover:brightness-105 active:scale-[0.99] md:py-3.5"
                 >
                   無料でGET
                 </button>

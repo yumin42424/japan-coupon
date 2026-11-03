@@ -117,7 +117,7 @@ export function PointUsePanel({
         <button
           type="button"
           disabled
-          className="mt-4 rounded-full bg-border px-5 py-2.5 text-body font-bold text-muted"
+          className="mt-4 rounded-lg bg-border px-5 py-2.5 text-body font-bold text-muted"
         >
           ポイントを使う（準備中）
         </button>
@@ -142,7 +142,7 @@ export function PointUsePanel({
             <button
               type="button"
               onClick={() => open(o)}
-              className="btn-glossy shrink-0 rounded-full px-4 py-2 text-body font-bold text-primary-foreground transition hover:brightness-105"
+              className="btn-glossy shrink-0 rounded-lg px-4 py-2 text-body font-bold text-primary-foreground transition hover:brightness-105"
             >
               ポイントを使う
             </button>
@@ -183,7 +183,7 @@ export function PointUsePanel({
                     </div>
                   )}
                 </dl>
-                <button type="button" onClick={close} className="btn-glossy mt-4 w-full rounded-full px-4 py-2.5 text-body font-bold text-primary-foreground">
+                <button type="button" onClick={close} className="btn-glossy mt-4 w-full rounded-lg px-4 py-2.5 text-body font-bold text-primary-foreground">
                   閉じる
                 </button>
               </div>
@@ -247,7 +247,7 @@ export function PointUsePanel({
                     type="button"
                     onClick={confirm}
                     disabled={pending || insufficient}
-                    className="btn-glossy flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
+                    className="btn-glossy flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
                   >
                     {pending && <Loader2 className="h-4 w-4 animate-spin" />}
                     {pending ? "処理中..." : "利用を確定する"}
@@ -257,7 +257,7 @@ export function PointUsePanel({
                       type="button"
                       onClick={checkStatus}
                       disabled={pending}
-                      className="rounded-full border border-border px-4 py-2.5 text-body font-medium transition hover:bg-background disabled:opacity-50"
+                      className="rounded-lg border border-border px-4 py-2.5 text-body font-medium transition hover:bg-background disabled:opacity-50"
                     >
                       処理状況を確認する
                     </button>
@@ -266,7 +266,7 @@ export function PointUsePanel({
                     type="button"
                     onClick={close}
                     disabled={pending}
-                    className="rounded-full px-4 py-2 text-body text-muted transition hover:text-foreground disabled:opacity-50"
+                    className="rounded-lg px-4 py-2 text-body text-muted transition hover:text-foreground disabled:opacity-50"
                   >
                     キャンセル
                   </button>

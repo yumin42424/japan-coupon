@@ -48,7 +48,7 @@ export function NicknameForm({ currentNickname }: { currentNickname: string }) {
         <button
           type="submit"
           disabled={pending}
-          className="btn-glossy self-start rounded-full px-4 py-2 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
+          className="btn-glossy self-start rounded-lg px-4 py-2 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
         >
           {pending ? "保存中..." : "保存する"}
         </button>
@@ -100,7 +100,7 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
           <button
             type="submit"
             disabled={pending}
-            className="btn-glossy self-start rounded-full px-4 py-2 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
+            className="btn-glossy self-start rounded-lg px-4 py-2 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
           >
             {pending ? "変更中..." : "変更する"}
           </button>
@@ -128,7 +128,7 @@ export function DeleteAccountSection() {
         <button
           type="button"
           onClick={() => setConfirming(true)}
-          className="mt-3 rounded-full border border-primary/40 px-4 py-2 text-body font-medium text-primary transition hover:bg-primary/10"
+          className="mt-3 rounded-lg border border-primary/40 px-4 py-2 text-body font-medium text-primary transition hover:bg-primary/10"
         >
           退会する
         </button>
@@ -138,7 +138,7 @@ export function DeleteAccountSection() {
             <button
               type="submit"
               disabled={pending}
-              className="btn-glossy rounded-full px-4 py-2 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
+              className="btn-glossy rounded-lg px-4 py-2 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
             >
               {pending ? "退会処理中..." : "本当に退会する"}
             </button>
@@ -146,7 +146,7 @@ export function DeleteAccountSection() {
               type="button"
               onClick={() => setConfirming(false)}
               disabled={pending}
-              className="rounded-full border border-border px-4 py-2 text-body font-medium transition hover:bg-background disabled:opacity-50"
+              className="rounded-lg border border-border px-4 py-2 text-body font-medium transition hover:bg-background disabled:opacity-50"
             >
               キャンセル
             </button>

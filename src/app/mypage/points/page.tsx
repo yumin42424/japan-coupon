@@ -48,7 +48,7 @@ export default async function PointsPage() {
   };
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
+    <main className="mx-auto max-w-3xl px-6 py-10">
       <Link href="/mypage" className="flex items-center gap-1 text-body text-muted hover:text-foreground">
         <ChevronLeft className="h-4 w-4" />
         マイページに戻る

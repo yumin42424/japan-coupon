@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Megaphone, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
 type NoticeRow = {
@@ -18,11 +18,8 @@ export default async function NoticesPage() {
   const notices = (data ?? []) as NoticeRow[];
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
-      <h1 className="flex items-center gap-2 text-h1 font-display tracking-tight">
-        <Megaphone className="h-6 w-6 text-primary" />
-        お知らせ
-      </h1>
+    <main className="mx-auto max-w-4xl px-6 py-10">
+      <h1 className="text-h1 font-display tracking-tight">お知らせ</h1>
 
       <ul className="mt-8 flex flex-col gap-2">
         {notices.length === 0 && (

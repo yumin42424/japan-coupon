@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Mail, Lock, UserRound, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { signup, signupWithLine, signupWithGoogle, type SignupState } from "./actions";
 
 const initialState: SignupState = {};
@@ -39,7 +39,7 @@ export function SignupForm({
           <button
             type="submit"
             disabled={!canSubmit}
-            className="w-full rounded-full bg-[#06C755] px-4 py-3 text-body font-semibold text-white shadow-card transition hover:opacity-90 disabled:opacity-40"
+            className="w-full rounded-lg bg-[#06C755] px-4 py-3 text-body font-semibold text-white shadow-card transition hover:opacity-90 disabled:opacity-40"
           >
             LINEで続ける
           </button>
@@ -52,7 +52,7 @@ export function SignupForm({
           <button
             type="submit"
             disabled={!canSubmit}
-            className="w-full rounded-full border border-border bg-card px-4 py-3 text-body font-semibold text-foreground shadow-card transition hover:bg-background disabled:opacity-40"
+            className="w-full rounded-lg border border-border bg-card px-4 py-3 text-body font-semibold text-foreground shadow-card transition hover:bg-background disabled:opacity-40"
           >
             Googleで続ける
           </button>
@@ -71,7 +71,6 @@ export function SignupForm({
 
         <label className="flex flex-col gap-1.5 text-body font-medium">
           <span className="flex items-center gap-1.5">
-            <Mail className="h-4 w-4 text-primary" />
             メールアドレス
           </span>
           <input
@@ -85,7 +84,6 @@ export function SignupForm({
 
         <label className="flex flex-col gap-1.5 text-body font-medium">
           <span className="flex items-center gap-1.5">
-            <Lock className="h-4 w-4 text-primary" />
             パスワード
           </span>
           <input
@@ -100,7 +98,6 @@ export function SignupForm({
 
         <label className="flex flex-col gap-1.5 text-body font-medium">
           <span className="flex items-center gap-1.5">
-            <UserRound className="h-4 w-4 text-primary" />
             ニックネーム
           </span>
           <input
@@ -178,7 +175,7 @@ export function SignupForm({
         <button
           type="submit"
           disabled={pending || !canSubmit}
-          className="btn-glossy mt-2 rounded-full px-4 py-3 text-body font-bold text-primary-foreground transition hover:brightness-105 active:scale-[0.99] disabled:opacity-50 disabled:shadow-none"
+          className="btn-glossy mt-2 rounded-lg px-4 py-3 text-body font-bold text-primary-foreground transition hover:brightness-105 active:scale-[0.99] disabled:opacity-50 disabled:shadow-none"
         >
           {pending ? "登録中..." : "無料会員登録"}
         </button>

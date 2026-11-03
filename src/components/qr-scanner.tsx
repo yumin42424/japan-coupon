@@ -88,7 +88,7 @@ export function QrScanner({ onScan }: { onScan: (value: string) => void }) {
           );
           setOpen(true);
         }}
-        className="flex items-center justify-center gap-2 rounded-full border border-border px-5 py-2.5 text-body font-bold text-foreground transition hover:border-primary/40"
+        className="flex items-center justify-center gap-2 rounded-lg border border-border px-5 py-2.5 text-body font-bold text-foreground transition hover:border-primary/40"
       >
         <Camera className="h-4 w-4" />
         QRスキャン

@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { Flame, Lock, Timer, LocateFixed, Star, Users } from "lucide-react";
 import { CATEGORIES, AREAS, type CategoryValue, type AreaValue } from "@/lib/taxonomy";
-import { CATEGORY_ICONS } from "@/lib/taxonomy-icons";
 import { CATEGORY_IMAGES } from "@/lib/taxonomy-images";
 
 export type CouponCardProps = {
@@ -48,13 +47,12 @@ export function CouponCard({
 }: CouponCardProps) {
   const categoryInfo = CATEGORIES.find((c) => c.value === category);
   const areaInfo = area ? AREAS.find((a) => a.value === area) : undefined;
-  const Icon = CATEGORY_ICONS[category];
   const image = CATEGORY_IMAGES[category];
 
   return (
     <Link
       href={href}
-      className={`group block overflow-hidden rounded-2xl border border-border bg-card shadow-card transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-elevated ${className ?? ""}`}
+      className={`group block overflow-hidden rounded-xl border border-border bg-card transition hover:border-foreground/30 ${className ?? ""}`}
     >
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-primary/10">
         {image && (
@@ -67,9 +65,6 @@ export function CouponCard({
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/0 to-black/0" />
-        <span className="absolute left-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-primary shadow-soft">
-          <Icon className="h-3.5 w-3.5" strokeWidth={2.25} />
-        </span>
         {(urgent || memberOnly || stock) && (
           <div className="absolute right-2.5 top-2.5 flex flex-col items-end gap-1">
             {urgent && daysLeft != null && (

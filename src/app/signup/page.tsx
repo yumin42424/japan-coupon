@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { UserPlus } from "lucide-react";
 import { SignupForm } from "./signup-form";
 import { SIGNUPS_ENABLED } from "@/lib/feature-flags";
 
@@ -30,11 +29,8 @@ export default async function SignupPage({
 
   return (
     <main className="relative flex min-h-[calc(100vh-65px)] items-center justify-center px-6 py-12">
-      <div className="relative w-full max-w-sm rounded-3xl border border-border bg-card p-7 shadow-elevated sm:p-8">
-        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary">
-          <UserPlus className="h-5 w-5" strokeWidth={2.25} />
-        </span>
-        <h1 className="text-h1 font-display mt-4 tracking-tight">
+      <div className="relative w-full max-w-sm rounded-xl border border-border bg-card p-7 sm:p-8">
+        <h1 className="text-h1 font-display tracking-tight">
           無料会員登録
         </h1>
         <p className="mt-2 text-body text-muted">

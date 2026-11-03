@@ -97,7 +97,7 @@ export function LandingPageForm() {
       <button
         type="submit"
         disabled={pending}
-        className="btn-glossy self-start rounded-full px-4 py-2 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
+        className="btn-glossy self-start rounded-lg px-4 py-2 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
       >
         {pending ? "登録中..." : "登録する"}
       </button>

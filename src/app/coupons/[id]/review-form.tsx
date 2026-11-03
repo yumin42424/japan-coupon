@@ -73,7 +73,7 @@ export function ReviewForm({
       />
 
       <div className="flex items-center gap-2">
-        <label className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted transition hover:border-primary/40 hover:text-foreground">
+        <label className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted transition hover:border-primary/40 hover:text-foreground">
           <Camera className="h-3.5 w-3.5" />
           写真を追加
           <input
@@ -110,7 +110,7 @@ export function ReviewForm({
       <button
         type="submit"
         disabled={pending || rating === 0}
-        className="btn-glossy self-end rounded-full px-4 py-2 text-xs font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
+        className="btn-glossy self-end rounded-lg px-4 py-2 text-xs font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
       >
         {pending ? "投稿中..." : isEdit ? "口コミを更新" : "口コミを投稿"}
       </button>

@@ -153,7 +153,7 @@ const SECTIONS = [
 
 export default function TermsPage() {
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
+    <main className="mx-auto max-w-3xl px-6 py-10">
       <h1 className="text-h1 font-display tracking-tight">
         K-Coupon Japan 利用規約
       </h1>

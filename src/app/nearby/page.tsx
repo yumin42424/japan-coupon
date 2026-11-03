@@ -36,7 +36,7 @@ export default async function NearbyPage() {
   const coupons = (data ?? []) as unknown as NearbyCoupon[];
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
+    <main className="mx-auto max-w-4xl px-6 py-10">
       <h1 className="text-h1 font-display tracking-tight">
         現在地から探す
       </h1>

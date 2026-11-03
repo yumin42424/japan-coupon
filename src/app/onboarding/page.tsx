@@ -57,7 +57,7 @@ export default async function OnboardingPage({
               return (
                 <label
                   key={category.value}
-                  className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-2 font-medium transition has-checked:border-primary has-checked:bg-primary/10 has-checked:text-primary"
+                  className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-border bg-card px-3.5 py-2 font-medium transition has-checked:border-primary has-checked:bg-primary/10 has-checked:text-primary"
                 >
                   <input
                     type="checkbox"
@@ -81,7 +81,7 @@ export default async function OnboardingPage({
             {AREAS.map((area) => (
               <label
                 key={area.value}
-                className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-2 font-medium transition has-checked:border-primary has-checked:bg-primary/10 has-checked:text-primary"
+                className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-border bg-card px-3.5 py-2 font-medium transition has-checked:border-primary has-checked:bg-primary/10 has-checked:text-primary"
               >
                 <input type="checkbox" name="areas" value={area.value} className="sr-only" />
                 <AreaIcon className="h-4 w-4" strokeWidth={2.25} />
@@ -94,7 +94,7 @@ export default async function OnboardingPage({
         <div className="flex flex-col items-center gap-3">
           <button
             type="submit"
-            className="btn-glossy w-full rounded-full px-4 py-3.5 text-body font-bold text-primary-foreground transition hover:brightness-105"
+            className="btn-glossy w-full rounded-lg px-4 py-3.5 text-body font-bold text-primary-foreground transition hover:brightness-105"
           >
             保存する
           </button>

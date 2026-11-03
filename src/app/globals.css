@@ -42,10 +42,16 @@
   --font-display: var(--font-display);
   --font-mono: var(--font-geist-mono);
 
-  /* 은은한 그림자 — 신뢰감 있는 여행 서비스 톤에 맞춰 과하지 않게 */
-  --shadow-soft: 0 1px 2px rgba(28, 16, 14, 0.04), 0 2px 6px rgba(28, 16, 14, 0.04);
-  --shadow-card: 0 1px 3px rgba(28, 16, 14, 0.04), 0 4px 12px -4px rgba(28, 16, 14, 0.06);
-  --shadow-elevated: 0 2px 6px rgba(28, 16, 14, 0.05), 0 12px 24px -8px rgba(28, 16, 14, 0.08);
+  /* 그림자는 윤곽을 살짝 잡는 정도만 — 카드는 테두리로 구분한다 */
+  --shadow-soft: 0 1px 1px rgba(28, 16, 14, 0.04);
+  --shadow-card: 0 1px 2px rgba(28, 16, 14, 0.05);
+  --shadow-elevated: 0 2px 10px -2px rgba(28, 16, 14, 0.12);
+
+  /* 모서리: 둥근 알약/풍선 느낌을 줄이고 단정한 사각형에 가깝게 */
+  --radius-lg: 0.375rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.625rem;
+  --radius-3xl: 0.875rem;
 }
 
 body {
@@ -53,35 +59,6 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-body), "Noto Sans JP", sans-serif;
-}
-
-/* 페이지 전체가 단색 배경이라 첫 화면부터 "휑하다"는 피드백을 받아서,
-   브랜드 컬러를 아주 낮은 농도로 퍼뜨린 장식을 뷰포트에 고정해서 깐다.
-   스크롤해도 따라오기 때문에 어느 섹션에서든 배경에 깊이가 느껴진다. */
-body::before,
-body::after {
-  content: "";
-  position: fixed;
-  z-index: -1;
-  border-radius: 9999px;
-  pointer-events: none;
-  filter: blur(80px);
-}
-body::before {
-  top: -6rem;
-  right: -4rem;
-  height: 38rem;
-  width: 38rem;
-  background: radial-gradient(circle, var(--primary) 0%, transparent 72%);
-  opacity: 0.28;
-}
-body::after {
-  bottom: -10rem;
-  left: -8rem;
-  height: 32rem;
-  width: 32rem;
-  background: radial-gradient(circle, var(--primary-dark) 0%, transparent 72%);
-  opacity: 0.16;
 }
 
 /* text-primary(글자색)만 접근성 기준을 만족하는 진한 코랄로 — 장식·옅은 배경(bg-primary/10 등)은 브랜드 색 그대로 */
@@ -112,60 +89,8 @@ h1, h2, h3, h4, .font-display {
   /* 주요 액션 버튼 — 단색 + 은은한 그림자. 그라데이션이나 광택 효과는 쓰지 않는다 */
   .btn-glossy {
     background-color: var(--primary-dark);
-    box-shadow: var(--shadow-card);
   }
 
-  /* 배경이 밋밋한 단색으로 비어 보이지 않도록, 브랜드 컬러를 아주 옅게 퍼뜨리는
-     장식용 블롭. 그라데이션 버튼/글래스모피즘과 달리 콘텐츠 뒤에서만 쓴다. */
-  .bg-blob {
-    position: absolute;
-    border-radius: 9999px;
-    background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
-    filter: blur(48px);
-    pointer-events: none;
-  }
-
-  /* 첫 화면(Hero) 진입 시 한 번만 순차적으로 떠오르는 연출 — 요소마다
-     animation-delay를 다르게 줘서 하나의 조율된 시퀀스처럼 보이게 한다. */
-  @keyframes rise-in {
-    from {
-      opacity: 0;
-      transform: translateY(18px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  @keyframes rise-in-scale {
-    from {
-      opacity: 0;
-      transform: scale(0.96) translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
-  }
-  .animate-rise-in {
-    animation: rise-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-  .animate-rise-in-scale {
-    animation: rise-in-scale 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .animate-rise-in,
-    .animate-rise-in-scale {
-      animation: none;
-    }
-  }
-
-  .surface-glass {
-    background: rgba(255, 255, 255, 0.86);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-  }
 
   /* Type scale — 페이지마다 제각각이던 제목/본문 크기를 여기 하나로 통일한다.
      일본어 가독성을 위해 line-height를 라틴 문자 기준보다 넉넉하게 잡는다. */
@@ -197,15 +122,15 @@ h1, h2, h3, h4, .font-display {
     line-height: 1.7;
   }
   .text-body {
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
     line-height: 1.7;
   }
   .text-caption {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     line-height: 1.5;
   }
   .text-label {
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
     line-height: 1.4;
     letter-spacing: 0.02em;
   }

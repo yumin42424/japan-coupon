@@ -1,7 +1,7 @@
 import { todayKST, addDaysKST } from "@/lib/date";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Heart, Ticket, CheckCircle2, ChevronRight, Pencil, Sparkles, Settings, Coins, MailWarning, TicketCheck } from "lucide-react";
+import { Heart, Ticket, CheckCircle2, ChevronRight, Pencil, Sparkles, Settings, Coins, MailWarning, TicketCheck, Clock } from "lucide-react";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS, type CategoryValue } from "@/lib/taxonomy";
@@ -145,7 +145,7 @@ export default async function MyPage({
   );
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
+    <main className="mx-auto max-w-3xl px-6 py-10">
       <h1 className="text-h1 font-display tracking-tight">
         マイページ
       </h1>
@@ -185,8 +185,9 @@ export default async function MyPage({
 
       {expiringSoon.length > 0 && (
         <div className="mt-4 rounded-xl border border-primary/30 bg-primary/5 p-3 text-body text-primary">
-          <p className="font-semibold">
-            ⏰ {expiringSoon.length}件のクーポンがまもなく期限切れです
+          <p className="flex items-center gap-1.5 font-semibold">
+            <Clock className="h-4 w-4 shrink-0" aria-hidden="true" />
+            {expiringSoon.length}件のクーポンがまもなく期限切れです
           </p>
           <ul className="mt-1.5 flex flex-col gap-0.5 text-caption">
             {expiringSoon.map((i) => (
@@ -227,7 +228,7 @@ export default async function MyPage({
             </Link>
             <Link
               href="/onboarding"
-              className="flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-caption font-medium transition hover:bg-background"
+              className="flex items-center gap-1.5 rounded-lg border border-border px-3.5 py-1.5 text-caption font-medium transition hover:bg-background"
             >
               <Pencil className="h-3.5 w-3.5" />
               編集

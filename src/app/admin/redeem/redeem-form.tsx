@@ -65,7 +65,7 @@ export function RedeemForm({
           <button
             type="submit"
             disabled={pending}
-            className="btn-glossy flex w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
+            className="btn-glossy flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
           >
             <TicketCheck className="h-4 w-4" />
             使用処理する
@@ -128,7 +128,7 @@ export function RedeemForm({
         <button
           type="submit"
           disabled={pending}
-          className="btn-glossy flex items-center justify-center gap-2 self-start rounded-full px-5 py-2.5 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
+          className="btn-glossy flex items-center justify-center gap-2 self-start rounded-lg px-5 py-2.5 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
         >
           <Search className="h-4 w-4" />
           検索

@@ -15,7 +15,7 @@ export default function NotFound() {
       </p>
       <Link
         href="/coupons"
-        className="mt-6 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-card transition hover:brightness-105"
+        className="mt-6 rounded-lg bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-card transition hover:brightness-105"
       >
         クーポンを探す
       </Link>

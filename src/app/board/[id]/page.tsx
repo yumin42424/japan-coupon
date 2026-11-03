@@ -36,7 +36,7 @@ export default async function PostDetailPage({
   const canDelete = session?.user?.id === post.user_id || (await getIsAdmin());
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
+    <main className="mx-auto max-w-3xl px-6 py-10">
       <Link href="/board" className="flex items-center gap-1 text-body text-muted hover:text-foreground">
         <ChevronLeft className="h-4 w-4" />
         Q&amp;Aに戻る

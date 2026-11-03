@@ -1,6 +1,6 @@
 import { todayKST } from "@/lib/date";
 import type { Metadata } from "next";
-import { Trophy } from "lucide-react";
+
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CouponCard } from "@/components/coupon-card";
@@ -52,18 +52,15 @@ export default async function RankingPage() {
     .slice(0, 10);
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
-      <h1 className="flex items-center gap-2 text-h1 font-display tracking-tight">
-        <Trophy className="h-6 w-6 text-primary" />
-        おすすめクーポン
-      </h1>
+    <main className="mx-auto max-w-4xl px-6 py-10">
+      <h1 className="text-h1 font-display tracking-tight">おすすめクーポン</h1>
       <p className="mt-2 text-body text-muted">
         GET数・閲覧数をもとに、人気のクーポンをピックアップしました。
       </p>
 
       {ranked.length === 0 ? (
-        <p className="mt-8 text-body text-muted">
-          まだデータがありません。
+        <p className="mt-8 border-y border-border py-8 text-body text-muted">
+          クーポンの公開後、GET数・閲覧数をもとにここに表示します。
         </p>
       ) : (
         <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">

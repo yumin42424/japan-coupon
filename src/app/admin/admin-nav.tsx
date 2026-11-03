@@ -24,7 +24,7 @@ export function AdminNav() {
           <Link
             key={l.href}
             href={l.href}
-            className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-caption font-medium text-foreground/70 transition hover:bg-card hover:text-foreground"
+            className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-caption font-medium text-foreground/70 transition hover:bg-card hover:text-foreground"
           >
             <l.icon className="h-3.5 w-3.5" strokeWidth={2.25} />
             {l.ja}

@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Mail, Lock, AlertCircle, Ticket, CheckCircle2 } from "lucide-react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { login, type LoginState } from "./actions";
 import { loginWithLine, loginWithGoogle } from "./oauth-actions";
 import { SIGNUPS_ENABLED } from "@/lib/feature-flags";
@@ -23,11 +23,8 @@ export default function LoginPage() {
 
   return (
     <main className="relative flex min-h-[calc(100vh-65px)] items-center justify-center px-6 py-12">
-      <div className="relative w-full max-w-sm rounded-3xl border border-border bg-card p-7 shadow-elevated sm:p-8">
-      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary">
-        <Ticket className="h-5 w-5" strokeWidth={2.25} />
-      </span>
-      <h1 className="text-h1 font-display mt-4 tracking-tight">
+      <div className="relative w-full max-w-sm rounded-xl border border-border bg-card p-7 sm:p-8">
+      <h1 className="text-h1 font-display tracking-tight">
         ログイン
       </h1>
 
@@ -55,7 +52,6 @@ export default function LoginPage() {
         {callbackUrl && <input type="hidden" name="callbackUrl" value={callbackUrl} />}
         <label className="flex flex-col gap-1.5 text-body font-medium">
           <span className="flex items-center gap-1.5">
-            <Mail className="h-4 w-4 text-primary" />
             メールアドレス
           </span>
           <input
@@ -69,7 +65,6 @@ export default function LoginPage() {
         <label className="flex flex-col gap-1.5 text-body font-medium">
           <span className="flex items-center justify-between gap-1.5">
             <span className="flex items-center gap-1.5">
-              <Lock className="h-4 w-4 text-primary" />
               パスワード
             </span>
             <Link href="/forgot-password" className="text-caption font-medium text-muted underline underline-offset-2 hover:text-foreground">
@@ -94,7 +89,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={pending}
-          className="btn-glossy mt-2 rounded-full px-4 py-3 text-body font-bold text-primary-foreground transition hover:brightness-105 active:scale-[0.99] disabled:opacity-50"
+          className="btn-glossy mt-2 rounded-lg px-4 py-3 text-body font-bold text-primary-foreground transition hover:brightness-105 active:scale-[0.99] disabled:opacity-50"
         >
           {pending ? "ログイン中..." : "ログイン"}
         </button>
@@ -113,7 +108,7 @@ export default function LoginPage() {
               {callbackUrl && <input type="hidden" name="callbackUrl" value={callbackUrl} />}
               <button
                 type="submit"
-                className="w-full rounded-full bg-[#06C755] px-4 py-3 text-body font-semibold text-white shadow-card transition hover:opacity-90"
+                className="w-full rounded-lg bg-[#06C755] px-4 py-3 text-body font-semibold text-white shadow-card transition hover:opacity-90"
               >
                 LINEでログイン
               </button>
@@ -122,7 +117,7 @@ export default function LoginPage() {
               {callbackUrl && <input type="hidden" name="callbackUrl" value={callbackUrl} />}
               <button
                 type="submit"
-                className="w-full rounded-full border border-border bg-card px-4 py-3 text-body font-semibold text-foreground shadow-card transition hover:bg-background"
+                className="w-full rounded-lg border border-border bg-card px-4 py-3 text-body font-semibold text-foreground shadow-card transition hover:bg-background"
               >
                 Googleでログイン
               </button>

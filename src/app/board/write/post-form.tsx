@@ -23,7 +23,7 @@ export function PostForm() {
               key={c.value}
               type="button"
               onClick={() => setCategory(c.value)}
-              className={`rounded-full px-3 py-1.5 text-caption font-medium transition ${
+              className={`rounded-lg px-3 py-1.5 text-caption font-medium transition ${
                 category === c.value
                   ? "btn-glossy border-transparent text-primary-foreground"
                   : "border border-border bg-background text-muted hover:border-primary/40 hover:text-foreground"
@@ -65,7 +65,7 @@ export function PostForm() {
       <button
         type="submit"
         disabled={pending}
-        className="btn-glossy self-start rounded-full px-5 py-2.5 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
+        className="btn-glossy self-start rounded-lg px-5 py-2.5 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
       >
         {pending ? "投稿中..." : "投稿する"}
       </button>

@@ -17,7 +17,7 @@ export default function GlobalError({ reset }: { error: Error & { digest?: strin
       <button
         type="button"
         onClick={() => reset()}
-        className="mt-6 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-card transition hover:brightness-105"
+        className="mt-6 rounded-lg bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-card transition hover:brightness-105"
       >
         再読み込み
       </button>

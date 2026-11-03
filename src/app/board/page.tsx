@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MessagesSquare, ChevronRight, PenSquare } from "lucide-react";
+import { ChevronRight, PenSquare } from "lucide-react";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { BOARD_CATEGORIES, isBoardCategory } from "@/lib/board-categories";
@@ -35,15 +35,12 @@ export default async function BoardPage({
   const posts = (data ?? []) as unknown as PostRow[];
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
+    <main className="mx-auto max-w-4xl px-6 py-10">
       <div className="flex items-center justify-between">
-        <h1 className="flex items-center gap-2 text-h1 font-display tracking-tight">
-          <MessagesSquare className="h-6 w-6 text-primary" />
-          韓国旅行Q&A
-        </h1>
+        <h1 className="text-h1 font-display tracking-tight">韓国旅行Q&A</h1>
         <Link
           href={session?.user ? "/board/write" : "/login"}
-          className="btn-glossy flex items-center gap-1.5 rounded-full px-4 py-2 text-caption font-bold text-primary-foreground transition hover:brightness-105"
+          className="btn-glossy flex items-center gap-1.5 rounded-lg px-4 py-2 text-caption font-bold text-primary-foreground transition hover:brightness-105"
         >
           <PenSquare className="h-4 w-4" />
           投稿する
@@ -53,7 +50,7 @@ export default async function BoardPage({
       <div className="mt-5 flex flex-wrap gap-1.5">
         <Link
           href="/board"
-          className={`rounded-full px-3 py-1.5 text-caption font-medium transition ${
+          className={`rounded-lg px-3 py-1.5 text-caption font-medium transition ${
             !activeCategory
               ? "btn-glossy border-transparent text-primary-foreground"
               : "border border-border bg-card text-muted hover:border-primary/40 hover:text-foreground"
@@ -65,7 +62,7 @@ export default async function BoardPage({
           <Link
             key={c.value}
             href={`/board?category=${c.value}`}
-            className={`rounded-full px-3 py-1.5 text-caption font-medium transition ${
+            className={`rounded-lg px-3 py-1.5 text-caption font-medium transition ${
               activeCategory === c.value
                 ? "btn-glossy border-transparent text-primary-foreground"
                 : "border border-border bg-card text-muted hover:border-primary/40 hover:text-foreground"

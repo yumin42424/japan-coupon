@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function CreditsPage() {
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
+    <main className="mx-auto max-w-4xl px-6 py-10">
       <h1 className="text-h1 font-display tracking-tight">画像クレジット</h1>
       <p className="mt-3 text-body text-muted">
         当サイトのカテゴリ・エリアの代表画像には、Wikimedia Commons で公開されているクリエイティブ・コモンズ（CC）ライセンスの写真を使用しています。

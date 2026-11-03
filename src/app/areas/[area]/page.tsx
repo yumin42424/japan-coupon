@@ -113,7 +113,7 @@ export default async function AreaPage({
   });
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
+    <main className="mx-auto max-w-4xl px-6 py-10">
       <p className="flex items-center gap-1 text-caption text-muted">
         <MapPin className="h-3.5 w-3.5" />
         エリアから探す
@@ -122,7 +122,9 @@ export default async function AreaPage({
         {area.ja} 日本人におすすめ
       </h1>
       <p className="mt-2 text-body text-muted">
-        口コミ評価が高い順に表示しています。{entries.length}件の掲載店舗があります。
+        {entries.length > 0
+          ? `口コミ評価が高い順に表示しています。${entries.length}件の掲載店舗があります。`
+          : "このエリアの掲載店舗は準備中です。"}
       </p>
 
       <div className="mt-5 flex flex-wrap gap-2">
@@ -132,7 +134,7 @@ export default async function AreaPage({
             <Link
               key={c.value}
               href={`/coupons?category=${c.value}&area=${area.value}`}
-              className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-caption font-medium text-muted transition hover:border-primary/40 hover:text-foreground"
+              className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-caption font-medium text-muted transition hover:border-primary/40 hover:text-foreground"
             >
               <Icon className="h-3.5 w-3.5" strokeWidth={2.25} />
               {c.ja}

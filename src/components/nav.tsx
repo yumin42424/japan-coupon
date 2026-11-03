@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Home, Ticket, User, Shield, LogIn, Trophy, BookOpen, Megaphone, MessagesSquare, LocateFixed } from "lucide-react";
+import { Home, Ticket, User, Shield, LogIn, Trophy } from "lucide-react";
 import { auth } from "@/auth";
 import { getIsAdmin } from "@/lib/admin";
 import { ScrollHeader } from "@/components/scroll-header";
@@ -11,7 +11,7 @@ export async function Nav() {
   return (
     <>
       <ScrollHeader>
-        <div className="mx-auto flex max-w-6xl items-center gap-4">
+        <div className="mx-auto flex max-w-5xl items-center gap-4">
           <Link
             href="/"
             className="shrink-0 text-lg font-extrabold tracking-tight text-foreground transition hover:opacity-80"
@@ -23,44 +23,38 @@ export async function Nav() {
           <nav aria-label="メインメニュー" className="hidden flex-1 items-center justify-center gap-0.5 text-sm md:flex">
             <Link
               href="/coupons"
-              className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:px-3"
+              className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:px-3"
             >
-              <Ticket className="h-4 w-4" strokeWidth={2.25} />
               クーポン
             </Link>
             <Link
               href="/nearby"
-              className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground xl:flex xl:px-3"
+              className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground xl:flex xl:px-3"
             >
-              <LocateFixed className="h-4 w-4" strokeWidth={2.25} />
               現在地から
             </Link>
             <Link
               href="/ranking"
-              className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground xl:flex xl:px-3"
+              className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground xl:flex xl:px-3"
             >
-              <Trophy className="h-4 w-4" strokeWidth={2.25} />
               おすすめ
             </Link>
             <Link
               href="/guide"
-              className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground xl:flex xl:px-3"
+              className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground xl:flex xl:px-3"
             >
-              <BookOpen className="h-4 w-4" strokeWidth={2.25} />
               初めての方へ
             </Link>
             <Link
               href="/notices"
-              className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground xl:flex xl:px-3"
+              className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground xl:flex xl:px-3"
             >
-              <Megaphone className="h-4 w-4" strokeWidth={2.25} />
               お知らせ
             </Link>
             <Link
               href="/board"
-              className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:px-3"
+              className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:px-3"
             >
-              <MessagesSquare className="h-4 w-4" strokeWidth={2.25} />
               Q&amp;A
             </Link>
           </nav>
@@ -71,21 +65,20 @@ export async function Nav() {
               <>
                 <Link
                   href="/mypage"
-                  className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:px-3"
+                  className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:px-3"
                 >
-                  <User className="h-4 w-4" strokeWidth={2.25} />
                   マイページ
                 </Link>
                 {isAdmin && (
                   <Link
                     href="/admin"
-                    className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:px-3"
+                    className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:px-3"
                   >
                     <Shield className="h-4 w-4" strokeWidth={2.25} />
                     <span className="hidden lg:inline">管理者</span>
                   </Link>
                 )}
-                <span className="ml-1 hidden max-w-[9rem] truncate rounded-full bg-card px-3 py-1.5 text-xs font-medium text-muted lg:block">
+                <span className="ml-1 hidden max-w-[9rem] truncate rounded-lg bg-card px-3 py-1.5 text-xs font-medium text-muted lg:block">
                   {session.user.name}
                 </span>
               </>
@@ -93,13 +86,13 @@ export async function Nav() {
               <>
                 <Link
                   href="/login"
-                  className="shrink-0 whitespace-nowrap rounded-full px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:px-3"
+                  className="shrink-0 whitespace-nowrap rounded-lg px-2.5 py-1.5 font-medium text-foreground/70 transition hover:bg-card hover:text-foreground lg:px-3"
                 >
                   ログイン
                 </Link>
                 <Link
                   href="/signup"
-                  className="btn-glossy ml-1 shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 font-medium text-primary-foreground transition hover:brightness-105 lg:px-4"
+                  className="btn-glossy ml-1 shrink-0 whitespace-nowrap rounded-lg px-3.5 py-1.5 font-medium text-primary-foreground transition hover:brightness-105 lg:px-4"
                 >
                   無料会員登録
                 </Link>
@@ -116,7 +109,7 @@ export async function Nav() {
             ) : (
               <Link
                 href="/signup"
-                className="btn-glossy rounded-full px-3.5 py-1.5 text-xs font-bold text-primary-foreground"
+                className="btn-glossy rounded-lg px-3.5 py-1.5 text-xs font-bold text-primary-foreground"
               >
                 無料登録
               </Link>
@@ -160,7 +153,7 @@ function TabItem({
   return (
     <Link
       href={href}
-      className="flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2 py-1.5 text-[11px] font-medium text-foreground/60 transition active:bg-card"
+      className="flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2 py-1.5 text-xs font-medium text-foreground/60 transition active:bg-card"
     >
       <Icon className="h-5 w-5" strokeWidth={2.1} />
       {label}

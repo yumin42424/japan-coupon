@@ -57,7 +57,7 @@ async function notifyExpiringCoupons(targetDate: string, dryRun: boolean): Promi
     }
     const ok = await sendLinePush(lineUserId, [
       textMessage(
-        `⏰もうすぐ期限切れです\n\n${row.coupons.stores?.name ?? ""}\n${row.coupons.title}\n有効期限: ${REMINDER_DAYS}日後\n\n忘れずにご利用ください！\n${SITE_URL}/mypage`
+        `【まもなく期限切れ】\n\n${row.coupons.stores?.name ?? ""}\n${row.coupons.title}\n有効期限: ${REMINDER_DAYS}日後\n\n忘れずにご利用ください！\n${SITE_URL}/mypage`
       ),
     ]);
     if (ok) sent++;
@@ -85,7 +85,7 @@ async function notifyUpcomingTravel(targetDate: string, dryRun: boolean): Promis
     }
     const ok = await sendLinePush(u.line_user_id, [
       textMessage(
-        `✈️もうすぐ韓国旅行ですね！\n\n出発${REMINDER_DAYS}日前です。マイページでGET済みのクーポンを確認しておきましょう。\n${SITE_URL}/mypage`
+        `もうすぐ韓国旅行ですね。\n\n出発${REMINDER_DAYS}日前です。マイページでGET済みのクーポンを確認しておきましょう。\n${SITE_URL}/mypage`
       ),
     ]);
     if (ok) sent++;

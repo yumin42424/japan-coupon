@@ -30,7 +30,7 @@ export default async function VerifyEmailPage({
             <input type="hidden" name="token" value={token} />
             <button
               type="submit"
-              className="btn-glossy w-full rounded-full px-6 py-3 text-body font-bold text-primary-foreground transition hover:brightness-105"
+              className="btn-glossy w-full rounded-lg px-6 py-3 text-body font-bold text-primary-foreground transition hover:brightness-105"
             >
               確認する
             </button>
@@ -55,7 +55,7 @@ export default async function VerifyEmailPage({
       )}
       <Link
         href="/mypage"
-        className={`mt-6 rounded-full px-6 py-3 text-body font-bold transition ${
+        className={`mt-6 rounded-lg px-6 py-3 text-body font-bold transition ${
           needsConfirm
             ? "text-muted hover:text-foreground"
             : "btn-glossy text-primary-foreground hover:brightness-105"

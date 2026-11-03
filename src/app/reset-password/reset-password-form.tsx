@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { Lock, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { resetPassword, type ResetPasswordState } from "./actions";
 
 const initialState: ResetPasswordState = {};
@@ -11,7 +11,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
   return (
     <main className="relative flex min-h-[calc(100vh-65px)] items-center justify-center px-6 py-12">
-      <div className="relative w-full max-w-sm rounded-3xl border border-border bg-card p-7 shadow-elevated sm:p-8">
+      <div className="relative w-full max-w-sm rounded-xl border border-border bg-card p-7 sm:p-8">
         <h1 className="text-h1 font-display tracking-tight">
           新しいパスワード
         </h1>
@@ -27,7 +27,6 @@ export function ResetPasswordForm({ token }: { token: string }) {
           <input type="hidden" name="token" value={token} />
           <label className="flex flex-col gap-1.5 text-body font-medium">
             <span className="flex items-center gap-1.5">
-              <Lock className="h-4 w-4 text-primary" />
               新しいパスワード
             </span>
             <input
@@ -50,7 +49,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
           <button
             type="submit"
             disabled={pending || !token}
-            className="btn-glossy mt-2 rounded-full px-4 py-3 text-body font-bold text-primary-foreground transition hover:brightness-105 active:scale-[0.99] disabled:opacity-50"
+            className="btn-glossy mt-2 rounded-lg px-4 py-3 text-body font-bold text-primary-foreground transition hover:brightness-105 active:scale-[0.99] disabled:opacity-50"
           >
             {pending ? "更新中..." : "パスワードを更新"}
           </button>

@@ -148,7 +148,7 @@ function buildNearbyFlexMessage(items: Array<NearbyCouponRow & { distance: numbe
 }
 
 const GUIDE_TEXT =
-  "📍現在地を送っていただくと、近くのお得なクーポンをお届けします！\nチャット下の「+」→「位置情報」から送ってみてください。";
+  "現在地を送っていただくと、近くのお得なクーポンをお届けします！\nチャット下の「+」→「位置情報」から送ってみてください。";
 
 async function handleEvent(event: LineEvent) {
   if (event.type === "follow") {
@@ -168,7 +168,7 @@ async function handleEvent(event: LineEvent) {
       await replyMessage(event.replyToken, [
         {
           type: "text",
-          text: `この辺りにはまだクーポンがありません😢\nアプリでカテゴリ・エリアから探してみてください。\n${SITE_URL}/coupons`,
+          text: `この辺りにはまだクーポンがありません。\nアプリでカテゴリ・エリアから探してみてください。\n${SITE_URL}/coupons`,
         },
       ]);
       return;

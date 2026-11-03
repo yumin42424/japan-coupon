@@ -91,7 +91,7 @@ export default async function LandingPage({
         </p>
         <Link
           href={signupHref}
-          className="btn-glossy group mt-2 flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold text-primary-foreground transition hover:brightness-105"
+          className="btn-glossy group mt-2 flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-bold text-primary-foreground transition hover:brightness-105"
         >
           {hasCoupons ? "無料でクーポンをGET" : "無料会員登録はこちら"}
           <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
