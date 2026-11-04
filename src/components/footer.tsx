@@ -24,7 +24,7 @@ const LEGAL_LINKS = [
 export function Footer() {
   return (
     <footer className="mt-auto border-t border-border bg-background-alt px-6 py-10 md:pb-10">
-      <div className="mx-auto flex max-w-5xl flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
+      <div className="mx-auto flex max-w-6xl flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-h3 font-display tracking-tight">
             K-Coupon <span className="text-primary">Japan</span>
@@ -76,7 +76,7 @@ export function Footer() {
         </div>
       </div>
 
-      <p className="mx-auto mt-8 max-w-5xl text-caption text-muted">
+      <p className="mx-auto mt-8 max-w-6xl text-caption text-muted">
         © {new Date().getFullYear()} K-Coupon Japan
       </p>
     </footer>

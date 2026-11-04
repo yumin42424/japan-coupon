@@ -78,7 +78,11 @@ export function HeroImageCarousel({
         </>
       )}
 
-      <div className="absolute inset-x-0 bottom-0 flex justify-center p-1.5">
+      {/* いま表示している写真のエリア名（写真の説明として。下側だけ薄く暗くして文字を読みやすくする） */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/50 to-transparent" />
+      <p className="absolute bottom-3.5 left-4 text-body font-bold text-white">{images[index]?.label}</p>
+
+      <div className="absolute bottom-0 right-0 flex p-1.5">
         {images.map((image, i) => (
           <button
             key={image.src}

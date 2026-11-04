@@ -35,7 +35,10 @@
   --color-card: var(--card);
   --color-border: var(--border);
   --color-muted: var(--muted);
-  --color-primary: var(--primary);
+  /* Tailwind 의 primary 는 글자에 써도 대비가 충분한 진한 코랄로 맞춘다 — .text-primary 만 덮어쓰면
+     lg:text-primary · hover:text-primary 같은 변형 클래스는 여전히 옅은 코랄(약 3.1:1)이 된다.
+     밝은 브랜드 코랄(--primary)은 사진 위 장식처럼 글자가 아닌 곳에만 직접 쓴다. */
+  --color-primary: var(--primary-text);
   --color-primary-dark: var(--primary-dark);
   --color-primary-foreground: var(--primary-foreground);
   --color-success: var(--success);

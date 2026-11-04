@@ -1,8 +1,8 @@
 import { todayKST } from "@/lib/date";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, MapPin, Ticket } from "lucide-react";
-import { auth, signOut } from "@/auth";
+import { ArrowRight, MapPin, Search, Ticket } from "lucide-react";
+import { auth } from "@/auth";
 import { ComingSoonNotice } from "@/components/coming-soon-notice";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
@@ -14,6 +14,8 @@ import { HeroImageCarousel } from "@/components/hero-image-carousel";
 import { CategoryGrid } from "@/components/category-grid";
 
 const FEATURED_AREA_VALUES = ["myeongdong", "hongdae", "gangnam", "seongsu"] as const;
+// ヒーローの「人気エリア」ショートカット（ソウル中心＋釜山・済州）
+const HERO_AREA_VALUES = ["myeongdong", "hongdae", "gangnam", "seongsu", "dongdaemun", "busan", "jeju"] as const;
 
 const STEPS = [
   { title: "クーポンを探す", desc: "行きたいエリアやカテゴリから、気になるお店を探します。" },
@@ -119,7 +121,7 @@ export default async function Home() {
           />
         </div>
 
-        <div className="relative mx-auto max-w-5xl pb-12 pt-20 sm:py-16 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12 lg:py-24">
+        <div className="relative mx-auto max-w-6xl pb-12 pt-16 sm:py-14 lg:grid lg:grid-cols-2 lg:items-center lg:gap-14 lg:py-16">
           <div className="relative flex flex-col items-start gap-4 lg:gap-5">
             <p className="text-caption font-bold tracking-wide text-white/80 lg:text-primary">
               ソウル・釜山・済州の旅行に
@@ -145,49 +147,66 @@ export default async function Home() {
               </p>
             )}
 
-            {session?.user ? (
-              <div className="mt-2 flex w-full flex-col items-start gap-3">
-                <p className="text-body text-white lg:text-foreground">
-                  ようこそ、<strong className="font-bold">{session.user.name}</strong>さん
-                </p>
-                <Link
-                  href="/coupons"
-                  className="group flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3.5 text-body font-bold text-primary-foreground sm:w-auto"
-                >
-                  クーポンを探す
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-                </Link>
-                <form
-                  action={async () => {
-                    "use server";
-                    await signOut({ redirectTo: "/" });
-                  }}
-                >
-                  <button className="text-caption text-white/80 underline underline-offset-4 transition hover:text-muted lg:text-muted">
-                    ログアウト
-                  </button>
-                </form>
-              </div>
-            ) : (
-              <div className="mt-2 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-                <Link
-                  href="/coupons"
-                  className="group flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3.5 text-body font-bold text-primary-foreground"
-                >
-                  クーポンを探す
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-                </Link>
-                <Link
-                  href="/nearby"
-                  className="flex items-center justify-center gap-2 rounded-lg border border-white/50 px-6 py-3.5 text-body font-bold text-white transition-colors hover:bg-white/10 lg:border-border lg:bg-card lg:text-foreground lg:hover:bg-background"
-                >
-                  <MapPin className="h-4 w-4" aria-hidden="true" />
-                  現在地から探す
-                </Link>
-              </div>
-            )}
+            {/* ヒーローの主な動作は「探す」— クーポン検索(既存の /coupons?q= をそのまま使う) */}
+            <form
+              action="/coupons"
+              role="search"
+              className="mt-1 flex w-full max-w-lg overflow-hidden rounded-lg border border-white/20 bg-white lg:border-border"
+            >
+              <label htmlFor="hero-search" className="sr-only">
+                クーポンを検索
+              </label>
+              <Search className="ml-4 h-5 w-5 shrink-0 self-center text-muted" aria-hidden="true" />
+              <input
+                id="hero-search"
+                type="search"
+                name="q"
+                maxLength={50}
+                placeholder="店舗名・クーポン名で検索"
+                className="min-w-0 flex-1 bg-transparent px-3 py-3.5 text-body text-foreground outline-none placeholder:text-muted"
+              />
+              <button type="submit" className="btn-glossy shrink-0 px-5 text-body font-bold text-primary-foreground sm:px-6">
+                検索
+              </button>
+            </form>
 
-            <p className="text-caption text-white/75 lg:text-muted">会員登録・ご利用は無料です</p>
+            <div className="flex w-full max-w-lg flex-wrap items-center gap-x-1 gap-y-0.5">
+              <span className="mr-1.5 text-caption font-bold text-white/75 lg:text-muted">人気エリア</span>
+              {HERO_AREA_VALUES.map((value) => {
+                const area = AREAS.find((a) => a.value === value);
+                if (!area) return null;
+                return (
+                  <Link
+                    key={value}
+                    href={`/areas/${value}`}
+                    className="rounded-lg px-2 py-1.5 text-body font-medium text-white underline-offset-4 transition-colors hover:underline lg:text-foreground lg:hover:text-primary"
+                  >
+                    {area.ja}
+                  </Link>
+                );
+              })}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
+              <Link
+                href="/nearby"
+                className="group inline-flex items-center gap-1.5 py-1.5 text-body font-bold text-white lg:text-foreground"
+              >
+                <MapPin className="h-4 w-4" aria-hidden="true" />
+                <span className="underline-offset-4 group-hover:underline">現在地から探す</span>
+              </Link>
+              <Link
+                href="/coupons"
+                className="group inline-flex items-center gap-1 py-1.5 text-body font-bold text-white lg:text-primary"
+              >
+                <span className="underline-offset-4 group-hover:underline">カテゴリから探す</span>
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+              </Link>
+            </div>
+
+            {!session?.user && (
+              <p className="text-caption text-white/75 lg:text-muted">会員登録・ご利用は無料です</p>
+            )}
           </div>
 
           {/* デスクトップのみ: 人気エリアの写真が数枚順番に切り替わる + 実データで作った小さなクーポンプレビュー */}
@@ -226,7 +245,7 @@ export default async function Home() {
       {/* ---- 準備中のお知らせ (公開クーポンが0件のときだけ) ---- */}
       {totalPublicCoupons === 0 && (
         <section className="border-t border-border bg-background-alt px-6 py-10">
-          <div className="mx-auto max-w-5xl">
+          <div className="mx-auto max-w-6xl">
             <ComingSoonNotice loggedIn={!!session?.user} />
           </div>
         </section>
@@ -234,7 +253,7 @@ export default async function Home() {
 
       {/* ---- 人気エリアから探す ---- */}
       <section className="border-t border-border px-6 py-14">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-6xl">
           <SectionHeading
             title="人気エリアから探す"
             action={
@@ -282,7 +301,7 @@ export default async function Home() {
       {/* ---- 新着クーポン ---- */}
       {recommended.length > 0 && (
         <section className="border-t border-border bg-background-alt px-6 py-14">
-          <div className="mx-auto max-w-5xl">
+          <div className="mx-auto max-w-6xl">
             <SectionHeading title="新着クーポン" />
             <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               {recommended.map((coupon) => {
@@ -309,7 +328,7 @@ export default async function Home() {
 
       {/* ---- クーポンの使い方 ---- */}
       <section className="border-t border-border bg-background-alt px-6 py-14">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-6xl">
           <SectionHeading
             title="クーポンの使い方"
             action={
@@ -334,7 +353,7 @@ export default async function Home() {
 
       {/* ---- カテゴリから探す ---- */}
       <section className="border-t border-border px-6 py-14">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-6xl">
           <SectionHeading title="カテゴリから探す" />
           <div className="mt-6">
             <CategoryGrid />
@@ -373,7 +392,7 @@ export default async function Home() {
 
       {/* ---- FAQ ---- */}
       <section id="faq" className="border-t border-border px-6 py-14">
-        <div className="mx-auto max-w-5xl lg:grid lg:grid-cols-[1fr_2fr] lg:gap-12">
+        <div className="mx-auto max-w-6xl lg:grid lg:grid-cols-[1fr_2fr] lg:gap-12">
           <div>
             <SectionHeading title="よくある質問" />
             <p className="mt-2 text-body text-muted">

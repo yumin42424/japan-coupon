@@ -2,7 +2,7 @@ import { todayKST, addDaysKST } from "@/lib/date";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Heart, Ticket, CheckCircle2, ChevronRight, Pencil, Sparkles, Settings, Coins, MailWarning, TicketCheck, Clock } from "lucide-react";
-import { auth } from "@/auth";
+import { auth, signOut } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS, type CategoryValue } from "@/lib/taxonomy";
 import { CATEGORY_ICONS } from "@/lib/taxonomy-icons";
@@ -233,6 +233,19 @@ export default async function MyPage({
               <Pencil className="h-3.5 w-3.5" />
               編集
             </Link>
+            <form
+              action={async () => {
+                "use server";
+                await signOut({ redirectTo: "/" });
+              }}
+            >
+              <button
+                type="submit"
+                className="rounded-lg px-2.5 py-1.5 text-caption font-medium text-muted underline-offset-4 transition-colors hover:text-foreground hover:underline"
+              >
+                ログアウト
+              </button>
+            </form>
           </div>
         </div>
 

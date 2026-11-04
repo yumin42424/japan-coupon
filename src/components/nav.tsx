@@ -17,7 +17,7 @@ export async function Nav() {
   return (
     <>
       <ScrollHeader>
-        <div className="mx-auto flex max-w-5xl items-center gap-4">
+        <div className="mx-auto flex max-w-6xl items-center gap-4">
           <Link
             href="/"
             className="shrink-0 py-1.5 text-lg font-extrabold tracking-tight text-foreground transition hover:opacity-80"
