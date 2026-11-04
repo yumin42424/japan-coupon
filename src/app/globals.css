@@ -1,13 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fcfaf9;
-  --background-alt: #f6ece7;
-  --foreground: #1c1416;
+  /* 바탕은 분홍기 없는 따뜻한 중립색으로 두고, 브랜드 코랄은 버튼·링크·선택 상태 같은 "강조"에만 쓴다.
+     (이전에는 배경 띠·테두리·보조 글자까지 분홍빛이 섞여 화면 전체가 핑크 톤으로 보였다) */
+  --background: #fbfaf8;
+  --background-alt: #f3f1ee;
+  --foreground: #1c1917;
   --card: #ffffff;
-  --border: #ece1de;
-  /* 보조 글자색 — 배경(#fcfaf9~#f6ece7) 위에서 WCAG AA 4.5:1 이상이 되도록 이전(#8a7672, 약 3.9~4.3:1)보다 진하게 */
-  --muted: #6f5d59;
+  --border: #e5e2dd;
+  /* 보조 글자색 — 바탕(#fbfaf8)·띠(#f3f1ee)·카드 위에서 6:1 이상 */
+  --muted: #5f5a55;
   --primary: #ec5f71;
   --primary-dark: #ce4155;
   /* 주요 버튼에 마우스를 올렸을 때 — 한 단계 진한 같은 계열 (흰 글자 대비가 더 올라간다) */
