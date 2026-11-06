@@ -38,7 +38,7 @@ export default async function CreditsPage() {
               <dt className="text-muted">{t("タイトル")}</dt>
               <dd className="break-words">{c.title}</dd>
               <dt className="text-muted">{t("撮影者")}</dt>
-              <dd className="break-words">{c.author}</dd>
+              <dd className="break-words">{t(c.author)}</dd>
               <dt className="text-muted">{t("ライセンス")}</dt>
               <dd>
                 <a

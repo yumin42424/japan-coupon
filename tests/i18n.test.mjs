@@ -119,6 +119,22 @@ test("i18n: every Japanese string on a visitor-facing screen has a translation",
   assert.deepEqual([...missing], []);
 });
 
+test("i18n: no Japanese is written directly into JSX on a visitor-facing screen", () => {
+  const direct = [];
+  for (const full of sourceFiles("src")) {
+    const file = full.replace(/\\/g, "/");
+    if (!file.endsWith("x") || !isTranslatedSurface(file)) continue;
+    const source = ts.createSourceFile(full, readFileSync(full, "utf-8"), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const visit = (node) => {
+      if (ts.isJsxText(node) && JAPANESE.test(node.text)) direct.push(`${file}: ${node.text.trim()}`);
+      if (ts.isStringLiteral(node) && ts.isJsxAttribute(node.parent) && JAPANESE.test(node.text)) direct.push(`${file}: ${node.text}`);
+      ts.forEachChild(node, visit);
+    };
+    visit(source);
+  }
+  assert.deepEqual(direct, []);
+});
+
 test("i18n: image credit labels can be translated", () => {
   const table = messagesFor("en");
   const usages = [...readFileSync("src/lib/image-credits.ts", "utf-8").matchAll(/"usage": "(.+)（(.+)）"/g)];
@@ -127,4 +143,6 @@ test("i18n: image credit labels can be translated", () => {
     assert.ok(label in table, label);
     assert.ok(note in table, note);
   }
+  const authors = [...readFileSync("src/lib/image-credits.ts", "utf-8").matchAll(/"author": "(.+)"/g)].map((match) => match[1]);
+  for (const author of authors.filter((name) => JAPANESE.test(name))) assert.ok(author in table, author);
 });

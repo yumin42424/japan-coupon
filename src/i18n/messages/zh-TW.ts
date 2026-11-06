@@ -453,6 +453,7 @@ const zhTW: Messages = {
   "エリア画像": "地區圖片",
   "エリア画像・トップページ背景・SNS共有画像": "地區圖片、首頁背景、社群分享圖片",
   "{label}（{note}）": "{label}（{note}）",
+  "Wikimedia Commons 投稿者（ファイルページに記載）": "Wikimedia Commons 貢獻者（見檔案頁面）",
 };
 
 export default zhTW;

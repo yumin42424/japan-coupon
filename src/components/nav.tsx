@@ -144,12 +144,12 @@ function TabItem({
   return (
     <NavLink
       href={href}
-      className="flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2 py-1.5 text-xs font-medium transition active:bg-card"
+      className="flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-xl px-0.5 py-1.5 text-xs font-medium transition active:bg-card"
       activeClassName="text-primary"
       inactiveClassName="text-foreground/60"
     >
       <Icon className="h-5 w-5" strokeWidth={2.1} />
-      {label}
+      <span className="tab-label max-w-full truncate">{label}</span>
     </NavLink>
   );
 }

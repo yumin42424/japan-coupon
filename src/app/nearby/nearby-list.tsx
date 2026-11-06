@@ -81,7 +81,7 @@ export function NearbyList({ coupons }: { coupons: NearbyCoupon[] }) {
         <div className="rounded-2xl border border-dashed border-border px-4 py-6 text-center">
           <AlertCircle className="mx-auto h-6 w-6 text-muted" />
           <p className="mt-2 text-body text-muted">
-            {t("現在地が韓国から離れているようです（最も近いお店まで約{km}km）。韓国に到着したら、もう一度お試しください。", { km: Math.round(withDistance[0].distance).toLocaleString() })}
+            {t("現在地が韓国から離れているようです（最も近いお店まで約{km}km）。韓国に到着したら、もう一度お試しください。", { km: Math.round(withDistance[0].distance).toLocaleString("en-US") })}
           </p>
         </div>
       ) : (

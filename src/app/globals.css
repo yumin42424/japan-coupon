@@ -21,8 +21,9 @@
 
   /* 本文フォント — Webフォントを配信せず、端末標準の日本語UIフォントを使う（iOS: ヒラギノ角ゴ / Android: Noto Sans CJK JP /
      Windows: 游ゴシックUI・メイリオ）。日本語Webフォントは数MBになるため、モバイル回線でも即表示できるようにしている。 */
-  --font-body: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Noto Sans CJK JP", "Yu Gothic UI", "Yu Gothic",
+  --font-body-ja: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Noto Sans CJK JP", "Yu Gothic UI", "Yu Gothic",
     Meiryo, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: var(--font-body-ja);
 
   /* 모바일 하단 탭바의 실제 높이 — 안전영역(홈 인디케이터 등)을 포함해서 계산한다.
      body의 하단 padding과 쿠폰상세 sticky CTA의 위치가 이 값 하나를 같이 참조해야
@@ -80,9 +81,18 @@ p, li, dd {
   line-break: strict;
   text-wrap: pretty;
 }
-/* 한국어는 단어 중간에서 끊지 않는다 */
-:lang(ko) {
+/* 한국어는 단어 중간에서 끊지 않는다. 다만 매장·게시글처럼 일본어로 저장된 문장은 띄어쓰기가 없어
+   keep-all 만 쓰면 화면 밖으로 밀리므로, 넘칠 때는 끊는다. 뿌리에만 지정해서 break-all 같은 유틸리티가 이기게 한다. */
+:root:lang(ko) {
   word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+/* 다른 언어 화면 안의 일본어 문서(약관 등)는 일본어 규칙과 일본어 글꼴로 그린다 */
+[lang="ja"] {
+  --font-body: var(--font-body-ja);
+  font-family: var(--font-body-ja);
+  word-break: normal;
+  overflow-wrap: normal;
 }
 
 /* 언어별 글꼴 — 일본어 글꼴로 한자를 그리면 중국어에서 글자 모양이 달라지고, 한글·태국어·키릴 문자는 아예 없다.
@@ -223,4 +233,10 @@ h1, h2, h3, h4, .font-display {
       font-size: 1.875rem;
     }
   }
+}
+
+/* 하단 탭바: 일본어 외 언어는 글자가 길어 한 단계 작게. 그래도 넘치면 말줄임으로 탭 칸을 벗어나지 않는다 */
+:root:not(:lang(ja)) .tab-label {
+  font-size: 0.6875rem;
+  letter-spacing: -0.01em;
 }

@@ -139,7 +139,7 @@ export function PointUsePanel({
             <div className="min-w-0">
               <p className="text-body font-bold">{o.label}</p>
               <p className="text-caption text-muted">{o.description}</p>
-              <p className="mt-1 text-caption font-bold text-primary">{o.cost.toLocaleString()}pt</p>
+              <p className="mt-1 text-caption font-bold text-primary">{o.cost.toLocaleString("en-US")}pt</p>
             </div>
             <button
               type="button"
@@ -175,13 +175,13 @@ export function PointUsePanel({
                   {typeof result?.used === "number" && (
                     <div className="flex justify-between py-1">
                       <dt className="text-muted">{t("利用ポイント")}</dt>
-                      <dd className="font-bold">{result.used.toLocaleString()}pt</dd>
+                      <dd className="font-bold">{result.used.toLocaleString("en-US")}pt</dd>
                     </div>
                   )}
                   {typeof result?.balance === "number" && (
                     <div className="flex justify-between py-1">
                       <dt className="text-muted">{t("現在の残高")}</dt>
-                      <dd className="font-bold">{result.balance.toLocaleString()}pt</dd>
+                      <dd className="font-bold">{result.balance.toLocaleString("en-US")}pt</dd>
                     </div>
                   )}
                 </dl>
@@ -202,15 +202,15 @@ export function PointUsePanel({
                   </div>
                   <div className="flex justify-between gap-3 px-3 py-2">
                     <dt className="text-muted">{t("使用ポイント")}</dt>
-                    <dd className="font-bold text-primary">{selected.cost.toLocaleString()}pt</dd>
+                    <dd className="font-bold text-primary">{selected.cost.toLocaleString("en-US")}pt</dd>
                   </div>
                   <div className="flex justify-between gap-3 px-3 py-2">
                     <dt className="text-muted">{t("現在の保有ポイント")}</dt>
-                    <dd>{balance.toLocaleString()}pt</dd>
+                    <dd>{balance.toLocaleString("en-US")}pt</dd>
                   </div>
                   <div className="flex justify-between gap-3 px-3 py-2">
                     <dt className="text-muted">{t("利用後の残高")}</dt>
-                    <dd className="font-bold">{insufficient ? "—" : `${(balance - selected.cost).toLocaleString()}pt`}</dd>
+                    <dd className="font-bold">{insufficient ? "—" : `${(balance - selected.cost).toLocaleString("en-US")}pt`}</dd>
                   </div>
                 </dl>
 

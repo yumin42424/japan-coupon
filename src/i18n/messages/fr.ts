@@ -50,7 +50,7 @@ const fr: Messages = {
   "あと{daysLeft}日": "Encore {daysLeft} jours",
   "あとで設定する": "Configurer plus tard",
   "あなたへのおすすめ": "Recommandé pour vous",
-  "おすすめ": "Recommandés",
+  "おすすめ": "Sélection",
   "おすすめクーポン": "Coupons recommandés",
   "おすすめランキング": "Classement des recommandés",
   "お一人様1回までご利用いただけます。": "Limité à une utilisation par personne.",
@@ -216,7 +216,7 @@ const fr: Messages = {
   "リンクが無効です。もう一度パスワード再設定をお試しください。": "Ce lien n'est pas valide. Demandez à nouveau la réinitialisation du mot de passe.",
   "リンクの有効期限が切れているか、すでに使用されています。": "Ce lien a expiré ou a déjà été utilisé.",
   "ログアウト": "Se déconnecter",
-  "ログイン": "Se connecter",
+  "ログイン": "Connexion",
   "ログインが必要です。": "Veuillez vous connecter.",
   "ログインする": "Se connecter",
   "ログインできませんでした。初めてご利用の方は": "Connexion impossible. Première visite ?",
@@ -308,8 +308,8 @@ const fr: Messages = {
   "店舗スタッフ用：クーポンの使用処理": "Pour le personnel : traiter les coupons",
   "店舗・クーポンの情報や投稿は、日本語で表示される場合があります。": "Les informations sur les boutiques et coupons ainsi que les publications peuvent s'afficher en japonais.",
   "店舗・サービスによって異なります。「予約必須」と表示されているクーポンについては、事前にご予約ください。": "Cela dépend de la boutique ou du service. Pour les coupons marqués « réservation obligatoire », réservez à l'avance.",
-  "店舗名やクーポン名で検索": "Rechercher par boutique ou coupon",
-  "店舗名・クーポン名で検索": "Rechercher par boutique ou coupon",
+  "店舗名やクーポン名で検索": "Boutique ou coupon",
+  "店舗名・クーポン名で検索": "Boutique ou coupon",
   "店舗情報・クーポン内容を日本語で掲載します。": "Nous publions les informations de votre boutique et vos coupons en japonais.",
   "弘大": "Hongdae",
   "当サイトのカテゴリ・エリアの代表画像には、Wikimedia Commons で公開されているクリエイティブ・コモンズ（CC）ライセンスの写真を使用しています。掲載にあたり、表示サイズに合わせてリサイズ・トリミングしています。": "Les images représentatives des catégories et quartiers de ce site sont des photos sous licence Creative Commons (CC) publiées sur Wikimedia Commons. Elles ont été redimensionnées et recadrées.",
@@ -453,6 +453,7 @@ const fr: Messages = {
   "エリア画像": "Image de quartier",
   "エリア画像・トップページ背景・SNS共有画像": "Image de quartier, fond de l'accueil, image de partage social",
   "{label}（{note}）": "{label} ({note})",
+  "Wikimedia Commons 投稿者（ファイルページに記載）": "Contributeur de Wikimedia Commons (voir la page du fichier)",
 };
 
 export default fr;

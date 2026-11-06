@@ -42,7 +42,8 @@ export function LanguageSwitcher() {
   };
 
   return (
-    <div ref={rootRef} className="relative shrink-0">
+    // 모바일에서는 버튼 위치가 언어마다 달라지므로 패널을 헤더 오른쪽 끝에 붙인다(그래야 화면 밖으로 나가지 않는다)
+    <div ref={rootRef} className="shrink-0 md:relative">
       <button
         ref={buttonRef}
         type="button"
@@ -59,8 +60,8 @@ export function LanguageSwitcher() {
       </button>
 
       {open && (
-        <div className="absolute right-0 z-30 mt-1 w-56 overflow-hidden rounded-lg border border-border bg-card shadow-elevated">
-          <ul className="max-h-[70vh] overflow-y-auto py-1">
+        <div className="absolute right-4 top-full z-30 mt-1 w-56 overflow-hidden rounded-lg border border-border bg-card shadow-elevated sm:right-6 md:right-0 md:top-auto">
+          <ul className="max-h-[calc(100dvh-13rem)] overflow-y-auto py-1">
             {LOCALES.map((code) => {
               const active = code === locale;
               return (

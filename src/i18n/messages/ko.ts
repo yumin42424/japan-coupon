@@ -453,6 +453,7 @@ const ko: Messages = {
   "エリア画像": "지역 이미지",
   "エリア画像・トップページ背景・SNS共有画像": "지역 이미지·홈 배경·SNS 공유 이미지",
   "{label}（{note}）": "{label} ({note})",
+  "Wikimedia Commons 投稿者（ファイルページに記載）": "Wikimedia Commons 기여자(파일 페이지에 기재)",
 };
 
 export default ko;

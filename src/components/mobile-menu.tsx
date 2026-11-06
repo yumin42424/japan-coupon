@@ -136,12 +136,12 @@ export function MobileMenu({ variant }: { variant: "tab" | "header" }) {
         data-menu-button={variant}
         className={
           variant === "tab"
-            ? "flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2 py-1.5 text-xs font-medium text-foreground/60 transition active:bg-card"
+            ? "flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-xl px-0.5 py-1.5 text-xs font-medium text-foreground/60 transition active:bg-card"
             : "flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-2 font-medium text-foreground/70 transition-colors hover:bg-card hover:text-foreground"
         }
       >
         <Menu className={variant === "tab" ? "h-5 w-5" : "h-4 w-4"} strokeWidth={2.1} aria-hidden="true" />
-        {t("メニュー")}
+        {variant === "tab" ? <span className="tab-label max-w-full truncate">{t("メニュー")}</span> : t("メニュー")}
       </button>
       {isClient && createPortal(panel, document.body)}
     </>

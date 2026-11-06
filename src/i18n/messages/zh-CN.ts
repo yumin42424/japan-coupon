@@ -453,6 +453,7 @@ const zhCN: Messages = {
   "エリア画像": "地区图片",
   "エリア画像・トップページ背景・SNS共有画像": "地区图片、首页背景、社交分享图片",
   "{label}（{note}）": "{label}（{note}）",
+  "Wikimedia Commons 投稿者（ファイルページに記載）": "Wikimedia Commons 贡献者（见文件页面）",
 };
 
 export default zhCN;

@@ -50,7 +50,7 @@ const es: Messages = {
   "あと{daysLeft}日": "Quedan {daysLeft} días",
   "あとで設定する": "Configurar más tarde",
   "あなたへのおすすめ": "Recomendado para ti",
-  "おすすめ": "Recomendados",
+  "おすすめ": "Selección",
   "おすすめクーポン": "Cupones recomendados",
   "おすすめランキング": "Ranking de recomendados",
   "お一人様1回までご利用いただけます。": "Limitado a un uso por persona.",
@@ -216,7 +216,7 @@ const es: Messages = {
   "リンクが無効です。もう一度パスワード再設定をお試しください。": "El enlace no es válido. Solicita de nuevo restablecer la contraseña.",
   "リンクの有効期限が切れているか、すでに使用されています。": "El enlace ha caducado o ya se ha usado.",
   "ログアウト": "Cerrar sesión",
-  "ログイン": "Iniciar sesión",
+  "ログイン": "Entrar",
   "ログインが必要です。": "Debes iniciar sesión.",
   "ログインする": "Iniciar sesión",
   "ログインできませんでした。初めてご利用の方は": "No se pudo iniciar sesión. ¿Es tu primera vez?",
@@ -308,8 +308,8 @@ const es: Messages = {
   "店舗スタッフ用：クーポンの使用処理": "Para el personal de tienda: procesar cupones",
   "店舗・クーポンの情報や投稿は、日本語で表示される場合があります。": "La información de tiendas y cupones y las publicaciones pueden aparecer en japonés.",
   "店舗・サービスによって異なります。「予約必須」と表示されているクーポンについては、事前にご予約ください。": "Depende de la tienda o del servicio. Para los cupones marcados como «reserva obligatoria», reserva con antelación.",
-  "店舗名やクーポン名で検索": "Buscar por tienda o cupón",
-  "店舗名・クーポン名で検索": "Buscar por tienda o cupón",
+  "店舗名やクーポン名で検索": "Tienda o cupón",
+  "店舗名・クーポン名で検索": "Tienda o cupón",
   "店舗情報・クーポン内容を日本語で掲載します。": "Publicamos la información de tu tienda y los cupones en japonés.",
   "弘大": "Hongdae",
   "当サイトのカテゴリ・エリアの代表画像には、Wikimedia Commons で公開されているクリエイティブ・コモンズ（CC）ライセンスの写真を使用しています。掲載にあたり、表示サイズに合わせてリサイズ・トリミングしています。": "Las imágenes representativas de categorías y zonas de este sitio son fotos con licencia Creative Commons (CC) publicadas en Wikimedia Commons. Se han redimensionado y recortado para ajustarlas.",
@@ -453,6 +453,7 @@ const es: Messages = {
   "エリア画像": "Imagen de zona",
   "エリア画像・トップページ背景・SNS共有画像": "Imagen de zona, fondo del inicio, imagen para redes sociales",
   "{label}（{note}）": "{label} ({note})",
+  "Wikimedia Commons 投稿者（ファイルページに記載）": "Colaborador de Wikimedia Commons (ver la página del archivo)",
 };
 
 export default es;

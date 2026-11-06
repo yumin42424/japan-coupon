@@ -50,7 +50,7 @@ const en: Messages = {
   "あと{daysLeft}日": "{daysLeft} days left",
   "あとで設定する": "Set up later",
   "あなたへのおすすめ": "Recommended for you",
-  "おすすめ": "Recommended",
+  "おすすめ": "Top picks",
   "おすすめクーポン": "Recommended coupons",
   "おすすめランキング": "Recommended ranking",
   "お一人様1回までご利用いただけます。": "Limited to one use per person.",
@@ -453,6 +453,7 @@ const en: Messages = {
   "エリア画像": "Area image",
   "エリア画像・トップページ背景・SNS共有画像": "Area image, home background, social sharing image",
   "{label}（{note}）": "{label} ({note})",
+  "Wikimedia Commons 投稿者（ファイルページに記載）": "Wikimedia Commons contributor (see the file page)",
 };
 
 export default en;
