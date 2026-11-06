@@ -60,8 +60,9 @@ export function LanguageSwitcher() {
       </button>
 
       {open && (
-        <div className="absolute right-4 top-full z-30 mt-1 w-56 overflow-hidden rounded-lg border border-border bg-card shadow-elevated sm:right-6 md:right-0 md:top-auto">
-          <ul className="max-h-[calc(100dvh-13rem)] overflow-y-auto py-1">
+        // 높이는 헤더와 하단 탭바를 뺀 만큼까지. 안내문이 길어도 목록만 스크롤되고 패널은 탭바에 가리지 않는다.
+        <div className="absolute right-4 top-full z-30 mt-1 flex max-h-[calc(100dvh-8.5rem)] w-56 flex-col overflow-hidden rounded-lg border border-border bg-card shadow-elevated sm:right-6 md:right-0 md:top-auto">
+          <ul className="min-h-0 flex-1 overflow-y-auto py-1">
             {LOCALES.map((code) => {
               const active = code === locale;
               return (
@@ -82,10 +83,10 @@ export function LanguageSwitcher() {
               );
             })}
           </ul>
-          {/* 매장·쿠폰 정보는 DB에 일본어로 저장돼 있어 번역되지 않는다 — 그 사실을 미리 알린다 */}
+          {/* 매장·쿠폰 정보는 자동 번역이고, 번역이 저장되기 전에는 일본어로 보인다 — 그 사실을 미리 알린다 */}
           {locale !== DEFAULT_LOCALE && (
-            <p className="border-t border-border bg-background px-3.5 py-2.5 text-caption text-muted">
-              {t("店舗・クーポンの情報や投稿は、日本語で表示される場合があります。")}
+            <p className="shrink-0 border-t border-border bg-background px-3.5 py-2.5 text-caption text-muted">
+              {t("店舗・クーポンの情報や投稿は自動翻訳です。翻訳が届くまで日本語で表示される場合があります。")}
             </p>
           )}
         </div>

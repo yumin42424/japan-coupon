@@ -9,6 +9,8 @@ import { CATEGORY_ICONS } from "@/lib/taxonomy-icons";
 import { CouponCard } from "@/components/coupon-card";
 import { EmptyState } from "@/components/empty-state";
 import { getT } from "@/i18n/server";
+import { translateRows } from "@/i18n/content";
+import { COUPON_TEXT } from "@/i18n/content-fields";
 
 type CouponRow = {
   id: string;
@@ -67,7 +69,7 @@ export default async function AreaPage({
     .gte("valid_to", todayKST())
     .order("created_at", { ascending: false });
 
-  const coupons = (couponRows ?? []) as unknown as CouponRow[];
+  const coupons = await translateRows((couponRows ?? []) as unknown as CouponRow[], COUPON_TEXT);
 
   // 매장당 대표 쿠폰 하나만 남긴다 (가장 최근 등록된 것) — 지역 페이지는 매장 단위로 보여준다.
   const storeMap = new Map<

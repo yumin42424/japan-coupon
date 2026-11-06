@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { BOARD_CATEGORIES, isBoardCategory } from "@/lib/board-categories";
 import { getT } from "@/i18n/server";
+import { translateRows } from "@/i18n/content";
 
 type PostRow = {
   id: string;
@@ -34,7 +35,7 @@ export default async function BoardPage({
   }
 
   const { data } = await query;
-  const posts = (data ?? []) as unknown as PostRow[];
+  const posts = await translateRows((data ?? []) as unknown as PostRow[], ["title"]);
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">

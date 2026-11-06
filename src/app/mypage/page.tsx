@@ -11,6 +11,8 @@ import { resendVerificationEmail } from "./verify-actions";
 import { POINT_UI_VISIBLE } from "@/lib/point-policy";
 import { getStaffStoreIds } from "@/lib/staff";
 import { getT } from "@/i18n/server";
+import { translateRows } from "@/i18n/content";
+import { COUPON_EVENT_TEXT, COUPON_TEXT } from "@/i18n/content-fields";
 
 type CouponEventItem = {
   id?: string;
@@ -92,9 +94,9 @@ export default async function MyPage({
   const myAreas = ((areasRes.data ?? []) as { area: string }[]).map((row) =>
     AREAS.find((a) => a.value === row.area)
   );
-  const favorited = (favoritedRes.data ?? []) as unknown as CouponEventItem[];
-  const issued = (issuedRes.data ?? []) as unknown as CouponEventItem[];
-  const used = (usedRes.data ?? []) as unknown as CouponEventItem[];
+  const favorited = await translateRows((favoritedRes.data ?? []) as unknown as CouponEventItem[], COUPON_EVENT_TEXT);
+  const issued = await translateRows((issuedRes.data ?? []) as unknown as CouponEventItem[], COUPON_EVENT_TEXT);
+  const used = await translateRows((usedRes.data ?? []) as unknown as CouponEventItem[], COUPON_EVENT_TEXT);
   // 재사용 가능한 쿠폰은 (쿠폰, reissue_key) 조합이 "한 번의 GET~사용 사이클"이라서,
   // coupon_id만으로 묶으면 예전 사이클의 사용 기록이 새로 GET한 걸 덮어써버린다.
   const usedCycleKeys = new Set<string>(
@@ -115,7 +117,7 @@ export default async function MyPage({
     usage_condition: string | null;
     stores: { id: string; name: string; category: string; area: string } | null;
   };
-  const allCoupons = (allCouponsRes.data ?? []) as unknown as RecommendedCoupon[];
+  const allCoupons = await translateRows((allCouponsRes.data ?? []) as unknown as RecommendedCoupon[], COUPON_TEXT);
   const recommended = allCoupons
     .filter(
       (c) =>

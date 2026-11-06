@@ -10,6 +10,7 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import { getIsAdmin } from "@/lib/admin";
 import { computeReissueKey } from "@/lib/reissue";
 import { decideIssuePath } from "@/lib/issue-policy";
+import { forgetTranslations } from "@/i18n/content";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -272,6 +273,13 @@ export async function submitReview(
     payload.photo_url = publicUrlData.publicUrl;
   }
 
+  const { data: previousReview } = await supabaseAdmin
+    .from("reviews")
+    .select("body")
+    .eq("store_id", storeId)
+    .eq("user_id", session.user.id)
+    .maybeSingle();
+
   const { error } = await supabaseAdmin
     .from("reviews")
     .upsert(payload, { onConflict: "store_id,user_id" });
@@ -279,6 +287,7 @@ export async function submitReview(
   if (error) {
     return { error: "口コミの投稿に失敗しました。しばらくしてからもう一度お試しください。" };
   }
+  if (previousReview?.body && previousReview.body !== body) await forgetTranslations([previousReview.body]);
 
   revalidatePath(`/coupons/${couponId}`);
   return {};
@@ -292,7 +301,7 @@ export async function deleteReview(reviewId: string, couponId: string) {
 
   const { data: review } = await supabaseAdmin
     .from("reviews")
-    .select("user_id")
+    .select("user_id, body")
     .eq("id", reviewId)
     .maybeSingle();
 
@@ -302,5 +311,6 @@ export async function deleteReview(reviewId: string, couponId: string) {
   }
 
   await supabaseAdmin.from("reviews").delete().eq("id", reviewId);
+  await forgetTranslations([review.body]);
   revalidatePath(`/coupons/${couponId}`);
 }

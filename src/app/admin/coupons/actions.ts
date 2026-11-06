@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { requireAdmin } from "@/lib/admin";
+import { pretranslate } from "@/i18n/content";
 
 export type CouponFormState = { error?: string };
 
@@ -126,6 +127,7 @@ export async function createCoupon(
     return { error: "登録に失敗しました。" };
   }
 
+  pretranslate([v.title, v.discountInfo, v.usageCondition]);
   revalidatePath("/admin/coupons");
   revalidatePath("/coupons");
   return {};
@@ -164,6 +166,7 @@ export async function updateCoupon(
     return { error: "更新に失敗しました。" };
   }
 
+  pretranslate([v.title, v.discountInfo, v.usageCondition]);
   revalidatePath("/admin/coupons");
   revalidatePath("/coupons");
   redirect("/admin/coupons");

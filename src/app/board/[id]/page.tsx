@@ -7,6 +7,9 @@ import { getIsAdmin } from "@/lib/admin";
 import { BOARD_CATEGORIES } from "@/lib/board-categories";
 import { deletePost } from "../actions";
 import { getT } from "@/i18n/server";
+import { translateRow } from "@/i18n/content";
+import { POST_TEXT } from "@/i18n/content-fields";
+import { AutoTranslatedNote } from "@/components/auto-translated-note";
 
 export default async function PostDetailPage({
   params,
@@ -24,7 +27,7 @@ export default async function PostDetailPage({
     .maybeSingle();
 
   if (!data) notFound();
-  const post = data as unknown as {
+  const storedPost = data as unknown as {
     id: string;
     title: string;
     body: string;
@@ -33,6 +36,7 @@ export default async function PostDetailPage({
     user_id: string;
     users: { nickname: string } | null;
   };
+  const post = await translateRow(storedPost, POST_TEXT);
 
   const category = BOARD_CATEGORIES.find((c) => c.value === post.category);
   const canDelete = session?.user?.id === post.user_id || (await getIsAdmin());
@@ -72,6 +76,7 @@ export default async function PostDetailPage({
       <div className="mt-6 whitespace-pre-wrap rounded-2xl border border-border bg-card p-5 text-body leading-relaxed shadow-card">
         {post.body}
       </div>
+      <AutoTranslatedNote />
     </main>
   );
 }

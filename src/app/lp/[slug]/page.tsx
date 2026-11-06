@@ -6,6 +6,8 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
 import { getT } from "@/i18n/server";
+import { translateRows } from "@/i18n/content";
+import { COUPON_TEXT } from "@/i18n/content-fields";
 
 // 광고 캠페인용 페이지라서 검색 결과에 따로 노출되지 않게 한다 (사이트맵에도 넣지 않는다).
 export const metadata = { robots: { index: false, follow: true } };
@@ -56,7 +58,7 @@ export default async function LandingPage({
   if (landing.target_area) couponQuery = couponQuery.eq("stores.area", landing.target_area);
 
   const { data } = await couponQuery;
-  const coupons = (data ?? []) as unknown as CouponListItem[];
+  const coupons = await translateRows((data ?? []) as unknown as CouponListItem[], COUPON_TEXT);
 
   const category = CATEGORIES.find((c) => c.value === landing.target_category);
   const area = AREAS.find((a) => a.value === landing.target_area);

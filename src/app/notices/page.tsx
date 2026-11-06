@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { getT } from "@/i18n/server";
+import { translateRows } from "@/i18n/content";
 
 type NoticeRow = {
   id: string;
@@ -17,7 +18,7 @@ export default async function NoticesPage() {
     .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false });
 
-  const notices = (data ?? []) as NoticeRow[];
+  const notices = await translateRows((data ?? []) as NoticeRow[], ["title"]);
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">

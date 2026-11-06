@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { requireAdmin } from "@/lib/admin";
+import { pretranslate } from "@/i18n/content";
 
 export type NoticeFormState = { error?: string };
 
@@ -27,6 +28,7 @@ export async function createNotice(
     return { error: "登録に失敗しました。" };
   }
 
+  pretranslate([title, body]);
   revalidatePath("/admin/notices");
   revalidatePath("/notices");
   return {};
@@ -56,6 +58,7 @@ export async function updateNotice(
     return { error: "更新に失敗しました。" };
   }
 
+  pretranslate([title, body]);
   revalidatePath("/admin/notices");
   revalidatePath("/notices");
   redirect("/admin/notices");

@@ -25,6 +25,8 @@ import { CouponCard } from "@/components/coupon-card";
 import { EmptyState } from "@/components/empty-state";
 import { CouponCardSkeleton } from "@/components/coupon-card-skeleton";
 import { getT } from "@/i18n/server";
+import { translateRows } from "@/i18n/content";
+import { COUPON_TEXT } from "@/i18n/content-fields";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
@@ -247,7 +249,7 @@ async function FilteredCouponList({ raw }: { raw: RawCouponListParams }) {
   // 존재하지 않는 뒤쪽 페이지(예: 쿠폰이 줄어든 뒤의 즐겨찾기 주소)는 마지막 페이지로 보낸다.
   if (page > pages) redirect(hrefFor({ page: pages }));
 
-  const coupons = (data ?? []) as unknown as CouponListItem[];
+  const coupons = await translateRows((data ?? []) as unknown as CouponListItem[], COUPON_TEXT);
 
   // 수량 제한이 있는 쿠폰은 목록 카드에도 남은 수량을 보여준다 (발급 수는 발급 기록에서 센다).
   const limitedIds = coupons.filter((c) => c.quantity_limit != null).map((c) => c.id);

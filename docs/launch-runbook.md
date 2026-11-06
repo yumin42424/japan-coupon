@@ -287,6 +287,7 @@ Vercel Production 환경변수 이름과 코드가 읽는 이름을 대조한 �
 | `LINE_MESSAGING_CHANNEL_SECRET` | 비공개 | `/api/line/webhook` 서명 검증 | 교체 대상 |
 | `LINE_MESSAGING_CHANNEL_ACCESS_TOKEN` | 비공개 | LINE push·응답 발송 | 교체 대상 |
 | `RESEND_API_KEY` | 비공개 | 메일 발송 (발송 전용 제한 키) | 낮음 (권한이 이미 최소) |
+| `ANTHROPIC_API_KEY` | 비공개 | 쿠폰·매장·공지·게시글 내용 자동 번역 (없으면 일본어로 표시) | 낮음 (유출 시 번역 요금이 나갈 수 있음) |
 | `EMAIL_FROM` | 비밀 아님 | 메일 발신 주소 | **미설정 → 6번에서 설정** |
 | `ADMIN_EMAILS` | 개인정보 | 관리자 판별(+ DB 조회) | 불필요 (값 변경은 가능) |
 | `CRON_SECRET` | 비공개 | `/api/cron/notify` 인증 (Vercel 크론이 자동 전송) | 낮음 (10/2 생성) |

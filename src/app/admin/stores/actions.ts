@@ -6,6 +6,7 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { requireAdmin } from "@/lib/admin";
 import { sendLinePush, textMessage } from "@/lib/line-push";
+import { pretranslate } from "@/i18n/content";
 
 const VALID_CATEGORIES = new Set<string>(CATEGORIES.map((c) => c.value));
 const VALID_AREAS = new Set<string>(AREAS.map((a) => a.value));
@@ -130,6 +131,7 @@ export async function createStore(
 
   await notifyInterestedUsersOfNewStore(area, name);
 
+  pretranslate([name, address, businessHours, reservationInfo]);
   revalidatePath("/admin/stores");
   revalidatePath("/admin/coupons");
   return {};
@@ -188,6 +190,7 @@ export async function updateStore(
     return { error: "更新に失敗しました。" };
   }
 
+  pretranslate([name, address, businessHours, reservationInfo]);
   revalidatePath("/admin/stores");
   revalidatePath("/admin/coupons");
   redirect("/admin/stores");

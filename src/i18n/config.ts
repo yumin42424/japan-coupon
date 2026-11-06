@@ -21,6 +21,35 @@ export const LOCALE_NAMES: Record<Locale, string> = {
   ru: "Русский",
 };
 
+// 처음 온 방문자의 언어. IP 나라가 아니라 브라우저 언어로 정한다(한국에 와 있는 일본인 여행자에게 한국어가 뜨면 안 된다).
+//   · 검색엔진·링크 미리보기 봇과 언어 정보가 없는 요청 → 일본어(검색 결과와 공유 미리보기가 일본어로 유지된다)
+//   · 지원하지 않는 언어만 있는 브라우저 → 영어
+const BOT_PATTERN = /bot|crawl|spider|slurp|preview|facebookexternalhit|kakaotalk-scrap|line-poker|lighthouse/i;
+
+export function detectLocale(acceptLanguage: string | null | undefined, userAgent?: string | null): Locale {
+  if (!acceptLanguage || (userAgent && BOT_PATTERN.test(userAgent))) return DEFAULT_LOCALE;
+  const tags = acceptLanguage
+    .split(",")
+    .map((part, index) => {
+      const [tag, ...params] = part.trim().toLowerCase().split(";");
+      const q = params.map((p) => p.trim()).find((p) => p.startsWith("q="));
+      return { tag: tag.trim(), weight: q ? Number(q.slice(2)) : 1, index };
+    })
+    .filter(({ tag, weight }) => tag && tag !== "*" && weight > 0)
+    .sort((a, b) => b.weight - a.weight || a.index - b.index);
+  if (tags.length === 0) return DEFAULT_LOCALE;
+  for (const { tag } of tags) {
+    const [primary, ...rest] = tag.split("-");
+    if (primary === "zh") {
+      return rest.some((part) => ["tw", "hk", "mo", "hant"].includes(part)) ? "zh-TW" : "zh-CN";
+    }
+    if (primary === "in") return "id";
+    const found = LOCALES.find((locale) => locale === primary);
+    if (found) return found;
+  }
+  return "en";
+}
+
 export function parseLocale(value: string | null | undefined): Locale {
   return LOCALES.includes(value as Locale) ? (value as Locale) : DEFAULT_LOCALE;
 }

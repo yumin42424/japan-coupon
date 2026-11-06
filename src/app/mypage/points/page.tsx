@@ -8,6 +8,7 @@ import { formatDateTimeKST } from "@/lib/date";
 import { POINT_UI_VISIBLE, POINT_USE_OPTIONS, POINTS_PER_USE, isPointUseAvailable } from "@/lib/point-policy";
 import { PointUsePanel } from "./point-use-panel";
 import { getT } from "@/i18n/server";
+import { translateRows } from "@/i18n/content";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
@@ -41,7 +42,7 @@ export default async function PointsPage() {
     .eq("user_id", session.user.id)
     .order("created_at", { ascending: false });
 
-  const rows = (data ?? []) as unknown as PointRow[];
+  const rows = await translateRows((data ?? []) as unknown as PointRow[], ["coupons.title", "coupons.stores.name"]);
   const balance = rows.reduce((sum, r) => sum + r.points, 0);
   const earned = rows.filter((r) => r.points > 0);
   const used = rows.filter((r) => r.points < 0);

@@ -5,6 +5,8 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CouponCard } from "@/components/coupon-card";
 import { getT } from "@/i18n/server";
+import { translateRows } from "@/i18n/content";
+import { COUPON_TEXT } from "@/i18n/content-fields";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
@@ -43,7 +45,7 @@ export default async function RankingPage() {
     supabaseAdmin.from("coupon_events").select("coupon_id, event_type").in("event_type", ["issue", "view"]),
   ]);
 
-  const coupons = (couponsRes.data ?? []) as unknown as CouponRow[];
+  const coupons = await translateRows((couponsRes.data ?? []) as unknown as CouponRow[], COUPON_TEXT);
   const counts = new Map<string, { issue: number; view: number }>();
   for (const e of (eventsRes.data ?? []) as { coupon_id: string; event_type: "issue" | "view" }[]) {
     const entry = counts.get(e.coupon_id) ?? { issue: 0, view: 0 };

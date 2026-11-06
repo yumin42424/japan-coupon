@@ -7,6 +7,7 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import { getIsAdmin } from "@/lib/admin";
 import { isBoardCategory, DEFAULT_BOARD_CATEGORY } from "@/lib/board-categories";
 import { isRateLimited } from "@/lib/rate-limit";
+import { forgetTranslations } from "@/i18n/content";
 
 export type PostFormState = { error?: string };
 
@@ -54,7 +55,7 @@ export async function deletePost(postId: string) {
 
   const { data: post } = await supabaseAdmin
     .from("posts")
-    .select("user_id")
+    .select("user_id, title, body")
     .eq("id", postId)
     .maybeSingle();
 
@@ -64,6 +65,7 @@ export async function deletePost(postId: string) {
   if (!canDelete) return;
 
   await supabaseAdmin.from("posts").delete().eq("id", postId);
+  await forgetTranslations([post.title, post.body]);
   revalidatePath("/board");
   redirect("/board");
 }

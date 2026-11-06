@@ -1,10 +1,19 @@
 import type { Metadata } from "next";
+import { AutoTranslatedNote } from "@/components/auto-translated-note";
 import { JapaneseOnlyNote } from "@/components/japanese-only-note";
+import { translateTexts } from "@/i18n/content";
+import { getLocale, getT } from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "利用規約",
-  description: "K-Coupon Japanの利用規約です。",
-};
+const TITLE = "K-Coupon Japan 利用規約";
+const DESCRIPTION = "K-Coupon Japanの利用規約です。";
+const INTRO = "本利用規約（以下「本規約」といいます。）は、K-Coupon Japan（以下「本サービス」といいます。）の利用条件を定めるものです。ユーザーは、本規約に同意した上で本サービスを利用するものとします。";
+const FOOTNOTE = "［　］で示した箇所は、事業者情報の確定後に正式な内容を掲載いたします。";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  const { tc } = await translateTexts([DESCRIPTION]);
+  return { title: t("利用規約"), description: tc(DESCRIPTION) };
+}
 
 const SECTIONS = [
   {
@@ -152,25 +161,29 @@ const SECTIONS = [
   },
 ];
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const locale = await getLocale();
+  const { tc, complete } = await translateTexts([TITLE, INTRO, FOOTNOTE, ...SECTIONS.flatMap((section) => [section.title, ...section.body])]);
+  // 법적 문서는 일부만 번역된 채로 보여 주지 않는다. 전부 준비되기 전에는 일본어 원문을 보여 준다.
+  const show = (text: string) => (complete ? tc(text) : text);
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <JapaneseOnlyNote />
-      <div lang="ja">
+      {complete ? <AutoTranslatedNote boxed /> : <JapaneseOnlyNote />}
+      <div lang={complete ? locale : "ja"}>
         <h1 className="text-h1 font-display tracking-tight">
-          K-Coupon Japan 利用規約
+          {show(TITLE)}
         </h1>
         <p className="mt-2 text-body text-muted">
-          本利用規約（以下「本規約」といいます。）は、K-Coupon Japan（以下「本サービス」といいます。）の利用条件を定めるものです。ユーザーは、本規約に同意した上で本サービスを利用するものとします。
+          {show(INTRO)}
         </p>
 
         <div className="mt-8 flex flex-col gap-6">
           {SECTIONS.map((section) => (
             <section key={section.title} className="rounded-2xl border border-border bg-card p-5 shadow-card">
-              <h2 className="text-h3">{section.title}</h2>
+              <h2 className="text-h3">{show(section.title)}</h2>
               <ul className="mt-2 flex flex-col gap-1.5 text-body text-foreground/80">
                 {section.body.map((line, i) => (
-                  <li key={i}>{line}</li>
+                  <li key={i}>{show(line)}</li>
                 ))}
               </ul>
             </section>
@@ -178,7 +191,7 @@ export default function TermsPage() {
         </div>
 
         <p className="mt-8 text-caption text-muted">
-          ［　］で示した箇所は、事業者情報の確定後に正式な内容を掲載いたします。
+          {show(FOOTNOTE)}
         </p>
       </div>
     </main>

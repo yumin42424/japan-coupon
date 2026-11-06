@@ -2,6 +2,8 @@ import { todayKST } from "@/lib/date";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { NearbyList } from "./nearby-list";
 import { getT } from "@/i18n/server";
+import { translateRows } from "@/i18n/content";
+import { COUPON_TEXT } from "@/i18n/content-fields";
 
 export type NearbyCoupon = {
   id: string;
@@ -35,7 +37,7 @@ export default async function NearbyPage() {
     .not("stores.latitude", "is", null)
     .not("stores.longitude", "is", null);
 
-  const coupons = (data ?? []) as unknown as NearbyCoupon[];
+  const coupons = await translateRows((data ?? []) as unknown as NearbyCoupon[], COUPON_TEXT);
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">

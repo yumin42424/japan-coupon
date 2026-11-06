@@ -3,6 +3,7 @@
 import bcrypt from "bcryptjs";
 import { auth, signOut } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { forgetTranslations } from "@/i18n/content";
 
 export type SettingsState = { error?: string; success?: string };
 
@@ -111,6 +112,14 @@ export async function deleteAccount(
   await supabaseAdmin.from("point_events").delete().eq("user_id", userId);
   await supabaseAdmin.from("user_interest_categories").delete().eq("user_id", userId);
   await supabaseAdmin.from("user_interest_areas").delete().eq("user_id", userId);
+  const [{ data: ownPosts }, { data: ownReviews }] = await Promise.all([
+    supabaseAdmin.from("posts").select("title, body").eq("user_id", userId),
+    supabaseAdmin.from("reviews").select("body").eq("user_id", userId),
+  ]);
+  await forgetTranslations([
+    ...(ownPosts ?? []).flatMap((post) => [post.title, post.body]),
+    ...(ownReviews ?? []).map((review) => review.body),
+  ]);
   await supabaseAdmin.from("posts").delete().eq("user_id", userId);
   await supabaseAdmin.from("reviews").delete().eq("user_id", userId);
   const { error } = await supabaseAdmin.from("users").delete().eq("id", userId);

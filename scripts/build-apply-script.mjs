@@ -181,11 +181,52 @@ order by ord;
 `;
 }
 
+// 내용 자동 번역 테이블(content_translations) 생성용 한 번짜리 스크립트 — 전제 조건이 없는 독립 테이블이다
+export function buildTranslationsApplyScript() {
+  const migration = read("db/migrations/20261106_content_translations.sql").trimEnd();
+
+  return `-- ============================================================================================
+-- K-Coupon Japan — 내용 자동 번역 테이블 만들기 (한 번에 실행)         [자동 생성 파일 — 직접 고치지 마세요]
+-- 사용법: Supabase Dashboard > SQL Editor > New query(새 탭) > 이 파일 전체를 붙여넣고 Run 한 번.
+--
+-- 결과: 맨 아래에 표가 나오고 모든 행의 ok 가 true  → 설치 완료.
+-- 한 번의 트랜잭션이라 중간에 실패하면 전부 취소되고, 여러 번 실행해도 안전합니다. 새 테이블 하나만 만들고 기존 데이터는 건드리지 않습니다.
+-- 만드는 방법: node scripts/build-apply-script.mjs
+-- ============================================================================================
+
+-- ① 테이블 만들기 (db/migrations/20261106_content_translations.sql 와 같은 내용)
+${migration}
+
+-- ② 결과 확인 — 모든 행의 ok 가 true 여야 합니다
+select * from (
+  select 1 as ord, 'table public.content_translations exists with primary key (source_hash, locale)' as check_name,
+         exists (select 1 from pg_constraint c join pg_class t on t.oid = c.conrelid
+                  where c.contype = 'p' and t.relname = 'content_translations' and t.relnamespace = 'public'::regnamespace and array_length(c.conkey, 1) = 2) as ok
+  union all
+  select 2, 'RLS is enabled on content_translations', coalesce((select relrowsecurity from pg_class where oid = 'public.content_translations'::regclass), false)
+  union all
+  select 3, 'anon CANNOT read or write content_translations',
+         not (has_table_privilege('anon', 'public.content_translations', 'select') or has_table_privilege('anon', 'public.content_translations', 'insert')
+              or has_table_privilege('anon', 'public.content_translations', 'update') or has_table_privilege('anon', 'public.content_translations', 'delete'))
+  union all
+  select 4, 'authenticated CANNOT read or write content_translations',
+         not (has_table_privilege('authenticated', 'public.content_translations', 'select') or has_table_privilege('authenticated', 'public.content_translations', 'insert')
+              or has_table_privilege('authenticated', 'public.content_translations', 'update') or has_table_privilege('authenticated', 'public.content_translations', 'delete'))
+  union all
+  select 5, 'service_role CAN read and write content_translations',
+         has_table_privilege('service_role', 'public.content_translations', 'select') and has_table_privilege('service_role', 'public.content_translations', 'insert')
+         and has_table_privilege('service_role', 'public.content_translations', 'delete')
+) result
+order by ord;
+`;
+}
+
 // 직접 실행하면 파일을 만든다 (import 해서 쓸 때는 아무것도 쓰지 않는다)
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   mkdirSync(join(root, "db/apply"), { recursive: true });
   writeFileSync(join(root, "db/apply/apply-issue-coupon.sql"), buildApplyScript());
   writeFileSync(join(root, "db/apply/apply-redeem-audit.sql"), buildAuditApplyScript());
   writeFileSync(join(root, "db/apply/apply-store-staff.sql"), buildStaffApplyScript());
-  console.log("wrote db/apply/apply-issue-coupon.sql, apply-redeem-audit.sql and apply-store-staff.sql");
+  writeFileSync(join(root, "db/apply/apply-content-translations.sql"), buildTranslationsApplyScript());
+  console.log("wrote db/apply/apply-issue-coupon.sql, apply-redeem-audit.sql, apply-store-staff.sql and apply-content-translations.sql");
 }

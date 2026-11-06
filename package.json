@@ -12,6 +12,7 @@
     "launch-check": "node scripts/launch-check.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.6.0",
     "@sentry/nextjs": "^11.1.0",
     "@supabase/supabase-js": "^2.112.3",
     "@vercel/analytics": "^2.0.1",

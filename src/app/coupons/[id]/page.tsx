@@ -37,6 +37,9 @@ import { ReviewForm } from "./review-form";
 import { ViewTracker } from "./view-tracker";
 import { ShareButton } from "@/components/share-button";
 import { getT } from "@/i18n/server";
+import { translateRow, translateRows } from "@/i18n/content";
+import { COUPON_DETAIL_TEXT, COUPON_TEXT, REVIEW_TEXT } from "@/i18n/content-fields";
+import { AutoTranslatedNote } from "@/components/auto-translated-note";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://japan-coupon-five.vercel.app";
 
@@ -101,7 +104,8 @@ export async function generateMetadata({
   if (!isPubliclyVisible) {
     return { robots: { index: false, follow: false } };
   }
-  const store = coupon.stores;
+  const translated = await translateRow(coupon, COUPON_TEXT);
+  const store = translated.stores;
   const category = store ? CATEGORIES.find((c) => c.value === store.category) : undefined;
   const area = store ? AREAS.find((a) => a.value === store.area) : undefined;
   const discountRate =
@@ -110,10 +114,10 @@ export async function generateMetadata({
       : null;
 
   const title = store
-    ? `${store.name}｜${coupon.title}${discountRate !== null ? `（${discountRate}%OFF）` : ""}`
-    : coupon.title;
+    ? `${store.name}｜${translated.title}${discountRate !== null ? `（${discountRate}%OFF）` : ""}`
+    : translated.title;
   const t = await getT();
-  const description = [store && area && category ? t("{area}・{category}の{store}", { area: t(area.ja), category: t(category.ja), store: store.name }) : null, coupon.discount_info]
+  const description = [store && area && category ? t("{area}・{category}の{store}", { area: t(area.ja), category: t(category.ja), store: store.name }) : null, translated.discount_info]
     .filter(Boolean)
     .join(" ");
 
@@ -155,7 +159,9 @@ export default async function CouponDetailPage({
     .maybeSingle();
 
   if (!data) notFound();
-  const coupon = data as unknown as CouponDetail;
+  // 지도 링크와 영업 중 판단은 번역하지 않은 원본 값을 쓴다
+  const storedCoupon = data as unknown as CouponDetail;
+  const coupon = await translateRow(storedCoupon, COUPON_DETAIL_TEXT);
   const store = coupon.stores;
 
   // 테스트(demo) 데이터는 직접 URL로도 열리면 안 된다 — 관리자만 미리보기할 수 있다.
@@ -240,13 +246,14 @@ export default async function CouponDetailPage({
     .select("id, rating, body, photo_url, created_at, user_id, users(nickname)")
     .eq("store_id", store.id)
     .order("created_at", { ascending: false });
-  const reviews = (reviewRows ?? []) as unknown as ReviewRow[];
+  const storedReviews = (reviewRows ?? []) as unknown as ReviewRow[];
+  const reviews = await translateRows(storedReviews, REVIEW_TEXT);
   const avgRating =
     reviews.length > 0
       ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
       : null;
   const myReview = session?.user?.id
-    ? reviews.find((r) => r.user_id === session.user!.id)
+    ? storedReviews.find((r) => r.user_id === session.user!.id)
     : undefined;
 
   const category = CATEGORIES.find((c) => c.value === store.category);
@@ -256,8 +263,8 @@ export default async function CouponDetailPage({
     coupon.regular_price && coupon.discounted_price
       ? Math.round((1 - coupon.discounted_price / coupon.regular_price) * 100)
       : null;
-  const openNow = isOpenNow(store.business_hours);
-  const mapHref = storeMapUrl(store);
+  const openNow = isOpenNow(storedCoupon.stores.business_hours);
+  const mapHref = storeMapUrl(storedCoupon.stores);
   const jpyRate = await getKrwToJpyRate();
   const shareTitle = `${store.name}｜${coupon.title}`;
 
@@ -446,6 +453,7 @@ export default async function CouponDetailPage({
             )}
           </div>
         </div>
+        <AutoTranslatedNote />
 
       {store.category === "medical" && (
         <div className="mt-4 flex gap-2 rounded-2xl border border-border bg-card px-4 py-3.5 text-xs leading-relaxed text-muted">
@@ -466,10 +474,12 @@ export default async function CouponDetailPage({
           </li>
           <li>{t("マイページに表示されるQRコード（またはコード）を、お店で提示してください。")}</li>
           <li>
-            {t("利用期間と利用条件をご確認のうえ、ご利用ください。")}
-            {coupon.reusable_after_days
-              ? t("このクーポンは{reusable_after_days}日ごとに再取得できます。", { reusable_after_days: coupon.reusable_after_days })
-              : t("お一人様1回までご利用いただけます。")}
+            {t("{first}{second}", {
+              first: t("利用期間と利用条件をご確認のうえ、ご利用ください。"),
+              second: coupon.reusable_after_days
+                ? t("このクーポンは{reusable_after_days}日ごとに再取得できます。", { reusable_after_days: coupon.reusable_after_days })
+                : t("お一人様1回までご利用いただけます。"),
+            })}
           </li>
         </ol>
         <p className="mt-2">

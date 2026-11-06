@@ -3,6 +3,9 @@ import Link from "next/link";
 import { ChevronLeft, Megaphone } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { getT } from "@/i18n/server";
+import { translateRow } from "@/i18n/content";
+import { NOTICE_TEXT } from "@/i18n/content-fields";
+import { AutoTranslatedNote } from "@/components/auto-translated-note";
 
 export default async function NoticeDetailPage({
   params,
@@ -12,13 +15,14 @@ export default async function NoticeDetailPage({
   const t = await getT();
   const { id } = await params;
 
-  const { data: notice } = await supabaseAdmin
+  const { data: storedNotice } = await supabaseAdmin
     .from("notices")
     .select("id, title, body, published_at")
     .eq("id", id)
     .maybeSingle();
 
-  if (!notice) notFound();
+  if (!storedNotice) notFound();
+  const notice = await translateRow(storedNotice, NOTICE_TEXT);
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
@@ -39,6 +43,7 @@ export default async function NoticeDetailPage({
       <div className="mt-6 whitespace-pre-wrap rounded-2xl border border-border bg-card p-5 text-body leading-relaxed shadow-card">
         {notice.body}
       </div>
+      <AutoTranslatedNote />
     </main>
   );
 }

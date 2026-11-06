@@ -13,6 +13,8 @@ import { SectionHeading } from "@/components/section-heading";
 import { HeroImageCarousel } from "@/components/hero-image-carousel";
 import { CategoryGrid } from "@/components/category-grid";
 import { getT } from "@/i18n/server";
+import { translateRows } from "@/i18n/content";
+import { COUPON_TEXT } from "@/i18n/content-fields";
 
 const FEATURED_AREA_VALUES = ["myeongdong", "hongdae", "gangnam", "seongsu"] as const;
 // ヒーローの「人気エリア」ショートカット（ソウル中心＋釜山・済州）
@@ -88,7 +90,7 @@ export default async function Home() {
       .gte("valid_to", todayKST()),
   ]);
 
-  const recommended = (couponRows ?? []) as unknown as RecommendedCoupon[];
+  const recommended = await translateRows((couponRows ?? []) as unknown as RecommendedCoupon[], COUPON_TEXT);
 
   const areaCounts = new Map<string, number>();
   for (const row of (areaCouponRows ?? []) as unknown as { stores: { area: string } }[]) {
