@@ -3,15 +3,17 @@
 import { useActionState, useState } from "react";
 import { AlertCircle, CheckCircle2, UserRound, Lock, UserX } from "lucide-react";
 import { updateNickname, changePassword, deleteAccount, type SettingsState } from "./actions";
+import { useT } from "@/i18n/client";
 
 const initialState: SettingsState = {};
 
 function Message({ state }: { state: SettingsState }) {
+  const t = useT();
   if (state.error) {
     return (
       <p className="flex items-center gap-1.5 text-body text-primary" role="alert">
         <AlertCircle className="h-4 w-4 shrink-0" />
-        {state.error}
+        {t(state.error)}
       </p>
     );
   }
@@ -19,7 +21,7 @@ function Message({ state }: { state: SettingsState }) {
     return (
       <p className="flex items-center gap-1.5 text-body text-success" role="status">
         <CheckCircle2 className="h-4 w-4 shrink-0" />
-        {state.success}
+        {t(state.success)}
       </p>
     );
   }
@@ -27,13 +29,14 @@ function Message({ state }: { state: SettingsState }) {
 }
 
 export function NicknameForm({ currentNickname }: { currentNickname: string }) {
+  const t = useT();
   const [state, formAction, pending] = useActionState(updateNickname, initialState);
 
   return (
     <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
       <h2 className="flex items-center gap-2 text-h3">
         <UserRound className="h-4 w-4 text-primary" />
-        ニックネーム
+        {t("ニックネーム")}
       </h2>
       <form action={formAction} className="mt-3 flex flex-col gap-3">
         <input
@@ -50,34 +53,35 @@ export function NicknameForm({ currentNickname }: { currentNickname: string }) {
           disabled={pending}
           className="btn-glossy self-start rounded-lg px-4 py-2 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
         >
-          {pending ? "保存中..." : "保存する"}
+          {pending ? t("保存中...") : t("保存する")}
         </button>
       </form>
       <p className="mt-2 text-caption text-muted">
-        ※ ヘッダーの表示名は再ログイン後に反映されます。
+        {t("※ ヘッダーの表示名は再ログイン後に反映されます。")}
       </p>
     </section>
   );
 }
 
 export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
+  const t = useT();
   const [state, formAction, pending] = useActionState(changePassword, initialState);
 
   return (
     <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
       <h2 className="flex items-center gap-2 text-h3">
         <Lock className="h-4 w-4 text-primary" />
-        パスワード変更
+        {t("パスワード変更")}
       </h2>
 
       {!hasPassword ? (
         <p className="mt-3 text-body text-muted">
-          LINEログインのアカウントのため、パスワードは設定されていません。
+          {t("LINEログインのアカウントのため、パスワードは設定されていません。")}
         </p>
       ) : (
         <form action={formAction} className="mt-3 flex flex-col gap-3">
           <label className="flex flex-col gap-1 text-body font-medium">
-            現在のパスワード
+            {t("現在のパスワード")}
             <input
               type="password"
               name="currentPassword"
@@ -86,13 +90,13 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
             />
           </label>
           <label className="flex flex-col gap-1 text-body font-medium">
-            新しいパスワード
+            {t("新しいパスワード")}
             <input
               type="password"
               name="newPassword"
               required
               minLength={8}
-              placeholder="8文字以上"
+              placeholder={t("8文字以上")}
               className="rounded-lg border border-border bg-background px-3 py-2 text-body font-normal outline-none focus:border-primary"
             />
           </label>
@@ -102,7 +106,7 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
             disabled={pending}
             className="btn-glossy self-start rounded-lg px-4 py-2 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
           >
-            {pending ? "変更中..." : "変更する"}
+            {pending ? t("変更中...") : t("変更する")}
           </button>
         </form>
       )}
@@ -111,6 +115,7 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
 }
 
 export function DeleteAccountSection() {
+  const t = useT();
   const [confirming, setConfirming] = useState(false);
   const [state, formAction, pending] = useActionState(deleteAccount, initialState);
 
@@ -118,10 +123,10 @@ export function DeleteAccountSection() {
     <section className="rounded-2xl border border-primary/30 bg-primary/5 p-5 shadow-card">
       <h2 className="flex items-center gap-2 text-h3 text-primary">
         <UserX className="h-4 w-4" />
-        退会
+        {t("退会")}
       </h2>
       <p className="mt-2 text-body text-foreground/80">
-        退会すると、保有クーポン・お気に入り・ポイントなどすべてのデータが削除され、元に戻せません。
+        {t("退会すると、保有クーポン・お気に入り・ポイントなどすべてのデータが削除され、元に戻せません。")}
       </p>
 
       {!confirming ? (
@@ -130,7 +135,7 @@ export function DeleteAccountSection() {
           onClick={() => setConfirming(true)}
           className="mt-3 rounded-lg border border-primary/40 px-4 py-2 text-body font-medium text-primary transition hover:bg-primary/10"
         >
-          退会する
+          {t("退会する")}
         </button>
       ) : (
         <form action={formAction} className="mt-3 flex flex-col gap-2">
@@ -140,7 +145,7 @@ export function DeleteAccountSection() {
               disabled={pending}
               className="btn-glossy rounded-lg px-4 py-2 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
             >
-              {pending ? "退会処理中..." : "本当に退会する"}
+              {pending ? t("退会処理中...") : t("本当に退会する")}
             </button>
             <button
               type="button"
@@ -148,7 +153,7 @@ export function DeleteAccountSection() {
               disabled={pending}
               className="rounded-lg border border-border px-4 py-2 text-body font-medium transition hover:bg-background disabled:opacity-50"
             >
-              キャンセル
+              {t("キャンセル")}
             </button>
           </div>
           <Message state={state} />

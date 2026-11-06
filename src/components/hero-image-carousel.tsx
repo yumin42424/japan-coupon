@@ -3,12 +3,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useT } from "@/i18n/client";
 
 export function HeroImageCarousel({
   images,
 }: {
   images: { src: string; label: string }[];
 }) {
+  const t = useT();
   const [index, setIndex] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -62,7 +64,7 @@ export function HeroImageCarousel({
           <button
             type="button"
             onClick={prev}
-            aria-label="前の写真"
+            aria-label={t("前の写真")}
             className="absolute left-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white opacity-0 transition hover:bg-black/60 group-hover/carousel:opacity-100 focus-visible:opacity-100"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -70,7 +72,7 @@ export function HeroImageCarousel({
           <button
             type="button"
             onClick={next}
-            aria-label="次の写真"
+            aria-label={t("次の写真")}
             className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white opacity-0 transition hover:bg-black/60 group-hover/carousel:opacity-100 focus-visible:opacity-100"
           >
             <ChevronRight className="h-4 w-4" />

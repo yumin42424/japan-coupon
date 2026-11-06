@@ -4,6 +4,7 @@ import { useActionState, useRef, useState } from "react";
 import { CheckCircle2, AlertCircle, Search, TicketCheck } from "lucide-react";
 import type { RedeemState } from "./actions";
 import { QrScanner } from "@/components/qr-scanner";
+import { useT } from "@/i18n/client";
 
 const initialState: RedeemState = { step: "input" };
 
@@ -15,6 +16,7 @@ export function RedeemForm({
   action: (prevState: RedeemState, formData: FormData) => Promise<RedeemState>;
   resetHref: string;
 }) {
+  const t = useT();
   const [state, formAction, pending] = useActionState(action, initialState);
   const [code, setCode] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
@@ -30,16 +32,16 @@ export function RedeemForm({
       <div className="rounded-2xl border border-success/40 bg-success/10 p-6 text-center">
         <CheckCircle2 className="mx-auto h-8 w-8 text-success" />
         <p className="mt-2 text-h3 text-success">
-          使用処理が完了しました
+          {t("使用処理が完了しました")}
         </p>
         <p className="mt-1 text-body text-muted">
-          10ポイントが付与されました。
+          {t("10ポイントが付与されました。")}
         </p>
         <a
           href={resetHref}
           className="mt-3 inline-block text-body text-primary underline underline-offset-4"
         >
-          別のクーポンを処理する
+          {t("別のクーポンを処理する")}
         </a>
       </div>
     );
@@ -52,7 +54,7 @@ export function RedeemForm({
         <p className="text-h3 text-primary">{state.couponTitle}</p>
         <p className="mt-2 text-body">
           <span className="text-muted">
-            会員:{" "}
+            {t("会員:")}{" "}
           </span>
           {state.nickname}
         </p>
@@ -68,7 +70,7 @@ export function RedeemForm({
             className="btn-glossy flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
           >
             <TicketCheck className="h-4 w-4" />
-            使用処理する
+            {t("使用処理する")}
           </button>
         </form>
       </div>
@@ -83,44 +85,44 @@ export function RedeemForm({
         required
         value={code}
         onChange={(e) => setCode(e.target.value)}
-        placeholder="クーポンコード"
+        placeholder={t("クーポンコード")}
         className="rounded-lg border border-border bg-card px-3.5 py-2.5 font-mono text-body outline-none focus:border-primary"
       />
 
       {state.step === "used" && (
         <p className="flex items-center gap-1.5 text-body text-primary">
           <AlertCircle className="h-4 w-4 shrink-0" />
-          既に使用済みのクーポンです。
+          {t("既に使用済みのクーポンです。")}
         </p>
       )}
       {state.step === "invalid" && (
         <p className="flex items-center gap-1.5 text-body text-primary">
           <AlertCircle className="h-4 w-4 shrink-0" />
-          コードが見つかりません。
+          {t("コードが見つかりません。")}
         </p>
       )}
       {state.step === "expired" && (
         <p className="flex items-center gap-1.5 text-body text-primary">
           <AlertCircle className="h-4 w-4 shrink-0" />
-          このクーポンは有効期限が終了しています。
+          {t("このクーポンは有効期限が終了しています。")}
         </p>
       )}
       {state.step === "forbidden" && (
         <p className="flex items-center gap-1.5 text-body text-primary">
           <AlertCircle className="h-4 w-4 shrink-0" />
-          このクーポンは、あなたが担当する店舗のものではありません。
+          {t("このクーポンは、あなたが担当する店舗のものではありません。")}
         </p>
       )}
       {state.step === "own" && (
         <p className="flex items-center gap-1.5 text-body text-primary">
           <AlertCircle className="h-4 w-4 shrink-0" />
-          ご自身に発行されたクーポンは処理できません。
+          {t("ご自身に発行されたクーポンは処理できません。")}
         </p>
       )}
       {state.step === "unavailable" && (
         <p className="flex items-center gap-1.5 text-body text-primary">
           <AlertCircle className="h-4 w-4 shrink-0" />
-          このクーポンまたは店舗は現在停止中です。
+          {t("このクーポンまたは店舗は現在停止中です。")}
         </p>
       )}
 
@@ -131,7 +133,7 @@ export function RedeemForm({
           className="btn-glossy flex items-center justify-center gap-2 self-start rounded-lg px-5 py-2.5 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
         >
           <Search className="h-4 w-4" />
-          検索
+          {t("検索")}
         </button>
         <QrScanner onScan={handleScan} />
       </div>

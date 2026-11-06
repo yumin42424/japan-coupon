@@ -4,11 +4,15 @@ import type { Metadata } from "next";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CouponCard } from "@/components/coupon-card";
+import { getT } from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "おすすめクーポン",
-  description: "GET数の多い人気クーポンをランキング形式でご紹介します。",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return {
+    title: t("おすすめクーポン"),
+    description: t("GET数の多い人気クーポンをランキング形式でご紹介します。"),
+  };
+}
 
 type CouponRow = {
   id: string;
@@ -24,6 +28,7 @@ type CouponRow = {
 };
 
 export default async function RankingPage() {
+  const t = await getT();
   const today = todayKST();
 
   const [couponsRes, eventsRes] = await Promise.all([
@@ -53,14 +58,14 @@ export default async function RankingPage() {
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="text-h1 font-display tracking-tight">おすすめクーポン</h1>
+      <h1 className="text-h1 font-display tracking-tight">{t("おすすめクーポン")}</h1>
       <p className="mt-2 text-body text-muted">
-        GET数・閲覧数をもとに、人気のクーポンをピックアップしました。
+        {t("GET数・閲覧数をもとに、人気のクーポンをピックアップしました。")}
       </p>
 
       {ranked.length === 0 ? (
         <p className="mt-8 border-y border-border py-8 text-body text-muted">
-          クーポンの公開後、GET数・閲覧数をもとにここに表示します。
+          {t("クーポンの公開後、GET数・閲覧数をもとにここに表示します。")}
         </p>
       ) : (
         <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { isActivePath } from "@/components/nav-link";
+import { useT } from "@/i18n/client";
 
 const PRIMARY_LINKS = [
   { href: "/coupons", ja: "クーポンを探す" },
@@ -32,6 +33,7 @@ const noopSubscribe = () => () => {};
 // 아래에서 올라오는 패널 — Esc / 배경 터치 / 닫기 버튼 / 링크 선택으로 닫히고, 열면 패널 안으로, 닫으면 버튼으로 포커스가 돌아간다.
 // 패널은 body 에 그린다: 헤더처럼 배경 블러(backdrop-filter)가 걸린 부모 안에 두면 fixed 위치의 기준이 그 부모로 바뀌어 버린다.
 export function MobileMenu({ variant }: { variant: "tab" | "header" }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const panelId = useId();
@@ -73,7 +75,7 @@ export function MobileMenu({ variant }: { variant: "tab" | "header" }) {
         ref={panelRef}
         role="dialog"
         aria-modal="true"
-        aria-label="メニュー"
+        aria-label={t("メニュー")}
         inert={!open}
         className={`fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[85vh] max-w-xl overflow-y-auto rounded-t-xl bg-background pb-[calc(1rem+env(safe-area-inset-bottom))] duration-200 ease-out ${
           // 열 때는 바로 보이게(그래야 패널 안으로 포커스를 옮길 수 있다), 닫을 때는 내려가는 동안만 보이게 한다
@@ -81,17 +83,17 @@ export function MobileMenu({ variant }: { variant: "tab" | "header" }) {
         }`}
       >
         <div className="flex items-center justify-between border-b border-border px-5 py-2">
-          <p className="text-h3">メニュー</p>
+          <p className="text-h3">{t("メニュー")}</p>
           <button
             type="button"
             onClick={close}
-            aria-label="メニューを閉じる"
+            aria-label={t("メニューを閉じる")}
             className="-mr-2 flex h-11 w-11 items-center justify-center rounded-lg text-muted transition-colors hover:text-foreground"
           >
             <X className="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
-        <nav aria-label="すべてのページ" className="px-5 py-2">
+        <nav aria-label={t("すべてのページ")} className="px-5 py-2">
           <ul className="divide-y divide-border">
             {PRIMARY_LINKS.map((l) => {
               const active = isActivePath(pathname, l.href);
@@ -103,7 +105,7 @@ export function MobileMenu({ variant }: { variant: "tab" | "header" }) {
                     aria-current={active ? "page" : undefined}
                     className={`block py-3.5 text-body font-bold ${active ? "text-primary" : "text-foreground"}`}
                   >
-                    {l.ja}
+                    {t(l.ja)}
                   </Link>
                 </li>
               );
@@ -113,7 +115,7 @@ export function MobileMenu({ variant }: { variant: "tab" | "header" }) {
             {SECONDARY_LINKS.map((l) => (
               <li key={l.href}>
                 <Link href={l.href} onClick={close} className="block py-2.5 text-caption text-muted">
-                  {l.ja}
+                  {t(l.ja)}
                 </Link>
               </li>
             ))}
@@ -139,7 +141,7 @@ export function MobileMenu({ variant }: { variant: "tab" | "header" }) {
         }
       >
         <Menu className={variant === "tab" ? "h-5 w-5" : "h-4 w-4"} strokeWidth={2.1} aria-hidden="true" />
-        メニュー
+        {t("メニュー")}
       </button>
       {isClient && createPortal(panel, document.body)}
     </>

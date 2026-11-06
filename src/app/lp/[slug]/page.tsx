@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { CATEGORY_ICONS, AreaIcon } from "@/lib/taxonomy-icons";
+import { getT } from "@/i18n/server";
 
 // 광고 캠페인용 페이지라서 검색 결과에 따로 노출되지 않게 한다 (사이트맵에도 넣지 않는다).
 export const metadata = { robots: { index: false, follow: true } };
@@ -28,6 +29,7 @@ export default async function LandingPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  const t = await getT();
   const { slug } = await params;
 
   const { data: lp } = await supabaseAdmin
@@ -60,7 +62,7 @@ export default async function LandingPage({
   const area = AREAS.find((a) => a.value === landing.target_area);
   const Icon = category ? CATEGORY_ICONS[category.value] : null;
 
-  const headlineJa = [category?.ja, area?.ja].filter(Boolean).join(" × ") || "韓国旅行";
+  const headlineJa = [t(category?.ja), t(area?.ja)].filter(Boolean).join(" × ") || t("韓国旅行");
   // 이 조건에 맞는 공개 쿠폰이 하나도 없을 때는 "今すぐGETできます" 같은 약속을 하지 않는다.
   const hasCoupons = coupons.length > 0;
 
@@ -82,18 +84,18 @@ export default async function LandingPage({
           </span>
         )}
         <h1 className="text-2xl font-extrabold tracking-tight">
-          {hasCoupons ? `${headlineJa}で使えるお得なクーポン` : `${headlineJa}のクーポンは準備中です`}
+          {hasCoupons ? t("{headlineJa}で使えるお得なクーポン", { headlineJa }) : t("{headlineJa}のクーポンは準備中です", { headlineJa })}
         </h1>
         <p className="text-sm text-muted">
           {hasCoupons
-            ? "無料会員登録で、今すぐクーポンをGETできます。"
-            : "提携店舗の準備ができ次第、順次公開します。公開までもうしばらくお待ちください。"}
+            ? t("無料会員登録で、今すぐクーポンをGETできます。")
+            : t("提携店舗の準備ができ次第、順次公開します。公開までもうしばらくお待ちください。")}
         </p>
         <Link
           href={signupHref}
           className="btn-glossy group mt-2 flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-bold text-primary-foreground transition hover:brightness-105"
         >
-          {hasCoupons ? "無料でクーポンをGET" : "無料会員登録はこちら"}
+          {hasCoupons ? t("無料でクーポンをGET") : t("無料会員登録はこちら")}
           <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
         </Link>
       </div>
@@ -109,12 +111,12 @@ export default async function LandingPage({
             >
               <p className="flex items-center gap-1 text-xs text-muted">
                 <span>
-                  {c?.ja}
+                  {t(c?.ja)}
                 </span>
-                <span>・</span>
+                <span>{t("・")}</span>
                 <span className="flex items-center gap-0.5">
                   <AreaIcon className="h-3 w-3" />
-                  {a?.ja}
+                  {t(a?.ja)}
                 </span>
               </p>
               <p className="mt-1 font-medium">{coupon.stores?.name}</p>

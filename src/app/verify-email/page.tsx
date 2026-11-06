@@ -2,16 +2,21 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { CheckCircle2, XCircle, MailCheck } from "lucide-react";
 import { confirmEmail } from "./actions";
+import { getT } from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "メールアドレスの確認",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return {
+    title: t("メールアドレスの確認"),
+  };
+}
 
 export default async function VerifyEmailPage({
   searchParams,
 }: {
   searchParams: Promise<{ token?: string; status?: string }>;
 }) {
+  const t = await getT();
   const { token, status } = await searchParams;
   const done = status === "done";
   // token이 있고 아직 결과(status)가 없으면 "확인 버튼" 화면, 그 외에는 결과 화면.
@@ -24,15 +29,15 @@ export default async function VerifyEmailPage({
           <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
             <MailCheck className="h-6 w-6" />
           </span>
-          <h1 className="text-h1 font-display mt-4 tracking-tight">メールアドレスの確認</h1>
-          <p className="mt-2 text-body text-muted">下のボタンを押して、メールアドレスの確認を完了してください。</p>
+          <h1 className="text-h1 font-display mt-4 tracking-tight">{t("メールアドレスの確認")}</h1>
+          <p className="mt-2 text-body text-muted">{t("下のボタンを押して、メールアドレスの確認を完了してください。")}</p>
           <form action={confirmEmail} className="mt-6 w-full">
             <input type="hidden" name="token" value={token} />
             <button
               type="submit"
               className="btn-glossy w-full rounded-lg px-6 py-3 text-body font-bold text-primary-foreground transition hover:brightness-105"
             >
-              確認する
+              {t("確認する")}
             </button>
           </form>
         </>
@@ -41,16 +46,16 @@ export default async function VerifyEmailPage({
           <span className="flex h-12 w-12 items-center justify-center rounded-full bg-success/10 text-success">
             <CheckCircle2 className="h-6 w-6" />
           </span>
-          <h1 className="text-h1 font-display mt-4 tracking-tight">確認できました</h1>
-          <p className="mt-2 text-body text-muted">メールアドレスの確認が完了しました。</p>
+          <h1 className="text-h1 font-display mt-4 tracking-tight">{t("確認できました")}</h1>
+          <p className="mt-2 text-body text-muted">{t("メールアドレスの確認が完了しました。")}</p>
         </>
       ) : (
         <>
           <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
             <XCircle className="h-6 w-6" />
           </span>
-          <h1 className="text-h1 font-display mt-4 tracking-tight">確認できませんでした</h1>
-          <p className="mt-2 text-body text-muted">リンクの有効期限が切れているか、すでに使用されています。</p>
+          <h1 className="text-h1 font-display mt-4 tracking-tight">{t("確認できませんでした")}</h1>
+          <p className="mt-2 text-body text-muted">{t("リンクの有効期限が切れているか、すでに使用されています。")}</p>
         </>
       )}
       <Link
@@ -61,7 +66,7 @@ export default async function VerifyEmailPage({
             : "btn-glossy text-primary-foreground hover:brightness-105"
         }`}
       >
-        マイページへ
+        {t("マイページへ")}
       </Link>
     </main>
   );

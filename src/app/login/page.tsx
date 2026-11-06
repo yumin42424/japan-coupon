@@ -7,10 +7,12 @@ import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { login, type LoginState } from "./actions";
 import { loginWithLine, loginWithGoogle } from "./oauth-actions";
 import { SIGNUPS_ENABLED } from "@/lib/feature-flags";
+import { useT } from "@/i18n/client";
 
 const initialState: LoginState = {};
 
 export default function LoginPage() {
+  const t = useT();
   const [state, formAction, pending] = useActionState(login, initialState);
   // LINE/Googleは新規会員登録なら同意チェックが必要なので、まだ登録していない
   // アカウントでここからログインしようとすると signIn コールバックが弾いて
@@ -25,13 +27,13 @@ export default function LoginPage() {
     <main className="relative flex min-h-[calc(100vh-65px)] items-center justify-center px-6 py-12">
       <div className="relative w-full max-w-sm rounded-xl border border-border bg-card p-7 sm:p-8">
       <h1 className="text-h1 font-display tracking-tight">
-        ログイン
+        {t("ログイン")}
       </h1>
 
       {justReset && (
         <p className="mt-4 flex items-start gap-1.5 rounded-xl border border-success/30 bg-success/5 p-3 text-body text-success" role="status">
           <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
-          パスワードを更新しました。新しいパスワードでログインしてください。
+          {t("パスワードを更新しました。新しいパスワードでログインしてください。")}
         </p>
       )}
 
@@ -39,11 +41,11 @@ export default function LoginPage() {
         <p className="mt-4 flex items-start gap-1.5 rounded-xl border border-primary/30 bg-primary/5 p-3 text-body text-primary" role="alert">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <span>
-            ログインできませんでした。初めてご利用の方は
+            {t("ログインできませんでした。初めてご利用の方は")}
             <Link href={signupHref} className="font-semibold underline underline-offset-2">
-              無料会員登録
+              {t("無料会員登録")}
             </Link>
-            からお進みください。
+            {t("からお進みください。")}
           </span>
         </p>
       )}
@@ -52,7 +54,7 @@ export default function LoginPage() {
         {callbackUrl && <input type="hidden" name="callbackUrl" value={callbackUrl} />}
         <label className="flex flex-col gap-1.5 text-body font-medium">
           <span className="flex items-center gap-1.5">
-            メールアドレス
+            {t("メールアドレス")}
           </span>
           <input
             type="email"
@@ -65,10 +67,10 @@ export default function LoginPage() {
         <label className="flex flex-col gap-1.5 text-body font-medium">
           <span className="flex items-center justify-between gap-1.5">
             <span className="flex items-center gap-1.5">
-              パスワード
+              {t("パスワード")}
             </span>
             <Link href="/forgot-password" className="text-caption font-medium text-muted underline underline-offset-2 hover:text-foreground">
-              お忘れですか？
+              {t("お忘れですか？")}
             </Link>
           </span>
           <input
@@ -82,7 +84,7 @@ export default function LoginPage() {
         {state.error && (
           <p className="flex items-center gap-1.5 text-body text-primary" role="alert">
             <AlertCircle className="h-4 w-4 shrink-0" />
-            {state.error}
+            {t(state.error)}
           </p>
         )}
 
@@ -91,7 +93,7 @@ export default function LoginPage() {
           disabled={pending}
           className="btn-glossy mt-2 rounded-lg px-4 py-3 text-body font-bold text-primary-foreground transition hover:brightness-105 active:scale-[0.99] disabled:opacity-50"
         >
-          {pending ? "ログイン中..." : "ログイン"}
+          {pending ? t("ログイン中...") : t("ログイン")}
         </button>
       </form>
 
@@ -99,7 +101,7 @@ export default function LoginPage() {
         <>
           <div className="mt-5 flex items-center gap-3 text-caption text-muted">
             <span className="h-px flex-1 bg-border" />
-            または
+            {t("または")}
             <span className="h-px flex-1 bg-border" />
           </div>
 
@@ -110,7 +112,7 @@ export default function LoginPage() {
                 type="submit"
                 className="w-full rounded-lg bg-[#06C755] px-4 py-3 text-body font-semibold text-white shadow-card transition hover:opacity-90"
               >
-                LINEでログイン
+                {t("LINEでログイン")}
               </button>
             </form>
             <form action={loginWithGoogle}>
@@ -119,7 +121,7 @@ export default function LoginPage() {
                 type="submit"
                 className="w-full rounded-lg border border-border bg-card px-4 py-3 text-body font-semibold text-foreground shadow-card transition hover:bg-background"
               >
-                Googleでログイン
+                {t("Googleでログイン")}
               </button>
             </form>
           </div>
@@ -128,9 +130,9 @@ export default function LoginPage() {
 
       {SIGNUPS_ENABLED && (
         <p className="mt-6 text-center text-body text-muted">
-          アカウントをお持ちでないですか？{" "}
+          {t("アカウントをお持ちでないですか？")}{" "}
           <Link href={signupHref} className="font-medium text-primary underline underline-offset-4">
-            無料会員登録
+            {t("無料会員登録")}
           </Link>
         </p>
       )}

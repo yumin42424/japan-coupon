@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { Share2, Check } from "lucide-react";
+import { useT } from "@/i18n/client";
 
 export function ShareButton({ title, url }: { title: string; url: string }) {
+  const t = useT();
   const [copied, setCopied] = useState(false);
 
   const handleShare = async () => {
@@ -28,7 +30,7 @@ export function ShareButton({ title, url }: { title: string; url: string }) {
     <button
       type="button"
       onClick={handleShare}
-      aria-label="クーポンを共有"
+      aria-label={t("クーポンを共有")}
       className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/80 text-foreground backdrop-blur-sm transition hover:bg-white"
     >
       {copied ? <Check className="h-5 w-5 text-success" /> : <Share2 className="h-5 w-5" />}

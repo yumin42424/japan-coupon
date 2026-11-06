@@ -2,8 +2,10 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { NicknameForm, PasswordForm, DeleteAccountSection } from "./settings-forms";
+import { getT } from "@/i18n/server";
 
 export default async function MyPageSettingsPage() {
+  const t = await getT();
   const session = await auth();
   if (!session?.user?.id) {
     redirect("/login");
@@ -20,7 +22,7 @@ export default async function MyPageSettingsPage() {
   return (
     <main className="mx-auto max-w-md px-6 py-10">
       <h1 className="text-h1 font-display tracking-tight">
-        アカウント設定
+        {t("アカウント設定")}
       </h1>
 
       <div className="mt-6 flex flex-col gap-6">

@@ -1,6 +1,7 @@
 import { todayKST } from "@/lib/date";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { NearbyList } from "./nearby-list";
+import { getT } from "@/i18n/server";
 
 export type NearbyCoupon = {
   id: string;
@@ -18,6 +19,7 @@ export type NearbyCoupon = {
 };
 
 export default async function NearbyPage() {
+  const t = await getT();
   const today = todayKST();
 
   const { data } = await supabaseAdmin
@@ -38,10 +40,10 @@ export default async function NearbyPage() {
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
       <h1 className="text-h1 font-display tracking-tight">
-        現在地から探す
+        {t("現在地から探す")}
       </h1>
       <p className="mt-2 text-body text-muted">
-        位置情報を許可すると、近くのクーポンが近い順に表示されます。
+        {t("位置情報を許可すると、近くのクーポンが近い順に表示されます。")}
       </p>
 
       <NearbyList coupons={coupons} />

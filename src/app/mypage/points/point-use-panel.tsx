@@ -6,6 +6,7 @@ import Link from "next/link";
 import { CheckCircle2, AlertCircle, Lock, Loader2 } from "lucide-react";
 import { spendPoints, checkPointUse } from "./actions";
 import type { PointUseResult } from "@/lib/point-use";
+import { useT } from "@/i18n/client";
 
 type Option = { id: string; label: string; description: string; cost: number };
 
@@ -27,6 +28,7 @@ export function PointUsePanel({
   enabled: boolean;
   options: Option[];
 }) {
+  const t = useT();
   const router = useRouter();
   const [selected, setSelected] = useState<Option | null>(null);
   // 같은 "확정" 시도는 항상 같은 requestId를 쓴다 — 재전송·연타·통신 오류 후 재시도에도 서버가 한 번만 처리한다.
@@ -111,15 +113,15 @@ export function PointUsePanel({
       <section className="mt-6 rounded-2xl border border-dashed border-border bg-card p-5">
         <p className="flex items-center gap-2 text-h3">
           <Lock className="h-5 w-5 text-muted" />
-          ポイントの利用機能は準備中です
+          {t("ポイントの利用機能は準備中です")}
         </p>
-        <p className="mt-2 text-body text-muted">ポイントの利用方法・条件は、決まり次第お知らせします。</p>
+        <p className="mt-2 text-body text-muted">{t("ポイントの利用方法・条件は、決まり次第お知らせします。")}</p>
         <button
           type="button"
           disabled
           className="mt-4 rounded-lg bg-border px-5 py-2.5 text-body font-bold text-muted"
         >
-          ポイントを使う（準備中）
+          {t("ポイントを使う（準備中）")}
         </button>
       </section>
     );
@@ -130,7 +132,7 @@ export function PointUsePanel({
 
   return (
     <section className="mt-6">
-      <h2 className="text-h3">ポイントを使う</h2>
+      <h2 className="text-h3">{t("ポイントを使う")}</h2>
       <ul className="mt-3 flex flex-col gap-3">
         {options.map((o) => (
           <li key={o.id} className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4">
@@ -144,7 +146,7 @@ export function PointUsePanel({
               onClick={() => open(o)}
               className="btn-glossy shrink-0 rounded-lg px-4 py-2 text-body font-bold text-primary-foreground transition hover:brightness-105"
             >
-              ポイントを使う
+              {t("ポイントを使う")}
             </button>
           </li>
         ))}
@@ -167,47 +169,47 @@ export function PointUsePanel({
               <div className="text-center">
                 <CheckCircle2 className="mx-auto h-8 w-8 text-success" />
                 <p id="point-use-title" className="mt-2 text-h3 text-success">
-                  {result?.status === "already_processed" ? "すでに処理済みです" : "ポイントを利用しました"}
+                  {result?.status === "already_processed" ? t("すでに処理済みです") : t("ポイントを利用しました")}
                 </p>
                 <dl className="mt-3 text-body">
                   {typeof result?.used === "number" && (
                     <div className="flex justify-between py-1">
-                      <dt className="text-muted">利用ポイント</dt>
+                      <dt className="text-muted">{t("利用ポイント")}</dt>
                       <dd className="font-bold">{result.used.toLocaleString()}pt</dd>
                     </div>
                   )}
                   {typeof result?.balance === "number" && (
                     <div className="flex justify-between py-1">
-                      <dt className="text-muted">現在の残高</dt>
+                      <dt className="text-muted">{t("現在の残高")}</dt>
                       <dd className="font-bold">{result.balance.toLocaleString()}pt</dd>
                     </div>
                   )}
                 </dl>
                 <button type="button" onClick={close} className="btn-glossy mt-4 w-full rounded-lg px-4 py-2.5 text-body font-bold text-primary-foreground">
-                  閉じる
+                  {t("閉じる")}
                 </button>
               </div>
             ) : (
               <>
-                <p id="point-use-title" className="text-h3">ポイントの利用内容を確認</p>
+                <p id="point-use-title" className="text-h3">{t("ポイントの利用内容を確認")}</p>
                 <p className="mt-1 text-caption text-muted">
-                  「利用を確定する」を押すまで、ポイントは減りません。
+                  {t("「利用を確定する」を押すまで、ポイントは減りません。")}
                 </p>
                 <dl className="mt-4 divide-y divide-border rounded-xl border border-border text-body">
                   <div className="flex justify-between gap-3 px-3 py-2">
-                    <dt className="text-muted">利用内容</dt>
+                    <dt className="text-muted">{t("利用内容")}</dt>
                     <dd className="text-right font-medium">{selected.label}</dd>
                   </div>
                   <div className="flex justify-between gap-3 px-3 py-2">
-                    <dt className="text-muted">使用ポイント</dt>
+                    <dt className="text-muted">{t("使用ポイント")}</dt>
                     <dd className="font-bold text-primary">{selected.cost.toLocaleString()}pt</dd>
                   </div>
                   <div className="flex justify-between gap-3 px-3 py-2">
-                    <dt className="text-muted">現在の保有ポイント</dt>
+                    <dt className="text-muted">{t("現在の保有ポイント")}</dt>
                     <dd>{balance.toLocaleString()}pt</dd>
                   </div>
                   <div className="flex justify-between gap-3 px-3 py-2">
-                    <dt className="text-muted">利用後の残高</dt>
+                    <dt className="text-muted">{t("利用後の残高")}</dt>
                     <dd className="font-bold">{insufficient ? "—" : `${(balance - selected.cost).toLocaleString()}pt`}</dd>
                   </div>
                 </dl>
@@ -215,19 +217,19 @@ export function PointUsePanel({
                 {insufficient && (
                   <p className="mt-3 flex items-center gap-1.5 text-body text-primary" role="alert">
                     <AlertCircle className="h-4 w-4 shrink-0" />
-                    ポイントが不足しています。
+                    {t("ポイントが不足しています。")}
                   </p>
                 )}
                 {result && !done && (
                   <p className="mt-3 flex items-start gap-1.5 text-body text-primary" role="alert">
                     <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                     <span>
-                      {RESULT_MESSAGES[result.status] ?? RESULT_MESSAGES.error}
+                      {t(RESULT_MESSAGES[result.status] ?? RESULT_MESSAGES.error)}
                       {result.status === "unauthenticated" && (
                         <>
                           {" "}
                           <Link href="/login?callbackUrl=%2Fmypage%2Fpoints" className="underline underline-offset-2">
-                            ログインする
+                            {t("ログインする")}
                           </Link>
                         </>
                       )}
@@ -237,10 +239,10 @@ export function PointUsePanel({
                 {networkError && (
                   <p className="mt-3 flex items-start gap-1.5 text-body text-primary" role="alert">
                     <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                    通信エラーが発生しました。ポイントが引かれたかどうかは「処理状況を確認する」で確認できます。
+                    {t("通信エラーが発生しました。ポイントが引かれたかどうかは「処理状況を確認する」で確認できます。")}
                   </p>
                 )}
-                {checkNote && <p className="mt-3 text-caption text-muted">{checkNote}</p>}
+                {checkNote && <p className="mt-3 text-caption text-muted">{t(checkNote)}</p>}
 
                 <div className="mt-4 flex flex-col gap-2">
                   <button
@@ -250,7 +252,7 @@ export function PointUsePanel({
                     className="btn-glossy flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
                   >
                     {pending && <Loader2 className="h-4 w-4 animate-spin" />}
-                    {pending ? "処理中..." : "利用を確定する"}
+                    {pending ? t("処理中...") : t("利用を確定する")}
                   </button>
                   {(networkError || result?.status === "error") && (
                     <button
@@ -259,7 +261,7 @@ export function PointUsePanel({
                       disabled={pending}
                       className="rounded-lg border border-border px-4 py-2.5 text-body font-medium transition hover:bg-background disabled:opacity-50"
                     >
-                      処理状況を確認する
+                      {t("処理状況を確認する")}
                     </button>
                   )}
                   <button
@@ -268,7 +270,7 @@ export function PointUsePanel({
                     disabled={pending}
                     className="rounded-lg px-4 py-2 text-body text-muted transition hover:text-foreground disabled:opacity-50"
                   >
-                    キャンセル
+                    {t("キャンセル")}
                   </button>
                 </div>
               </>

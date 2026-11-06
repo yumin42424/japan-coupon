@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getT } from "@/i18n/server";
 
 const MENU_LINKS = [
   { href: "/coupons", ja: "クーポンを探す" },
@@ -21,7 +22,8 @@ const LEGAL_LINKS = [
   { href: "/credits", ja: "画像クレジット" },
 ];
 
-export function Footer() {
+export async function Footer() {
+  const t = await getT();
   return (
     <footer className="mt-auto border-t border-border bg-background-alt px-6 py-10 md:pb-10">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
@@ -30,12 +32,12 @@ export function Footer() {
             K-Coupon <span className="text-primary">Japan</span>
           </p>
           <p className="mt-1 text-body text-muted">
-            日本人旅行者向けの韓国クーポンサイト
+            {t("日本人旅行者向けの韓国クーポンサイト")}
           </p>
         </div>
 
         <div className="flex flex-col gap-6 sm:flex-row sm:gap-10">
-          <nav aria-label="フッターメニュー" className="flex flex-col text-body">
+          <nav aria-label={t("フッターメニュー")} className="flex flex-col text-body">
             <p className="mb-1 text-label font-bold uppercase tracking-wider text-muted">Menu</p>
             {MENU_LINKS.map((l) => (
               <Link
@@ -43,12 +45,12 @@ export function Footer() {
                 href={l.href}
                 className="py-1.5 text-muted transition-colors hover:text-foreground"
               >
-                {l.ja}
+                {t(l.ja)}
               </Link>
             ))}
           </nav>
 
-          <nav aria-label="サービス情報" className="flex flex-col text-body">
+          <nav aria-label={t("サービス情報")} className="flex flex-col text-body">
             <p className="mb-1 text-label font-bold uppercase tracking-wider text-muted">About</p>
             {ABOUT_LINKS.map((l) => (
               <Link
@@ -56,12 +58,12 @@ export function Footer() {
                 href={l.href}
                 className="py-1.5 text-muted transition-colors hover:text-foreground"
               >
-                {l.ja}
+                {t(l.ja)}
               </Link>
             ))}
           </nav>
 
-          <nav aria-label="規約・ポリシー" className="flex flex-col text-body">
+          <nav aria-label={t("規約・ポリシー")} className="flex flex-col text-body">
             <p className="mb-1 text-label font-bold uppercase tracking-wider text-muted">Legal</p>
             {LEGAL_LINKS.map((l) => (
               <Link
@@ -69,7 +71,7 @@ export function Footer() {
                 href={l.href}
                 className="py-1.5 text-muted transition-colors hover:text-foreground"
               >
-                {l.ja}
+                {t(l.ja)}
               </Link>
             ))}
           </nav>

@@ -5,6 +5,9 @@ import "./globals.css";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { PublicChrome } from "@/components/public-chrome";
+import { getLocale, getT } from "@/i18n/server";
+import { messagesFor } from "@/i18n/messages";
+import { I18nProvider } from "@/i18n/client";
 
 // 見出し用 — 幾何学的で存在感のあるゴシック体。
 // 日本語Webフォントは字形ごとに100個以上のファイルに分割されていて、ウェイトを増やすほど
@@ -18,43 +21,49 @@ const display = Zen_Kaku_Gothic_New({
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://japan-coupon-five.vercel.app";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  // 広告のutmパラメータ等が付いたURLが別ページとして重複インデックスされないよう、各ページの正規URL(パラメータなし)を指定する。
-  alternates: { canonical: "./" },
-  title: {
-    default: "K-Coupon Japan | 韓国旅行がもっとお得になるクーポンサイト",
-    template: "%s | K-Coupon Japan",
-  },
-  description:
-    "日本人旅行者向けの韓国旅行クーポンサイト。明洞・弘大・江南・聖水など人気エリアに対応。現在は提携店舗のクーポンを準備中です。会員登録・利用は無料です。",
-  openGraph: {
-    type: "website",
-    locale: "ja_JP",
-    siteName: "K-Coupon Japan",
-    title: "K-Coupon Japan | 韓国旅行がもっとお得になるクーポンサイト",
-    description: "日本人旅行者向けの韓国旅行クーポンサイト。現在は提携店舗のクーポンを準備中です。",
-    images: [{ url: "/og.jpg", width: 1200, height: 630, alt: "K-Coupon Japan" }],
-  },
-  twitter: { card: "summary_large_image", images: ["/og.jpg"] },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return {
+    metadataBase: new URL(SITE_URL),
+    // 広告のutmパラメータ等が付いたURLが別ページとして重複インデックスされないよう、各ページの正規URL(パラメータなし)を指定する。
+    alternates: { canonical: "./" },
+    title: {
+      default: t("K-Coupon Japan | 韓国旅行がもっとお得になるクーポンサイト"),
+      template: "%s | K-Coupon Japan",
+    },
+    description:
+      t("日本人旅行者向けの韓国旅行クーポンサイト。明洞・弘大・江南・聖水など人気エリアに対応。現在は提携店舗のクーポンを準備中です。会員登録・利用は無料です。"),
+    openGraph: {
+      type: "website",
+      locale: "ja_JP",
+      siteName: "K-Coupon Japan",
+      title: t("K-Coupon Japan | 韓国旅行がもっとお得になるクーポンサイト"),
+      description: t("日本人旅行者向けの韓国旅行クーポンサイト。現在は提携店舗のクーポンを準備中です。"),
+      images: [{ url: "/og.jpg", width: 1200, height: 630, alt: "K-Coupon Japan" }],
+    },
+    twitter: { card: "summary_large_image", images: ["/og.jpg"] },
+  };
+}
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const locale = await getLocale();
   return (
     <html
-      lang="ja"
+      lang={locale}
       className={`${display.variable} h-full antialiased`}
     >
       {/* body가 flex 컬럼이라 mx-auto 가 붙은 <main>은 "내용 폭만큼"만 잡힌다 — 긴 한 줄 텍스트(truncate 등)가 있으면
           main이 화면보다 넓어져 모바일에서 가로 스크롤이 생기므로, main은 항상 가용 폭을 쓰도록(max-w 는 각 페이지가 지정) 고정한다. */}
       <body className="flex min-h-full flex-col pb-[var(--bottom-nav-h)] md:pb-0 [&>main]:w-full">
-        <PublicChrome>
-          <Nav />
-        </PublicChrome>
-        {children}
-        <PublicChrome>
-          <Footer />
-        </PublicChrome>
+        <I18nProvider locale={locale} messages={messagesFor(locale)}>
+          <PublicChrome>
+            <Nav />
+          </PublicChrome>
+          {children}
+          <PublicChrome>
+            <Footer />
+          </PublicChrome>
+        </I18nProvider>
         <Analytics />
       </body>
     </html>

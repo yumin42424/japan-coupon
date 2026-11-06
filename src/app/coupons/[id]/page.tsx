@@ -36,6 +36,7 @@ import { SubmitButton } from "@/components/submit-button";
 import { ReviewForm } from "./review-form";
 import { ViewTracker } from "./view-tracker";
 import { ShareButton } from "@/components/share-button";
+import { getT } from "@/i18n/server";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://japan-coupon-five.vercel.app";
 
@@ -111,7 +112,8 @@ export async function generateMetadata({
   const title = store
     ? `${store.name}｜${coupon.title}${discountRate !== null ? `（${discountRate}%OFF）` : ""}`
     : coupon.title;
-  const description = [store && area && category ? `${area.ja}・${category.ja}の${store.name}` : null, coupon.discount_info]
+  const t = await getT();
+  const description = [store && area && category ? t("{area}・{category}の{store}", { area: t(area.ja), category: t(category.ja), store: store.name }) : null, coupon.discount_info]
     .filter(Boolean)
     .join(" ");
 
@@ -135,6 +137,7 @@ export default async function CouponDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ issue?: string }>;
 }) {
+  const t = await getT();
   const { id } = await params;
   const { issue } = await searchParams;
   // 방금 누른 GET의 결과 (actions.ts 의 flashIssueResult). 이 쿠폰의 것일 때만 쓴다.
@@ -287,7 +290,7 @@ export default async function CouponDetailPage({
             <form action={toggleFavorite.bind(null, id)}>
               <button
                 type="submit"
-                aria-label={isFavorited ? "お気に入りから外す" : "お気に入りに追加"}
+                aria-label={isFavorited ? t("お気に入りから外す") : t("お気に入りに追加")}
                 className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full backdrop-blur-sm transition focus-visible:ring-4 focus-visible:ring-white/40 ${
                   isFavorited ? "bg-primary text-white" : "bg-white/80 text-foreground hover:bg-white"
                 }`}
@@ -301,11 +304,11 @@ export default async function CouponDetailPage({
         <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-2 p-4">
           <div className="min-w-0">
             <p className="flex flex-wrap items-center gap-1 text-caption text-white/85">
-              <span>{category?.ja}</span>
-              <span>・</span>
+              <span>{t(category?.ja)}</span>
+              <span>{t("・")}</span>
               <span className="flex items-center gap-0.5">
                 <AreaIcon className="h-3 w-3" />
-                {area?.ja}
+                {t(area?.ja)}
               </span>
             </p>
             <h1 className="mt-0.5 break-words text-h1 text-white">{store.name}</h1>
@@ -317,20 +320,20 @@ export default async function CouponDetailPage({
         {coupon.member_only && (
           <span className="flex items-center gap-0.5 rounded-full bg-primary/10 px-2 py-0.5 text-caption text-primary">
             <Lock className="h-2.5 w-2.5" />
-            会員限定
+            {t("会員限定")}
           </span>
         )}
         {store.popular_with_japanese && (
           <span className="flex items-center gap-0.5 rounded-full bg-orange-500/10 px-2 py-0.5 text-caption font-medium text-orange-500">
             <Flame className="h-2.5 w-2.5" />
-            日本人に人気
+            {t("日本人に人気")}
           </span>
         )}
         {avgRating !== null && (
           <span className="flex items-center gap-1 text-caption text-muted">
             <Star className="h-3.5 w-3.5 text-primary" fill="currentColor" strokeWidth={0} />
             <span className="font-semibold text-foreground">{avgRating.toFixed(1)}</span>
-            <span>({reviews.length}件の口コミ)</span>
+            <span>({t("{n}件の口コミ", { n: reviews.length })})</span>
           </span>
         )}
       </div>
@@ -344,7 +347,7 @@ export default async function CouponDetailPage({
                 {urgent && (
                   <span className="flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-primary-foreground">
                     <Timer className="h-3 w-3" />
-                    {daysLeft <= 0 ? "本日締切" : `あと${daysLeft}日`}
+                    {daysLeft <= 0 ? t("本日締切") : t("あと{daysLeft}日", { daysLeft })}
                   </span>
                 )}
                 {remaining !== null && (
@@ -356,7 +359,7 @@ export default async function CouponDetailPage({
                     }`}
                   >
                     <Users className="h-3 w-3" />
-                    {isSoldOut ? "満了しました" : `残り${remaining}枚`}
+                    {isSoldOut ? t("満了しました") : t("残り{remaining}枚", { remaining })}
                   </span>
                 )}
               </p>
@@ -380,7 +383,7 @@ export default async function CouponDetailPage({
                 </p>
                 {jpyRate && coupon.discounted_price && (
                   <p className="text-caption text-muted">
-                    約{formatJpy(coupon.discounted_price, jpyRate)}
+                    {t("約{price}", { price: formatJpy(coupon.discounted_price, jpyRate) })}
                   </p>
                 )}
               </>
@@ -389,7 +392,7 @@ export default async function CouponDetailPage({
           <div className="flex flex-col gap-2 px-5 py-4 text-sm">
             <p className="flex items-center gap-2 text-muted">
               <CalendarClock className="h-4 w-4 shrink-0" />
-              利用期間: {coupon.valid_from} 〜 {coupon.valid_to}
+              {t("利用期間: ")}{coupon.valid_from} 〜 {coupon.valid_to}
             </p>
             {coupon.usage_condition && (
               <p className="flex items-center gap-2 text-muted">
@@ -411,7 +414,7 @@ export default async function CouponDetailPage({
                 className="flex items-center gap-2 font-medium text-primary underline underline-offset-4"
               >
                 <MapPin className="h-4 w-4 shrink-0" />
-                地図で見る（Googleマップ）
+                {t("地図で見る（Googleマップ）")}
               </a>
             )}
             {store.business_hours && (
@@ -424,7 +427,7 @@ export default async function CouponDetailPage({
                       openNow ? "bg-success/10 text-success" : "bg-border text-muted"
                     }`}
                   >
-                    {openNow ? "営業中" : "営業時間外"}
+                    {openNow ? t("営業中") : t("営業時間外")}
                   </span>
                 )}
               </p>
@@ -438,7 +441,7 @@ export default async function CouponDetailPage({
             {store.line_available && (
               <p className="flex items-center gap-2 text-success">
                 <Languages className="h-4 w-4 shrink-0" />
-                日本語対応可能
+                {t("日本語対応可能")}
               </p>
             )}
           </div>
@@ -448,33 +451,33 @@ export default async function CouponDetailPage({
         <div className="mt-4 flex gap-2 rounded-2xl border border-border bg-card px-4 py-3.5 text-xs leading-relaxed text-muted">
           <Info className="h-4 w-4 shrink-0 text-primary" />
           <p>
-            <span className="block font-bold text-foreground">医療サービスについて</span>
-            掲載情報は、特定の診断・治療・施術を医学的に推奨するものではありません。施術の効果・リスク・副作用・適応には個人差があります。施術を受ける前に、医療機関から十分な説明を受けてください。
+            <span className="block font-bold text-foreground">{t("医療サービスについて")}</span>
+            {t("掲載情報は、特定の診断・治療・施術を医学的に推奨するものではありません。施術の効果・リスク・副作用・適応には個人差があります。施術を受ける前に、医療機関から十分な説明を受けてください。")}
           </p>
         </div>
       )}
 
       <div className="mt-4 rounded-xl border border-border bg-card px-4 py-3.5 text-caption text-muted">
-        <p className="text-body font-bold text-foreground">ご利用方法</p>
+        <p className="text-body font-bold text-foreground">{t("ご利用方法")}</p>
         <ol className="mt-1.5 list-decimal space-y-1 pl-4">
           <li>
-            「無料でGET」を押してクーポンを取得します
-            {!session?.user && "（ログインまたは会員登録が必要です）"}。
+            {t("「無料でGET」を押してクーポンを取得します。")}
+            {!session?.user && t("（ログインまたは会員登録が必要です）")}
           </li>
-          <li>マイページに表示されるQRコード（またはコード）を、お店で提示してください。</li>
+          <li>{t("マイページに表示されるQRコード（またはコード）を、お店で提示してください。")}</li>
           <li>
-            利用期間と利用条件をご確認のうえ、ご利用ください。
+            {t("利用期間と利用条件をご確認のうえ、ご利用ください。")}
             {coupon.reusable_after_days
-              ? `このクーポンは${coupon.reusable_after_days}日ごとに再取得できます。`
-              : "お一人様1回までご利用いただけます。"}
+              ? t("このクーポンは{reusable_after_days}日ごとに再取得できます。", { reusable_after_days: coupon.reusable_after_days })
+              : t("お一人様1回までご利用いただけます。")}
           </li>
         </ol>
         <p className="mt-2">
-          ご不明な点やトラブルがあった場合は、
+          {t("ご不明な点やトラブルがあった場合は、")}
           <Link href="/support" className="font-medium text-primary underline underline-offset-4">
-            お問い合わせ
+            {t("お問い合わせ")}
           </Link>
-          からご連絡ください。
+          {t("からご連絡ください。")}
         </p>
       </div>
 
@@ -493,12 +496,12 @@ export default async function CouponDetailPage({
               <div role="status" className="rounded-lg border border-success/30 bg-card px-4 py-3">
                 <p className="flex items-center gap-2 text-body font-bold text-success">
                   <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden="true" />
-                  クーポンをGETしました
+                  {t("クーポンをGETしました")}
                 </p>
                 <p className="mt-1 text-caption text-muted">
-                  お店では、マイページのQRコード（またはコード）を見せてください。
+                  {t("お店では、マイページのQRコード（またはコード）を見せてください。")}
                   <Link href="/mypage" className="ml-1 font-bold text-primary underline underline-offset-4">
-                    マイページで見る
+                    {t("マイページで見る")}
                   </Link>
                 </p>
               </div>
@@ -508,36 +511,36 @@ export default async function CouponDetailPage({
                 className="flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-3 text-center text-body font-medium text-muted transition-colors hover:border-foreground/30 hover:text-foreground md:py-3.5"
               >
                 <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />
-                GET済み・マイページで表示
+                {t("GET済み・マイページで表示")}
               </Link>
             ) : isUnavailable ? (
               <p className="flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-3 text-center text-sm font-medium text-muted md:py-3.5">
                 <Info className="h-4 w-4" />
-                現在ご利用いただけません
+                {t("現在ご利用いただけません")}
               </p>
             ) : isExpired ? (
               <p className="flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-3 text-center text-sm font-medium text-muted md:py-3.5">
                 <CalendarClock className="h-4 w-4" />
-                有効期限が終了しました
+                {t("有効期限が終了しました")}
               </p>
             ) : isSoldOut ? (
               <p className="flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-3 text-center text-sm font-medium text-muted md:py-3.5">
                 <Users className="h-4 w-4" />
-                先着順の受付は終了しました
+                {t("先着順の受付は終了しました")}
               </p>
             ) : (
               <form action={issueCoupon.bind(null, id)}>
                 {(issue === "unavailable" || issueResult === "failed") && (
                   <p role="alert" className="mb-2 flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-center text-caption text-muted">
                     <Info className="h-4 w-4 shrink-0" aria-hidden="true" />
-                    ただいまこのクーポンを発行できません。しばらくしてからもう一度お試しください。
+                    {t("ただいまこのクーポンを発行できません。しばらくしてからもう一度お試しください。")}
                   </p>
                 )}
                 <SubmitButton
-                  pendingLabel="処理中…"
+                  pendingLabel={t("処理中…")}
                   className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3.5 text-body font-bold text-primary-foreground disabled:cursor-wait disabled:opacity-70"
                 >
-                  無料でGET
+                  {t("無料でGET")}
                 </SubmitButton>
               </form>
             )}
@@ -547,7 +550,7 @@ export default async function CouponDetailPage({
 
       <div className="mt-8 flex flex-col gap-3">
         <h2 className="flex items-center gap-1.5 text-sm font-bold">
-          口コミ
+          {t("口コミ")}
           <span className="text-muted">({reviews.length})</span>
         </h2>
 
@@ -555,7 +558,7 @@ export default async function CouponDetailPage({
 
         {reviews.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-border px-4 py-6 text-center text-xs text-muted">
-            まだ口コミはありません。
+            {t("まだ口コミはありません。")}
           </p>
         ) : (
           <ul className="flex flex-col gap-2.5">
@@ -578,7 +581,7 @@ export default async function CouponDetailPage({
                       <form action={deleteReview.bind(null, review.id, id)}>
                         <button
                           type="submit"
-                          aria-label="口コミを削除"
+                          aria-label={t("口コミを削除")}
                           className="text-muted transition hover:text-primary focus-visible:ring-4 focus-visible:ring-primary/20"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
@@ -593,8 +596,8 @@ export default async function CouponDetailPage({
                     </div>
                   )}
                   <p className="mt-2 flex items-center gap-1 text-[11px] text-muted">
-                    <span>{review.users?.nickname ?? "会員"}</span>
-                    <span>・</span>
+                    <span>{review.users?.nickname ?? t("会員")}</span>
+                    <span>{t("・")}</span>
                     <span>{new Date(review.created_at).toISOString().slice(0, 10)}</span>
                   </p>
                 </li>

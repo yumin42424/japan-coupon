@@ -24,12 +24,16 @@ import {
 import { CouponCard } from "@/components/coupon-card";
 import { EmptyState } from "@/components/empty-state";
 import { CouponCardSkeleton } from "@/components/coupon-card-skeleton";
+import { getT } from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "クーポンを探す",
-  description:
-    "明洞・弘大・江南・聖水など韓国の人気エリア、グルメ・美容・ショッピングなどのカテゴリからクーポンを検索できます。",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return {
+    title: t("クーポンを探す"),
+    description:
+      t("明洞・弘大・江南・聖水など韓国の人気エリア、グルメ・美容・ショッピングなどのカテゴリからクーポンを検索できます。"),
+  };
+}
 
 type CouponListItem = {
   id: string;
@@ -86,6 +90,7 @@ function FilteredCouponListFallback() {
 }
 
 async function CategoryAreaHub() {
+  const t = await getT();
   // 공개된 쿠폰이 하나도 없으면(제휴 매장 확보 전) 빈 목록 대신 "準備中" 안내를 먼저 보여준다.
   const [{ count: publicCouponCount }, session] = await Promise.all([
     supabaseAdmin
@@ -102,10 +107,10 @@ async function CategoryAreaHub() {
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
       <h1 className="text-h1 font-display tracking-tight">
-        クーポンを探す
+        {t("クーポンを探す")}
       </h1>
       <p className="mt-2 text-body text-muted">
-        カテゴリまたはエリアを選んでください。
+        {t("カテゴリまたはエリアを選んでください。")}
       </p>
 
       <form action="/coupons" className="relative mt-5">
@@ -113,7 +118,7 @@ async function CategoryAreaHub() {
         <input
           type="text"
           name="q"
-          placeholder="店舗名やクーポン名で検索"
+          placeholder={t("店舗名やクーポン名で検索")}
           className="w-full rounded-lg border border-border bg-card py-3 pl-11 pr-4 text-body outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
         />
       </form>
@@ -129,18 +134,18 @@ async function CategoryAreaHub() {
         className="mt-4 inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-body font-medium transition hover:bg-background"
       >
         <LocateFixed className="h-4 w-4" />
-        現在地から探す
+        {t("現在地から探す")}
       </Link>
 
       <section className="mt-8">
-        <h2 className="text-h3">カテゴリから探す</h2>
+        <h2 className="text-h3">{t("カテゴリから探す")}</h2>
         <div className="mt-3">
           <CategoryGrid />
         </div>
       </section>
 
       <section className="mt-10">
-        <h2 className="text-h3">エリアから探す</h2>
+        <h2 className="text-h3">{t("エリアから探す")}</h2>
         <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
           {AREAS.map((a) => (
             <Link
@@ -148,7 +153,7 @@ async function CategoryAreaHub() {
               href={`/areas/${a.value}`}
               className="rounded-lg border border-border bg-card px-3 py-3 text-center text-body font-bold transition hover:border-foreground/30"
             >
-              {a.ja}
+              {t(a.ja)}
             </Link>
           ))}
         </div>
@@ -159,7 +164,7 @@ async function CategoryAreaHub() {
           href="/coupons?area=all"
           className="inline-block py-2 text-body text-muted underline underline-offset-4 hover:text-foreground"
         >
-          すべてのクーポンを見る
+          {t("すべてのクーポンを見る")}
         </Link>
       </div>
     </main>
@@ -167,6 +172,7 @@ async function CategoryAreaHub() {
 }
 
 async function FilteredCouponList({ raw }: { raw: RawCouponListParams }) {
+  const t = await getT();
   // 주소 파라미터는 허용된 값만 통과시킨다 (없는 카테고리·지역·이상한 페이지 번호는 "조건 없음"으로 취급).
   const { category, area, q: keyword, sort, page } = parseCouponListParams(raw);
   const safeKeyword = sanitizeKeyword(keyword);
@@ -224,11 +230,11 @@ async function FilteredCouponList({ raw }: { raw: RawCouponListParams }) {
     Sentry.captureException(new Error(`coupon list query failed (${error.code ?? "no-code"})`));
     return (
       <main className="mx-auto max-w-4xl px-6 py-10">
-        <h1 className="text-h1 font-display tracking-tight">クーポンを探す</h1>
+        <h1 className="text-h1 font-display tracking-tight">{t("クーポンを探す")}</h1>
         <div className="mt-8">
           <EmptyState
-            message="クーポンを読み込めませんでした。時間をおいてもう一度お試しください。"
-            ctaLabel="もう一度読み込む"
+            message={t("クーポンを読み込めませんでした。時間をおいてもう一度お試しください。")}
+            ctaLabel={t("もう一度読み込む")}
             ctaHref={hrefFor({ page })}
           />
         </div>
@@ -275,17 +281,17 @@ async function FilteredCouponList({ raw }: { raw: RawCouponListParams }) {
         className="-my-2 inline-flex items-center gap-1 py-2 text-body text-muted hover:text-foreground"
       >
         <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-        カテゴリ・エリア選択に戻る
+        {t("カテゴリ・エリア選択に戻る")}
       </Link>
 
       <h1 className="text-h1 font-display mt-3 tracking-tight">
-        {keyword ? `「${keyword}」の検索結果` : null}
-        {!keyword && currentCategory ? currentCategory.ja : null}
-        {!keyword && currentCategory && currentArea ? " ・ " : null}
-        {!keyword && currentArea ? currentArea.ja : null}
-        {!keyword && !currentCategory && !currentArea && "すべてのクーポン"}
+        {keyword ? t("「{keyword}」の検索結果", { keyword }) : null}
+        {!keyword && currentCategory ? t(currentCategory.ja) : null}
+        {!keyword && currentCategory && currentArea ? t(" ・ ") : null}
+        {!keyword && currentArea ? t(currentArea.ja) : null}
+        {!keyword && !currentCategory && !currentArea && t("すべてのクーポン")}
       </h1>
-      {total > 0 && <p className="mt-1 text-caption text-muted">{total}件</p>}
+      {total > 0 && <p className="mt-1 text-caption text-muted">{t("{n}件", { n: total })}</p>}
 
       <form action="/coupons" className="relative mt-4">
         {category && <input type="hidden" name="category" value={category} />}
@@ -296,15 +302,15 @@ async function FilteredCouponList({ raw }: { raw: RawCouponListParams }) {
           type="text"
           name="q"
           defaultValue={keyword}
-          placeholder="店舗名やクーポン名で検索"
+          placeholder={t("店舗名やクーポン名で検索")}
           className="w-full rounded-lg border border-border bg-card py-2.5 pl-11 pr-4 text-body outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
         />
       </form>
 
       {/* モバイルでは横スクロールの1行にして、絞り込みで画面が埋まりクーポンが下に押し出されないようにする */}
-      <div className="mt-4 flex gap-2 overflow-x-auto pb-1 -mx-6 px-6 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&>*]:shrink-0" role="group" aria-label="カテゴリ">
+      <div className="mt-4 flex gap-2 overflow-x-auto pb-1 -mx-6 px-6 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&>*]:shrink-0" role="group" aria-label={t("カテゴリ")}>
         <Link href={hrefFor({ category: undefined, page: 1 })} className={chip(!category)}>
-          すべて
+          {t("すべて")}
         </Link>
         {CATEGORIES.map((c) => {
           const Icon = CATEGORY_ICONS[c.value];
@@ -316,15 +322,15 @@ async function FilteredCouponList({ raw }: { raw: RawCouponListParams }) {
               aria-current={category === c.value ? "true" : undefined}
             >
               <Icon className="h-3.5 w-3.5" strokeWidth={2.25} />
-              {c.ja}
+              {t(c.ja)}
             </Link>
           );
         })}
       </div>
 
-      <div className="mt-2 flex gap-2 overflow-x-auto pb-1 -mx-6 px-6 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&>*]:shrink-0" role="group" aria-label="エリア">
+      <div className="mt-2 flex gap-2 overflow-x-auto pb-1 -mx-6 px-6 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&>*]:shrink-0" role="group" aria-label={t("エリア")}>
         <Link href={hrefFor({ area: undefined, page: 1 })} className={chip(!area)}>
-          全エリア
+          {t("全エリア")}
         </Link>
         {AREAS.map((a) => (
           <Link
@@ -333,16 +339,16 @@ async function FilteredCouponList({ raw }: { raw: RawCouponListParams }) {
             className={chip(area === a.value)}
             aria-current={area === a.value ? "true" : undefined}
           >
-            {a.ja}
+            {t(a.ja)}
           </Link>
         ))}
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-2" role="group" aria-label="並び替え">
-        <span className="text-caption text-muted">並び替え</span>
+      <div className="mt-4 flex flex-wrap items-center gap-2" role="group" aria-label={t("並び替え")}>
+        <span className="text-caption text-muted">{t("並び替え")}</span>
         {COUPON_SORTS.map((s) => (
           <Link key={s.value} href={hrefFor({ sort: s.value, page: 1 })} className={chip(sort === s.value)} aria-current={sort === s.value ? "true" : undefined}>
-            {s.ja}
+            {t(s.ja)}
           </Link>
         ))}
       </div>
@@ -376,14 +382,14 @@ async function FilteredCouponList({ raw }: { raw: RawCouponListParams }) {
           {/* 絞り込みなしで0件 = まだ公開中のクーポンがない。絞り込みありで0件 = 条件に合うものがない。言い分ける */}
           {category || area || keyword ? (
             <EmptyState
-              message="条件に合うクーポンがありません。"
-              ctaLabel="すべてのクーポンを見る"
+              message={t("条件に合うクーポンがありません。")}
+              ctaLabel={t("すべてのクーポンを見る")}
               ctaHref={couponListHref({})}
             />
           ) : (
             <EmptyState
-              message="クーポンは現在準備中です。提携店舗の準備ができ次第、順次公開します。"
-              ctaLabel="ご利用ガイドを見る"
+              message={t("クーポンは現在準備中です。提携店舗の準備ができ次第、順次公開します。")}
+              ctaLabel={t("ご利用ガイドを見る")}
               ctaHref="/guide"
             />
           )}
@@ -391,14 +397,14 @@ async function FilteredCouponList({ raw }: { raw: RawCouponListParams }) {
       )}
 
       {pages > 1 && (
-        <nav aria-label="ページ送り" className="mt-10 flex items-center justify-center gap-4">
+        <nav aria-label={t("ページ送り")} className="mt-10 flex items-center justify-center gap-4">
           {page > 1 ? (
             <Link href={hrefFor({ page: page - 1 })} rel="prev" className={pagerLink}>
-              前へ
+              {t("前へ")}
             </Link>
           ) : (
             <span className={pagerOff} aria-disabled="true">
-              前へ
+              {t("前へ")}
             </span>
           )}
           <span className="text-body text-muted">
@@ -406,11 +412,11 @@ async function FilteredCouponList({ raw }: { raw: RawCouponListParams }) {
           </span>
           {page < pages ? (
             <Link href={hrefFor({ page: page + 1 })} rel="next" className={pagerLink}>
-              次へ
+              {t("次へ")}
             </Link>
           ) : (
             <span className={pagerOff} aria-disabled="true">
-              次へ
+              {t("次へ")}
             </span>
           )}
         </nav>

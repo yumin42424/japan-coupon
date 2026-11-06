@@ -2,9 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { CATEGORIES } from "@/lib/taxonomy";
 import { CATEGORY_IMAGES } from "@/lib/taxonomy-images";
+import { getT } from "@/i18n/server";
 
 // 홈과 쿠폰 찾기 화면이 같이 쓰는 카테고리 타일 (사진 4:3 + 아래 이름).
-export function CategoryGrid() {
+export async function CategoryGrid() {
+  const t = await getT();
   return (
     <ul className="grid grid-cols-2 gap-x-3 gap-y-4 sm:grid-cols-4 sm:gap-x-4">
       {CATEGORIES.map((c) => (
@@ -19,7 +21,7 @@ export function CategoryGrid() {
                 className="object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"
               />
             </div>
-            <span className="mt-2 block text-body font-bold leading-snug group-hover:text-primary">{c.ja}</span>
+            <span className="mt-2 block text-body font-bold leading-snug group-hover:text-primary">{t(c.ja)}</span>
           </Link>
         </li>
       ))}

@@ -3,6 +3,7 @@ import { ChevronRight, PenSquare } from "lucide-react";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { BOARD_CATEGORIES, isBoardCategory } from "@/lib/board-categories";
+import { getT } from "@/i18n/server";
 
 type PostRow = {
   id: string;
@@ -17,6 +18,7 @@ export default async function BoardPage({
 }: {
   searchParams: Promise<{ category?: string }>;
 }) {
+  const t = await getT();
   const session = await auth();
   const { category: categoryParam } = await searchParams;
   const activeCategory = isBoardCategory(categoryParam) ? categoryParam : undefined;
@@ -37,13 +39,13 @@ export default async function BoardPage({
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
       <div className="flex items-center justify-between">
-        <h1 className="text-h1 font-display tracking-tight">韓国旅行Q&A</h1>
+        <h1 className="text-h1 font-display tracking-tight">{t("韓国旅行Q&A")}</h1>
         <Link
           href={session?.user ? "/board/write" : "/login"}
           className="btn-glossy flex items-center gap-1.5 rounded-lg px-4 py-2 text-caption font-bold text-primary-foreground transition hover:brightness-105"
         >
           <PenSquare className="h-4 w-4" />
-          投稿する
+          {t("投稿する")}
         </Link>
       </div>
 
@@ -56,7 +58,7 @@ export default async function BoardPage({
               : "border border-border bg-card text-muted hover:border-primary/40 hover:text-foreground"
           }`}
         >
-          すべて
+          {t("すべて")}
         </Link>
         {BOARD_CATEGORIES.map((c) => (
           <Link
@@ -68,14 +70,14 @@ export default async function BoardPage({
                 : "border border-border bg-card text-muted hover:border-primary/40 hover:text-foreground"
             }`}
           >
-            {c.ja}
+            {t(c.ja)}
           </Link>
         ))}
       </div>
 
       {posts.length === 0 && (
         <p className="mt-6 border-y border-border py-8 text-body text-muted">
-          まだ投稿がありません。韓国旅行で気になることを、最初に質問してみませんか。
+          {t("まだ投稿がありません。韓国旅行で気になることを、最初に質問してみませんか。")}
         </p>
       )}
       <ul className="mt-6 flex flex-col gap-2">
@@ -91,13 +93,13 @@ export default async function BoardPage({
                   <span className="flex items-center gap-1.5">
                     {category && (
                       <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-label font-medium text-primary">
-                        {category.ja}
+                        {t(category.ja)}
                       </span>
                     )}
                     <span className="truncate text-h3">{post.title}</span>
                   </span>
                   <span className="mt-0.5 block text-caption text-muted">
-                    {post.users?.nickname} ・ {new Date(post.created_at).toISOString().slice(0, 10)}
+                    {post.users?.nickname}{t(" ・ ")}{new Date(post.created_at).toISOString().slice(0, 10)}
                   </span>
                 </span>
                 <ChevronRight className="h-5 w-5 shrink-0 text-muted" />

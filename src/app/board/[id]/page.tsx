@@ -6,12 +6,14 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import { getIsAdmin } from "@/lib/admin";
 import { BOARD_CATEGORIES } from "@/lib/board-categories";
 import { deletePost } from "../actions";
+import { getT } from "@/i18n/server";
 
 export default async function PostDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const t = await getT();
   const { id } = await params;
   const session = await auth();
 
@@ -39,19 +41,19 @@ export default async function PostDetailPage({
     <main className="mx-auto max-w-3xl px-6 py-10">
       <Link href="/board" className="flex items-center gap-1 text-body text-muted hover:text-foreground">
         <ChevronLeft className="h-4 w-4" />
-        Q&amp;Aに戻る
+        {t("Q&Aに戻る")}
       </Link>
 
       <div className="mt-4 flex items-start justify-between gap-3">
         <div>
           {category && (
             <span className="mb-1.5 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-label font-medium text-primary">
-              {category.ja}
+              {t(category.ja)}
             </span>
           )}
           <h1 className="text-h1 font-display tracking-tight">{post.title}</h1>
           <p className="mt-1 text-caption text-muted">
-            {post.users?.nickname} ・ {new Date(post.created_at).toISOString().slice(0, 10)}
+            {post.users?.nickname}{t(" ・ ")}{new Date(post.created_at).toISOString().slice(0, 10)}
           </p>
         </div>
         {canDelete && (

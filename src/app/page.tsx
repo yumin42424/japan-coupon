@@ -12,6 +12,7 @@ import { CouponCard } from "@/components/coupon-card";
 import { SectionHeading } from "@/components/section-heading";
 import { HeroImageCarousel } from "@/components/hero-image-carousel";
 import { CategoryGrid } from "@/components/category-grid";
+import { getT } from "@/i18n/server";
 
 const FEATURED_AREA_VALUES = ["myeongdong", "hongdae", "gangnam", "seongsu"] as const;
 // ヒーローの「人気エリア」ショートカット（ソウル中心＋釜山・済州）
@@ -61,6 +62,7 @@ type RecommendedCoupon = {
 };
 
 export default async function Home() {
+  const t = await getT();
   const session = await auth();
 
   const [{ data: couponRows }, { data: areaCouponRows }] = await Promise.all([
@@ -97,6 +99,8 @@ export default async function Home() {
 
   const totalPublicCoupons = (areaCouponRows ?? []).length;
 
+  const heroLines = t("韓国旅行の|クーポンを、|日本語で。").split("|");
+
   const featuredAreas = FEATURED_AREA_VALUES.map((value) => AREAS.find((a) => a.value === value)).filter(
     (a): a is (typeof AREAS)[number] => !!a
   );
@@ -124,26 +128,24 @@ export default async function Home() {
         <div className="relative mx-auto max-w-6xl pb-12 pt-16 sm:py-14 lg:grid lg:grid-cols-2 lg:items-center lg:gap-14 lg:py-16">
           <div className="relative flex flex-col items-start gap-4 lg:gap-5">
             <p className="text-caption font-bold tracking-wide text-white/80 lg:text-primary">
-              ソウル・釜山・済州の旅行に
+              {t("ソウル・釜山・済州の旅行に")}
             </p>
             {/* 何のサービスかが一目で伝わる見出し — 「韓国旅行」「クーポン」「日本語」の3点。
                 改行位置は固定する: 見出しフォントの読み込み前後で折り返しが変わると、下の内容がずれる(CLS)。 */}
             <h1 className="text-display text-white lg:text-foreground">
-              韓国旅行の
+              {heroLines[0]}
               <br className="sm:hidden lg:inline xl:hidden" />
-              クーポンを、
+              {heroLines[1]}
               <br />
-              日本語で。
+              {heroLines[2]}
             </h1>
             <p className="max-w-md text-body-lg text-white/90 lg:text-foreground/80">
-              韓国のお店のクーポンを日本語で探して、店頭で画面を見せるだけ。日本人旅行者のためのクーポンサイトです。
+              {t("韓国のお店のクーポンを日本語で探して、店頭で画面を見せるだけ。日本人旅行者のためのクーポンサイトです。")}
             </p>
             {/* 公開中のクーポンがないときは、すぐ下の「準備中」のお知らせが説明するのでここでは繰り返さない */}
             {totalPublicCoupons > 0 && (
               <p className="text-body leading-relaxed text-white/75 lg:text-muted">
-                明洞・弘大・江南・聖水など、人気エリアの
-                <br className="lg:hidden" />
-                グルメ・美容・ショッピングのお得なクーポンが見つかります。
+                {t("明洞・弘大・江南・聖水など、人気エリアのグルメ・美容・ショッピングのお得なクーポンが見つかります。")}
               </p>
             )}
 
@@ -154,7 +156,7 @@ export default async function Home() {
               className="mt-1 flex w-full max-w-lg overflow-hidden rounded-lg border border-white/20 bg-white lg:border-border"
             >
               <label htmlFor="hero-search" className="sr-only">
-                クーポンを検索
+                {t("クーポンを検索")}
               </label>
               <Search className="ml-4 h-5 w-5 shrink-0 self-center text-muted" aria-hidden="true" />
               <input
@@ -162,16 +164,16 @@ export default async function Home() {
                 type="search"
                 name="q"
                 maxLength={50}
-                placeholder="店舗名・クーポン名で検索"
+                placeholder={t("店舗名・クーポン名で検索")}
                 className="min-w-0 flex-1 bg-transparent px-3 py-3.5 text-body text-foreground outline-none placeholder:text-muted"
               />
               <button type="submit" className="btn-glossy shrink-0 px-5 text-body font-bold text-primary-foreground sm:px-6">
-                検索
+                {t("検索")}
               </button>
             </form>
 
             <div className="flex w-full max-w-lg flex-wrap items-center gap-x-1 gap-y-0.5">
-              <span className="mr-1.5 text-caption font-bold text-white/75 lg:text-muted">人気エリア</span>
+              <span className="mr-1.5 text-caption font-bold text-white/75 lg:text-muted">{t("人気エリア")}</span>
               {HERO_AREA_VALUES.map((value) => {
                 const area = AREAS.find((a) => a.value === value);
                 if (!area) return null;
@@ -181,7 +183,7 @@ export default async function Home() {
                     href={`/areas/${value}`}
                     className="rounded-lg px-2 py-1.5 text-body font-medium text-white underline-offset-4 transition-colors hover:underline lg:text-foreground lg:hover:text-primary"
                   >
-                    {area.ja}
+                    {t(area.ja)}
                   </Link>
                 );
               })}
@@ -193,19 +195,19 @@ export default async function Home() {
                 className="group inline-flex items-center gap-1.5 py-1.5 text-body font-bold text-white lg:text-foreground"
               >
                 <MapPin className="h-4 w-4" aria-hidden="true" />
-                <span className="underline-offset-4 group-hover:underline">現在地から探す</span>
+                <span className="underline-offset-4 group-hover:underline">{t("現在地から探す")}</span>
               </Link>
               <Link
                 href="/coupons"
                 className="group inline-flex items-center gap-1 py-1.5 text-body font-bold text-white lg:text-primary"
               >
-                <span className="underline-offset-4 group-hover:underline">カテゴリから探す</span>
+                <span className="underline-offset-4 group-hover:underline">{t("カテゴリから探す")}</span>
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
               </Link>
             </div>
 
             {!session?.user && (
-              <p className="text-caption text-white/75 lg:text-muted">会員登録・ご利用は無料です</p>
+              <p className="text-caption text-white/75 lg:text-muted">{t("会員登録・ご利用は無料です")}</p>
             )}
           </div>
 
@@ -215,7 +217,7 @@ export default async function Home() {
               <HeroImageCarousel
                 images={featuredAreas.flatMap((a) => {
                   const src = AREA_IMAGES[a.value];
-                  return src ? [{ src, label: a.ja as string }] : [];
+                  return src ? [{ src, label: t(a.ja) }] : [];
                 })}
               />
             </div>
@@ -255,10 +257,10 @@ export default async function Home() {
       <section className="border-t border-border px-6 py-14">
         <div className="mx-auto max-w-6xl">
           <SectionHeading
-            title="人気エリアから探す"
+            title={t("人気エリアから探す")}
             action={
               <Link href="/coupons" className="-my-1 py-2 text-body font-medium text-primary underline underline-offset-4">
-                すべてのエリア
+                {t("すべてのエリア")}
               </Link>
             }
           />
@@ -287,8 +289,8 @@ export default async function Home() {
                       style={{ background: "linear-gradient(180deg, rgba(20,16,14,0) 45%, rgba(20,16,14,0.7) 100%)" }}
                     />
                     <div className="absolute inset-x-0 bottom-0 p-3">
-                      <p className="text-h3 text-white">{area.ja}</p>
-                      {count > 0 && <p className="text-caption text-white/80">{count}件のクーポン</p>}
+                      <p className="text-h3 text-white">{t(area.ja)}</p>
+                      {count > 0 && <p className="text-caption text-white/80">{t("{n}件のクーポン", { n: count })}</p>}
                     </div>
                   </div>
                 </Link>
@@ -302,7 +304,7 @@ export default async function Home() {
       {recommended.length > 0 && (
         <section className="border-t border-border bg-background-alt px-6 py-14">
           <div className="mx-auto max-w-6xl">
-            <SectionHeading title="新着クーポン" />
+            <SectionHeading title={t("新着クーポン")} />
             <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               {recommended.map((coupon) => {
                 const discountRate =
@@ -330,21 +332,21 @@ export default async function Home() {
       <section className="border-t border-border bg-background-alt px-6 py-14">
         <div className="mx-auto max-w-6xl">
           <SectionHeading
-            title="クーポンの使い方"
+            title={t("クーポンの使い方")}
             action={
               <Link href="/guide" className="-my-1 py-2 text-body font-medium text-primary underline underline-offset-4">
-                くわしく見る
+                {t("くわしく見る")}
               </Link>
             }
           />
           <ol className="mt-6 grid gap-6 sm:grid-cols-3 sm:gap-8">
             {STEPS.map((step, i) => (
-              <li key={step.title} className="border-t border-foreground/80 pt-4">
+              <li key={t(step.title)} className="border-t border-foreground/80 pt-4">
                 <p className="text-h3">
                   <span className="mr-2 text-primary">{i + 1}</span>
-                  {step.title}
+                  {t(step.title)}
                 </p>
-                <p className="mt-1.5 text-body text-muted">{step.desc}</p>
+                <p className="mt-1.5 text-body text-muted">{t(step.desc)}</p>
               </li>
             ))}
           </ol>
@@ -354,7 +356,7 @@ export default async function Home() {
       {/* ---- カテゴリから探す ---- */}
       <section className="border-t border-border px-6 py-14">
         <div className="mx-auto max-w-6xl">
-          <SectionHeading title="カテゴリから探す" />
+          <SectionHeading title={t("カテゴリから探す")} />
           <div className="mt-6">
             <CategoryGrid />
           </div>
@@ -370,21 +372,21 @@ export default async function Home() {
           </div>
           <div className="relative mx-auto flex max-w-sm flex-col items-center gap-3">
             <h2 className="text-h1 text-white">
-              韓国旅行の前に
+              {t("韓国旅行の前に")}
               <br />
-              お得なクーポンをチェック。
+              {t("お得なクーポンをチェック。")}
             </h2>
             <p className="text-body text-white/85">
-              旅行前に保存しておけば、
+              {t("旅行前に保存しておけば、")}
               <br />
-              韓国に着いてからすぐ使えます。
+              {t("韓国に着いてからすぐ使えます。")}
             </p>
             <Link
               href="/coupons"
               className="mt-2 flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-body font-bold text-primary-foreground transition hover:brightness-105"
             >
               <Ticket className="h-4 w-4" />
-              クーポンを探す
+              {t("クーポンを探す")}
             </Link>
           </div>
         </section>
@@ -394,17 +396,17 @@ export default async function Home() {
       <section id="faq" className="border-t border-border px-6 py-14">
         <div className="mx-auto max-w-6xl lg:grid lg:grid-cols-[1fr_2fr] lg:gap-12">
           <div>
-            <SectionHeading title="よくある質問" />
+            <SectionHeading title={t("よくある質問")} />
             <p className="mt-2 text-body text-muted">
-              ここにない内容は、
+              {t("ここにない内容は、")}
               <Link href="/support" className="text-primary underline underline-offset-4">
-                お問い合わせ
+                {t("お問い合わせ")}
               </Link>
-              からご連絡ください。
+              {t("からご連絡ください。")}
             </p>
           </div>
           <div className="mt-6 lg:mt-0">
-            <FaqAccordion items={FAQ_ITEMS} />
+            <FaqAccordion items={FAQ_ITEMS.map((item) => ({ q: t(item.q), a: t(item.a) }))} />
           </div>
         </div>
       </section>

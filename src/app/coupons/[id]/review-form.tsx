@@ -3,6 +3,7 @@
 import { useActionState, useRef, useState } from "react";
 import { Star, AlertCircle, Camera, X } from "lucide-react";
 import { submitReview, type ReviewState } from "./actions";
+import { useT } from "@/i18n/client";
 
 const initialState: ReviewState = {};
 
@@ -17,6 +18,7 @@ export function ReviewForm({
   initialRating?: number;
   initialBody?: string;
 }) {
+  const t = useT();
   const action = submitReview.bind(null, storeId, couponId);
   const [state, formAction, pending] = useActionState(action, initialState);
   const [rating, setRating] = useState(initialRating ?? 0);
@@ -47,7 +49,7 @@ export function ReviewForm({
             key={n}
             type="button"
             onClick={() => setRating(n)}
-            aria-label={`${n}点`}
+            aria-label={t("{n}点", { n })}
             className="p-0.5"
           >
             <Star
@@ -59,7 +61,7 @@ export function ReviewForm({
         ))}
       </div>
       <label className="sr-only" htmlFor="review-body">
-        口コミ内容
+        {t("口コミ内容")}
       </label>
       <textarea
         id="review-body"
@@ -68,14 +70,14 @@ export function ReviewForm({
         maxLength={2000}
         defaultValue={initialBody}
         rows={3}
-        placeholder="日本語対応や実際に行ってみた感想を書いてください"
+        placeholder={t("日本語対応や実際に行ってみた感想を書いてください")}
         className="rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
       />
 
       <div className="flex items-center gap-2">
         <label className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted transition hover:border-primary/40 hover:text-foreground">
           <Camera className="h-3.5 w-3.5" />
-          写真を追加
+          {t("写真を追加")}
           <input
             ref={fileInputRef}
             type="file"
@@ -92,7 +94,7 @@ export function ReviewForm({
             <button
               type="button"
               onClick={clearPhoto}
-              aria-label="写真を削除"
+              aria-label={t("写真を削除")}
               className="absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-bl bg-black/60 text-white"
             >
               <X className="h-2.5 w-2.5" />
@@ -104,7 +106,7 @@ export function ReviewForm({
       {state.error && (
         <p className="flex items-center gap-1.5 text-xs text-primary" role="alert">
           <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-          {state.error}
+          {t(state.error)}
         </p>
       )}
       <button
@@ -112,7 +114,7 @@ export function ReviewForm({
         disabled={pending || rating === 0}
         className="btn-glossy self-end rounded-lg px-4 py-2 text-xs font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
       >
-        {pending ? "投稿中..." : isEdit ? "口コミを更新" : "口コミを投稿"}
+        {pending ? t("投稿中...") : isEdit ? t("口コミを更新") : t("口コミを投稿")}
       </button>
     </form>
   );

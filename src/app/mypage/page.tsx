@@ -10,6 +10,7 @@ import { CouponQR } from "@/components/coupon-qr";
 import { resendVerificationEmail } from "./verify-actions";
 import { POINT_UI_VISIBLE } from "@/lib/point-policy";
 import { getStaffStoreIds } from "@/lib/staff";
+import { getT } from "@/i18n/server";
 
 type CouponEventItem = {
   id?: string;
@@ -30,6 +31,7 @@ export default async function MyPage({
 }: {
   searchParams: Promise<{ resent?: string }>;
 }) {
+  const t = await getT();
   const session = await auth();
   if (!session?.user?.id) {
     redirect("/login");
@@ -147,7 +149,7 @@ export default async function MyPage({
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
       <h1 className="text-h1 font-display tracking-tight">
-        マイページ
+        {t("マイページ")}
       </h1>
 
       {!profile?.email_verified_at && !hasPlaceholderEmail && (
@@ -155,17 +157,17 @@ export default async function MyPage({
           <MailWarning className="h-4 w-4 shrink-0" />
           <span className="flex-1">
             {resent === "1"
-              ? "確認メールを再送しました。"
+              ? t("確認メールを再送しました。")
               : resent === "error"
-                ? "確認メールを送信できませんでした。時間をおいてもう一度お試しください。"
+                ? t("確認メールを送信できませんでした。時間をおいてもう一度お試しください。")
                 : resent === "limited"
-                  ? "再送の回数が多すぎます。しばらくしてからもう一度お試しください。"
-                  : "メールアドレスがまだ確認されていません。"}
+                  ? t("再送の回数が多すぎます。しばらくしてからもう一度お試しください。")
+                  : t("メールアドレスがまだ確認されていません。")}
           </span>
           {resent !== "1" && (
             <form action={resendVerificationEmail}>
               <button type="submit" className="font-semibold underline underline-offset-2">
-                確認メールを再送する
+                {t("確認メールを再送する")}
               </button>
             </form>
           )}
@@ -178,7 +180,7 @@ export default async function MyPage({
           className="mt-4 flex items-center gap-2 rounded-xl border border-border bg-card p-3 text-body font-medium transition hover:bg-background"
         >
           <TicketCheck className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-          <span className="flex-1">店舗スタッフ用：クーポンの使用処理</span>
+          <span className="flex-1">{t("店舗スタッフ用：クーポンの使用処理")}</span>
           <ChevronRight className="h-4 w-4 text-muted" aria-hidden="true" />
         </Link>
       )}
@@ -187,12 +189,12 @@ export default async function MyPage({
         <div className="mt-4 rounded-xl border border-primary/30 bg-primary/5 p-3 text-body text-primary">
           <p className="flex items-center gap-1.5 font-semibold">
             <Clock className="h-4 w-4 shrink-0" aria-hidden="true" />
-            {expiringSoon.length}件のクーポンがまもなく期限切れです
+            {t("{n}件のクーポンがまもなく期限切れです", { n: expiringSoon.length })}
           </p>
           <ul className="mt-1.5 flex flex-col gap-0.5 text-caption">
             {expiringSoon.map((i) => (
               <li key={i.coupons!.id}>
-                {i.coupons!.stores?.name}「{i.coupons!.title}」— {i.coupons!.valid_to}まで
+                {i.coupons!.stores?.name}「{i.coupons!.title}」— {t("{date}まで", { date: i.coupons!.valid_to })}
               </li>
             ))}
           </ul>
@@ -204,7 +206,7 @@ export default async function MyPage({
           <div>
             <p className="text-h3">{profile?.nickname}</p>
             <p className="text-caption text-muted">
-              {hasPlaceholderEmail ? "LINEアカウントでログイン中" : profile?.email}
+              {hasPlaceholderEmail ? t("LINEアカウントでログイン中") : profile?.email}
             </p>
             {POINT_UI_VISIBLE && (
               <Link
@@ -213,7 +215,7 @@ export default async function MyPage({
               >
                 <Coins className="h-4 w-4" />
                 {pointBalance.toLocaleString()}
-                <span className="font-normal text-muted">ポイント</span>
+                <span className="font-normal text-muted">{t("ポイント")}</span>
                 <ChevronRight className="h-4 w-4 text-muted" />
               </Link>
             )}
@@ -231,7 +233,7 @@ export default async function MyPage({
               className="flex items-center gap-1.5 rounded-lg border border-border px-3.5 py-1.5 text-caption font-medium transition hover:bg-background"
             >
               <Pencil className="h-3.5 w-3.5" />
-              編集
+              {t("編集")}
             </Link>
             <form
               action={async () => {
@@ -243,7 +245,7 @@ export default async function MyPage({
                 type="submit"
                 className="rounded-lg px-2.5 py-1.5 text-caption font-medium text-muted underline-offset-4 transition-colors hover:text-foreground hover:underline"
               >
-                ログアウト
+                {t("ログアウト")}
               </button>
             </form>
           </div>
@@ -252,29 +254,29 @@ export default async function MyPage({
         <div className="mt-4 flex flex-col gap-2 border-t border-border pt-4 text-caption">
           <p>
             <span className="text-muted">
-              旅行予定日:{" "}
+              {t("旅行予定日:")}{" "}
             </span>
             {profile?.travel_date ?? (
               <span className="text-muted">
-                未設定
+                {t("未設定")}
               </span>
             )}
           </p>
           <p>
             <span className="text-muted">
-              興味カテゴリ:{" "}
+              {t("興味カテゴリ:")}{" "}
             </span>
             {myCategories.length
-              ? myCategories.map((c) => c?.ja).join(", ")
-              : <span className="text-muted">未設定</span>}
+              ? myCategories.map((c) => t(c?.ja)).join(", ")
+              : <span className="text-muted">{t("未設定")}</span>}
           </p>
           <p>
             <span className="text-muted">
-              関心エリア:{" "}
+              {t("関心エリア:")}{" "}
             </span>
             {myAreas.length
-              ? myAreas.map((a) => a?.ja).join(", ")
-              : <span className="text-muted">未設定</span>}
+              ? myAreas.map((a) => t(a?.ja)).join(", ")
+              : <span className="text-muted">{t("未設定")}</span>}
           </p>
         </div>
       </section>
@@ -282,25 +284,25 @@ export default async function MyPage({
       {(myCategoryValues.size > 0 || myAreaValues.size > 0) && recommended.length > 0 && (
         <CouponListSection
           icon={Sparkles}
-          titleJa="あなたへのおすすめ"
+          titleJa={t("あなたへのおすすめ")}
           items={recommended}
         />
       )}
 
-      <CouponListSection icon={Heart} titleJa="お気に入りクーポン" items={favorited} />
+      <CouponListSection icon={Heart} titleJa={t("お気に入りクーポン")} items={favorited} />
       <CouponListSection
         icon={Ticket}
-        titleJa="GETしたクーポン"
+        titleJa={t("GETしたクーポン")}
         items={sortedIssued}
         usedCycleKeys={usedCycleKeys}
         today={today}
       />
-      <CouponListSection icon={CheckCircle2} titleJa="使用済みクーポン" items={used} />
+      <CouponListSection icon={CheckCircle2} titleJa={t("使用済みクーポン")} items={used} />
     </main>
   );
 }
 
-function CouponListSection({
+async function CouponListSection({
   icon: Icon,
   titleJa,
   items,
@@ -313,6 +315,7 @@ function CouponListSection({
   usedCycleKeys?: Set<string>;
   today?: string;
 }) {
+  const t = await getT();
   return (
     <section className="mt-8">
       <h2 className="flex items-center gap-2 text-h3">
@@ -321,7 +324,7 @@ function CouponListSection({
       </h2>
       {items.length === 0 ? (
         <p className="mt-2 text-body text-muted">
-          まだありません
+          {t("まだありません")}
         </p>
       ) : (
         <ul className="mt-3 flex flex-col gap-3">
@@ -344,7 +347,7 @@ function CouponListSection({
                       <span className="block truncate text-caption text-muted">{coupon.stores?.name}</span>
                       <span className="mt-0.5 block truncate text-h3 text-primary">{coupon.title}</span>
                       <span className="mt-0.5 block text-caption text-muted">
-                        利用期間: {coupon.valid_to}まで
+                        {t("利用期間: ")}{t("{date}まで", { date: coupon.valid_to })}
                       </span>
                       {coupon.usage_condition && (
                         <span className="mt-0.5 block truncate text-caption text-muted">
@@ -359,19 +362,19 @@ function CouponListSection({
                       {isUsed ? (
                         <p className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-1 text-caption font-medium text-success">
                           <CheckCircle2 className="h-3.5 w-3.5" />
-                          利用済み
+                          {t("利用済み")}
                         </p>
                       ) : isExpired ? (
                         <p className="inline-flex items-center gap-1.5 rounded-full bg-border px-2.5 py-1 text-caption font-medium text-muted">
-                          期限切れ
+                          {t("期限切れ")}
                         </p>
                       ) : item.id ? (
                         <div>
                           <p className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-caption font-medium text-primary">
-                            利用可能
+                            {t("利用可能")}
                           </p>
                           <p className="mt-2 text-caption text-muted">
-                            店舗でこのQRコード（またはコード）を提示してください
+                            {t("店舗でこのQRコード（またはコード）を提示してください")}
                           </p>
                           <div className="mt-2 flex items-center gap-3">
                             <CouponQR code={item.id} />
@@ -380,7 +383,7 @@ function CouponListSection({
                             </p>
                           </div>
                           <p className="mt-1.5 text-label text-muted">
-                            ※電波が届きにくい場所に備えて、QRコードとコードをスクリーンショットで保存しておくと安心です。
+                            {t("※電波が届きにくい場所に備えて、QRコードとコードをスクリーンショットで保存しておくと安心です。")}
                           </p>
                         </div>
                       ) : null}

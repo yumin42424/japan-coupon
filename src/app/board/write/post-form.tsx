@@ -4,10 +4,12 @@ import { useActionState, useState } from "react";
 import { AlertCircle } from "lucide-react";
 import { createPost, type PostFormState } from "../actions";
 import { BOARD_CATEGORIES, DEFAULT_BOARD_CATEGORY, type BoardCategory } from "@/lib/board-categories";
+import { useT } from "@/i18n/client";
 
 const initialState: PostFormState = {};
 
 export function PostForm() {
+  const t = useT();
   const [state, formAction, pending] = useActionState(createPost, initialState);
   const [category, setCategory] = useState<BoardCategory>(DEFAULT_BOARD_CATEGORY);
 
@@ -16,7 +18,7 @@ export function PostForm() {
       <input type="hidden" name="category" value={category} />
 
       <div className="flex flex-col gap-1.5">
-        <span className="text-body font-medium">カテゴリ</span>
+        <span className="text-body font-medium">{t("カテゴリ")}</span>
         <div className="flex flex-wrap gap-1.5">
           {BOARD_CATEGORIES.map((c) => (
             <button
@@ -29,14 +31,14 @@ export function PostForm() {
                   : "border border-border bg-background text-muted hover:border-primary/40 hover:text-foreground"
               }`}
             >
-              {c.ja}
+              {t(c.ja)}
             </button>
           ))}
         </div>
       </div>
 
       <label className="flex flex-col gap-1 text-body font-medium">
-        タイトル
+        {t("タイトル")}
         <input
           type="text"
           name="title"
@@ -46,7 +48,7 @@ export function PostForm() {
       </label>
 
       <label className="flex flex-col gap-1 text-body font-medium">
-        本文
+        {t("本文")}
         <textarea
           name="body"
           required
@@ -58,7 +60,7 @@ export function PostForm() {
       {state.error && (
         <p className="flex items-center gap-1.5 text-body text-primary" role="alert">
           <AlertCircle className="h-4 w-4 shrink-0" />
-          {state.error}
+          {t(state.error)}
         </p>
       )}
 
@@ -67,7 +69,7 @@ export function PostForm() {
         disabled={pending}
         className="btn-glossy self-start rounded-lg px-5 py-2.5 text-body font-bold text-primary-foreground transition hover:brightness-105 disabled:opacity-50"
       >
-        {pending ? "投稿中..." : "投稿する"}
+        {pending ? t("投稿中...") : t("投稿する")}
       </button>
     </form>
   );

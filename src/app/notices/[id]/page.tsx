@@ -2,12 +2,14 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, Megaphone } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getT } from "@/i18n/server";
 
 export default async function NoticeDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const t = await getT();
   const { id } = await params;
 
   const { data: notice } = await supabaseAdmin
@@ -25,7 +27,7 @@ export default async function NoticeDetailPage({
         className="flex items-center gap-1 text-body text-muted hover:text-foreground"
       >
         <ChevronLeft className="h-4 w-4" />
-        お知らせ一覧に戻る
+        {t("お知らせ一覧に戻る")}
       </Link>
 
       <div className="mt-4 flex items-center gap-2 text-caption text-muted">

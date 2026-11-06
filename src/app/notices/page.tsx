@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getT } from "@/i18n/server";
 
 type NoticeRow = {
   id: string;
@@ -9,6 +10,7 @@ type NoticeRow = {
 };
 
 export default async function NoticesPage() {
+  const t = await getT();
   const { data } = await supabaseAdmin
     .from("notices")
     .select("id, title, published_at")
@@ -19,10 +21,10 @@ export default async function NoticesPage() {
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="text-h1 font-display tracking-tight">お知らせ</h1>
+      <h1 className="text-h1 font-display tracking-tight">{t("お知らせ")}</h1>
 
       {notices.length === 0 && (
-        <p className="mt-8 border-y border-border py-8 text-body text-muted">お知らせはまだありません。</p>
+        <p className="mt-8 border-y border-border py-8 text-body text-muted">{t("お知らせはまだありません。")}</p>
       )}
       <ul className="mt-8 flex flex-col gap-2">
         {notices.map((notice) => (

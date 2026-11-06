@@ -1,8 +1,11 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Flame, Lock, Timer, LocateFixed, Star, Users } from "lucide-react";
 import { CATEGORIES, AREAS, type CategoryValue, type AreaValue } from "@/lib/taxonomy";
 import { CATEGORY_IMAGES } from "@/lib/taxonomy-images";
+import { useT } from "@/i18n/client";
 
 export type CouponCardProps = {
   href: string;
@@ -45,6 +48,7 @@ export function CouponCard({
   rating,
   className,
 }: CouponCardProps) {
+  const t = useT();
   const categoryInfo = CATEGORIES.find((c) => c.value === category);
   const areaInfo = area ? AREAS.find((a) => a.value === area) : undefined;
   const image = CATEGORY_IMAGES[category];
@@ -70,7 +74,7 @@ export function CouponCard({
             {urgent && daysLeft != null && (
               <span className="flex items-center gap-0.5 rounded-full bg-primary px-1.5 py-0.5 text-label font-bold text-primary-foreground">
                 <Timer className="h-2.5 w-2.5" />
-                {daysLeft <= 0 ? "本日締切" : `あと${daysLeft}日`}
+                {daysLeft <= 0 ? t("本日締切") : t("あと{daysLeft}日", { daysLeft })}
               </span>
             )}
             {stock && (
@@ -80,13 +84,13 @@ export function CouponCard({
                 }`}
               >
                 <Users className="h-2.5 w-2.5" />
-                {stock.remaining === 0 ? "満了" : `残り${stock.remaining}枚`}
+                {stock.remaining === 0 ? t("満了") : t("残り{remaining}枚", { remaining: stock.remaining })}
               </span>
             )}
             {memberOnly && (
               <span className="flex items-center gap-0.5 rounded-full bg-white/90 px-1.5 py-0.5 text-label font-semibold text-primary">
                 <Lock className="h-2.5 w-2.5" />
-                会員限定
+                {t("会員限定")}
               </span>
             )}
           </div>
@@ -96,8 +100,8 @@ export function CouponCard({
       <div className="p-3.5">
         <p className="flex items-center gap-1 text-caption text-muted">
           <span className="min-w-0 truncate">
-            {categoryInfo?.ja}
-            {areaInfo && ` ・ ${areaInfo.ja}`}
+            {t(categoryInfo?.ja)}
+            {areaInfo && ` · ${t(areaInfo.ja)}`}
           </span>
           {rating && (
             <span className="flex shrink-0 items-center gap-0.5 font-semibold text-foreground">

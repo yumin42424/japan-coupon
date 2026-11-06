@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getT } from "@/i18n/server";
 
 const STEPS = [
   {
@@ -37,30 +38,31 @@ const NOTES = [
   },
 ];
 
-export default function GuidePage() {
+export default async function GuidePage() {
+  const t = await getT();
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="text-h1 font-display tracking-tight">初めての方へ</h1>
-      <p className="mt-2 text-body-lg text-foreground/80">K-Coupon Japanの使い方は、次の5つの手順です。</p>
+      <h1 className="text-h1 font-display tracking-tight">{t("初めての方へ")}</h1>
+      <p className="mt-2 text-body-lg text-foreground/80">{t("K-Coupon Japanの使い方は、次の5つの手順です。")}</p>
 
       <ol className="mt-8 divide-y divide-border border-y border-border">
         {STEPS.map((step, i) => (
           <li key={step.title} className="grid grid-cols-[2rem_1fr] gap-2 py-4">
             <span className="text-h3 text-primary">{i + 1}</span>
             <div className="min-w-0">
-              <p className="text-h3">{step.title}</p>
-              <p className="mt-1 text-body text-muted">{step.desc}</p>
+              <p className="text-h3">{t(step.title)}</p>
+              <p className="mt-1 text-body text-muted">{t(step.desc)}</p>
             </div>
           </li>
         ))}
       </ol>
 
-      <h2 className="mt-12 text-h2 font-display tracking-tight">ご利用にあたって</h2>
+      <h2 className="mt-12 text-h2 font-display tracking-tight">{t("ご利用にあたって")}</h2>
       <dl className="mt-4 divide-y divide-border border-y border-border">
         {NOTES.map((note) => (
           <div key={note.title} className="py-4">
-            <dt className="text-h3">{note.title}</dt>
-            <dd className="mt-1 text-body text-foreground/80">{note.desc}</dd>
+            <dt className="text-h3">{t(note.title)}</dt>
+            <dd className="mt-1 text-body text-foreground/80">{t(note.desc)}</dd>
           </div>
         ))}
       </dl>
@@ -70,7 +72,7 @@ export default function GuidePage() {
           href="/signup"
           className="btn-glossy inline-block rounded-lg px-6 py-3 text-body font-bold text-primary-foreground transition hover:brightness-105"
         >
-          無料会員登録はこちら
+          {t("無料会員登録はこちら")}
         </Link>
       </div>
     </main>

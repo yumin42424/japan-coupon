@@ -71,12 +71,33 @@ body {
 
 /* 일본어 줄바꿈 — 제목은 문절 단위로 끊고(지원 브라우저만, 나머지는 기존대로), 본문은 행두 금칙을 엄격하게 */
 h1, h2, h3 {
-  word-break: auto-phrase;
   text-wrap: balance;
+}
+:lang(ja) h1, :lang(ja) h2, :lang(ja) h3 {
+  word-break: auto-phrase;
 }
 p, li, dd {
   line-break: strict;
   text-wrap: pretty;
+}
+/* 한국어는 단어 중간에서 끊지 않는다 */
+:lang(ko) {
+  word-break: keep-all;
+}
+
+/* 언어별 글꼴 — 일본어 글꼴로 한자를 그리면 중국어에서 글자 모양이 달라지고, 한글·태국어·키릴 문자는 아예 없다.
+   일본어 외에는 제목도 각 언어의 시스템 글꼴을 쓴다(일본어 웹폰트를 받지 않아 더 빠르다). */
+:root:lang(ko) {
+  --font-body: "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
+}
+:root:lang(zh-CN) {
+  --font-body: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+:root:lang(zh-TW) {
+  --font-body: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+}
+:root:lang(en), :root:lang(th), :root:lang(vi), :root:lang(id), :root:lang(es), :root:lang(fr), :root:lang(de), :root:lang(pt), :root:lang(ru) {
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 @layer base {
@@ -119,6 +140,9 @@ p, li, dd {
 
 h1, h2, h3, h4, .font-display {
   font-family: var(--font-display), var(--font-body), sans-serif;
+}
+:root:not(:lang(ja)) :is(h1, h2, h3, h4, .font-display) {
+  font-family: var(--font-body);
 }
 
 /* 움직임을 줄이도록 설정한 사용자에게는 전환·애니메이션을 사실상 끈다 (위치 이동 효과 포함) */
@@ -173,6 +197,8 @@ h1, h2, h3, h4, .font-display {
   .text-body-lg {
     font-size: 1rem;
     line-height: 1.75;
+  }
+  :lang(ja) .text-body-lg {
     word-break: auto-phrase;
   }
   .text-body {

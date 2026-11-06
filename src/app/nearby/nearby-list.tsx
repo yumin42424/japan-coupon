@@ -9,6 +9,7 @@ import { CouponCard } from "@/components/coupon-card";
 import { EmptyState } from "@/components/empty-state";
 import { KakaoMap } from "./kakao-map";
 import type { NearbyCoupon } from "./page";
+import { useT } from "@/i18n/client";
 
 type Status = "loading" | "granted" | "denied" | "unsupported" | "error";
 
@@ -19,6 +20,7 @@ const STATUS_MESSAGE: Record<"denied" | "unsupported" | "error", string> = {
 };
 
 export function NearbyList({ coupons }: { coupons: NearbyCoupon[] }) {
+  const t = useT();
   // 서버 렌더링 시점엔 navigator가 없으므로, 하이드레이션 불일치를 피하기 위해
   // 초기 상태는 항상 "loading"으로 통일하고 실제 판단은 아래 effect에서만 한다.
   const [status, setStatus] = useState<Status>("loading");
@@ -43,7 +45,7 @@ export function NearbyList({ coupons }: { coupons: NearbyCoupon[] }) {
     return (
       <div className="mt-8 flex items-center gap-2 text-body text-muted">
         <LocateFixed className="h-4 w-4 animate-pulse" />
-        現在地を取得しています…
+        {t("現在地を取得しています…")}
       </div>
     );
   }
@@ -52,12 +54,12 @@ export function NearbyList({ coupons }: { coupons: NearbyCoupon[] }) {
     return (
       <div className="mt-8 rounded-2xl border border-dashed border-border py-10 text-center">
         <AlertCircle className="mx-auto h-6 w-6 text-muted" />
-        <p className="mt-3 text-body text-muted">{STATUS_MESSAGE[status]}</p>
+        <p className="mt-3 text-body text-muted">{t(STATUS_MESSAGE[status])}</p>
         <Link
           href="/coupons"
           className="mt-4 inline-block text-body font-medium text-primary underline underline-offset-4"
         >
-          カテゴリから探す
+          {t("カテゴリから探す")}
         </Link>
       </div>
     );
@@ -79,8 +81,7 @@ export function NearbyList({ coupons }: { coupons: NearbyCoupon[] }) {
         <div className="rounded-2xl border border-dashed border-border px-4 py-6 text-center">
           <AlertCircle className="mx-auto h-6 w-6 text-muted" />
           <p className="mt-2 text-body text-muted">
-            現在地が韓国から離れているようです（最も近いお店まで約{Math.round(withDistance[0].distance).toLocaleString()}km）。
-            韓国に到着したら、もう一度お試しください。
+            {t("現在地が韓国から離れているようです（最も近いお店まで約{km}km）。韓国に到着したら、もう一度お試しください。", { km: Math.round(withDistance[0].distance).toLocaleString() })}
           </p>
         </div>
       ) : (
@@ -96,7 +97,7 @@ export function NearbyList({ coupons }: { coupons: NearbyCoupon[] }) {
 
       {withDistance.length === 0 ? (
         <div className="mt-4">
-          <EmptyState message="近くにクーポンがありません。" />
+          <EmptyState message={t("近くにクーポンがありません。")} />
         </div>
       ) : (
         <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">

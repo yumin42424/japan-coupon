@@ -8,6 +8,7 @@ import { AREAS, CATEGORIES, type AreaValue } from "@/lib/taxonomy";
 import { CATEGORY_ICONS } from "@/lib/taxonomy-icons";
 import { CouponCard } from "@/components/coupon-card";
 import { EmptyState } from "@/components/empty-state";
+import { getT } from "@/i18n/server";
 
 type CouponRow = {
   id: string;
@@ -36,9 +37,10 @@ export async function generateMetadata({
   const area = AREAS.find((a) => a.value === areaParam);
   if (!area) return {};
 
+  const t = await getT();
   return {
-    title: `${area.ja} 日本人におすすめの韓国旅行スポット`,
-    description: `${area.ja}エリアの日本語対応・日本人に人気の飲食店/美容室/カフェなどを、口コミ評価順に掲載していきます。クーポンは提携店舗の準備ができ次第、順次公開します。`,
+    title: t("{area} 日本人におすすめの韓国旅行スポット", { area: t(area.ja) }),
+    description: t("{area}エリアの日本語対応・日本人に人気の飲食店/美容室/カフェなどを、口コミ評価順に掲載していきます。クーポンは提携店舗の準備ができ次第、順次公開します。", { area: t(area.ja) }),
   };
 }
 
@@ -47,6 +49,7 @@ export default async function AreaPage({
 }: {
   params: Promise<{ area: string }>;
 }) {
+  const t = await getT();
   const { area: areaParam } = await params;
   const area = AREAS.find((a) => a.value === areaParam) as { value: AreaValue; ja: string; ko: string } | undefined;
   if (!area) notFound();
@@ -116,15 +119,15 @@ export default async function AreaPage({
     <main className="mx-auto max-w-4xl px-6 py-10">
       <p className="flex items-center gap-1 text-caption text-muted">
         <MapPin className="h-3.5 w-3.5" />
-        エリアから探す
+        {t("エリアから探す")}
       </p>
       <h1 className="text-h1 font-display mt-1 tracking-tight">
-        {area.ja} 日本人におすすめ
+        {t("{area} 日本人におすすめ", { area: t(area.ja) })}
       </h1>
       <p className="mt-2 text-body text-muted">
         {entries.length > 0
-          ? `口コミ評価が高い順に表示しています。${entries.length}件の掲載店舗があります。`
-          : "このエリアの掲載店舗は準備中です。"}
+          ? t("口コミ評価が高い順に表示しています。{length}件の掲載店舗があります。", { length: entries.length })
+          : t("このエリアの掲載店舗は準備中です。")}
       </p>
 
       <div className="mt-5 flex flex-wrap gap-2">
@@ -137,7 +140,7 @@ export default async function AreaPage({
               className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-caption font-medium text-muted transition hover:border-primary/40 hover:text-foreground"
             >
               <Icon className="h-3.5 w-3.5" strokeWidth={2.25} />
-              {c.ja}
+              {t(c.ja)}
             </Link>
           );
         })}
@@ -161,8 +164,8 @@ export default async function AreaPage({
         <div className="mt-8">
           <EmptyState
             icon={MapPin}
-            message="このエリアのクーポンは準備中です。"
-            ctaLabel="他のエリア・カテゴリを見る"
+            message={t("このエリアのクーポンは準備中です。")}
+            ctaLabel={t("他のエリア・カテゴリを見る")}
             ctaHref="/coupons"
           />
         </div>

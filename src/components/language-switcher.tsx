@@ -1,0 +1,94 @@
+"use client";
+
+import { useEffect, useRef, useState, useTransition } from "react";
+import { Check, Globe } from "lucide-react";
+import { useLocale, useT } from "@/i18n/client";
+import { setLocale } from "@/i18n/actions";
+import { LOCALES, LOCALE_NAMES, DEFAULT_LOCALE } from "@/i18n/config";
+
+// 헤더 오른쪽의 언어 선택. 고르면 쿠키에 저장하고 서버가 현재 페이지를 그 언어로 다시 그린다(주소는 그대로).
+// 모바일에서는 공간이 좁아 지구본 아이콘만 보인다.
+export function LanguageSwitcher() {
+  const locale = useLocale();
+  const t = useT();
+  const [open, setOpen] = useState(false);
+  const [pending, startTransition] = useTransition();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        buttonRef.current?.focus();
+      }
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const choose = (next: string) => {
+    setOpen(false);
+    if (next === locale) return;
+    startTransition(() => setLocale(next));
+  };
+
+  return (
+    <div ref={rootRef} className="relative shrink-0">
+      <button
+        ref={buttonRef}
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-haspopup="true"
+        aria-label={`${t("言語を選択")}: ${LOCALE_NAMES[locale]}`}
+        className={`flex h-9 items-center gap-1.5 rounded-lg px-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-card hover:text-foreground ${
+          pending ? "opacity-60" : ""
+        }`}
+      >
+        <Globe className="h-4 w-4 shrink-0" strokeWidth={2.1} aria-hidden="true" />
+        <span className="hidden lg:inline">{LOCALE_NAMES[locale]}</span>
+      </button>
+
+      {open && (
+        <div className="absolute right-0 z-30 mt-1 w-56 overflow-hidden rounded-lg border border-border bg-card shadow-elevated">
+          <ul className="max-h-[70vh] overflow-y-auto py-1">
+            {LOCALES.map((code) => {
+              const active = code === locale;
+              return (
+                <li key={code}>
+                  <button
+                    type="button"
+                    lang={code}
+                    onClick={() => choose(code)}
+                    aria-current={active ? "true" : undefined}
+                    className={`flex w-full items-center justify-between gap-2 px-3.5 py-2.5 text-left text-body transition-colors hover:bg-background ${
+                      active ? "font-bold text-primary" : "text-foreground"
+                    }`}
+                  >
+                    {LOCALE_NAMES[code]}
+                    {active && <Check className="h-4 w-4 shrink-0" aria-hidden="true" />}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+          {/* 매장·쿠폰 정보는 DB에 일본어로 저장돼 있어 번역되지 않는다 — 그 사실을 미리 알린다 */}
+          {locale !== DEFAULT_LOCALE && (
+            <p className="border-t border-border bg-background px-3.5 py-2.5 text-caption text-muted">
+              {t("店舗・クーポンの情報や投稿は、日本語で表示される場合があります。")}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

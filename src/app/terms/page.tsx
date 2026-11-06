@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { JapaneseOnlyNote } from "@/components/japanese-only-note";
 
 export const metadata: Metadata = {
   title: "利用規約",
@@ -154,6 +155,7 @@ const SECTIONS = [
 export default function TermsPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
+      <JapaneseOnlyNote />
       <h1 className="text-h1 font-display tracking-tight">
         K-Coupon Japan 利用規約
       </h1>
