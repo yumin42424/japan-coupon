@@ -240,3 +240,8 @@ h1, h2, h3, h4, .font-display {
   font-size: 0.6875rem;
   letter-spacing: -0.01em;
 }
+
+/* 언어 메뉴의 각 언어 이름은 페이지 언어와 상관없이 시스템 글꼴로 그린다(일본어 글꼴에는 베트남어 등 없는 글자가 있어 깨져 보인다) */
+.lang-option {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}

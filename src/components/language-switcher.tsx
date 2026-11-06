@@ -71,7 +71,7 @@ export function LanguageSwitcher() {
                     lang={code}
                     onClick={() => choose(code)}
                     aria-current={active ? "true" : undefined}
-                    className={`flex w-full items-center justify-between gap-2 px-3.5 py-2.5 text-left text-body transition-colors hover:bg-background ${
+                    className={`lang-option flex w-full items-center justify-between gap-2 px-3.5 py-2.5 text-left text-body transition-colors hover:bg-background ${
                       active ? "font-bold text-primary" : "text-foreground"
                     }`}
                   >
