@@ -287,7 +287,9 @@ Vercel Production 환경변수 이름과 코드가 읽는 이름을 대조한 �
 | `LINE_MESSAGING_CHANNEL_SECRET` | 비공개 | `/api/line/webhook` 서명 검증 | 교체 대상 |
 | `LINE_MESSAGING_CHANNEL_ACCESS_TOKEN` | 비공개 | LINE push·응답 발송 | 교체 대상 |
 | `RESEND_API_KEY` | 비공개 | 메일 발송 (발송 전용 제한 키) | 낮음 (권한이 이미 최소) |
-| `ANTHROPIC_API_KEY` | 비공개 | 쿠폰·매장·공지·게시글 내용 자동 번역 (없으면 일본어로 표시) | 낮음 (유출 시 번역 요금이 나갈 수 있음) |
+| `AZURE_TRANSLATOR_KEY` | 비공개 | 쿠폰·매장·공지·게시글 내용 자동 번역 (Azure Translator 무료 요금제 F0, 없으면 일본어로 표시) | 낮음 (무료 요금제는 한도를 넘으면 멈춤) |
+| `AZURE_TRANSLATOR_REGION` | 비밀 아님 | Azure Translator 리소스의 지역 (예: `koreacentral`, 전역(Global)이면 비워 둠) | 없음 |
+| `ANTHROPIC_API_KEY` | 비공개 | (선택) Azure 키가 없을 때 Claude로 번역. 번역할 때마다 요금 발생 | 낮음 (유출 시 번역 요금이 나갈 수 있음) |
 | `EMAIL_FROM` | 비밀 아님 | 메일 발신 주소 | **미설정 → 6번에서 설정** |
 | `ADMIN_EMAILS` | 개인정보 | 관리자 판별(+ DB 조회) | 불필요 (값 변경은 가능) |
 | `CRON_SECRET` | 비공개 | `/api/cron/notify` 인증 (Vercel 크론이 자동 전송) | 낮음 (10/2 생성) |

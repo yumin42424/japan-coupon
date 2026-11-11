@@ -9,7 +9,10 @@ const ts = require("typescript");
 const { LOCALES, DEFAULT_LOCALE, LOCALE_NAMES, parseLocale, detectLocale } = require("../.test-build/i18n/config.js");
 const { translate } = require("../.test-build/i18n/translate.js");
 const {
+  AZURE_LANGUAGE_CODES,
   LANGUAGE_NAMES,
+  azureSourceLanguage,
+  parseAzureTranslations,
   applyTexts,
   buildSystemPrompt,
   chunkTexts,
@@ -109,6 +112,32 @@ test("content: a model reply only counts when it matches a source text", () => {
   assert.deepEqual([...partial], [["カフェ", "Cafe"]]);
   assert.equal(parseTranslations("not json", sources).size, 0);
   assert.equal(parseTranslations(JSON.stringify({ other: [] }), sources).size, 0);
+});
+
+test("content: every language has an Azure Translator code", () => {
+  for (const locale of TRANSLATED) assert.ok(AZURE_LANGUAGE_CODES[locale], locale);
+  assert.equal(AZURE_LANGUAGE_CODES["zh-CN"], "zh-Hans");
+  assert.equal(AZURE_LANGUAGE_CODES["zh-TW"], "zh-Hant");
+});
+
+test("content: Japanese text is sent as Japanese, other languages are detected by Azure", () => {
+  assert.equal(azureSourceLanguage("韓国焼肉セット20%オフ"), "ja");
+  assert.equal(azureSourceLanguage("明洞食堂"), "ja");
+  assert.equal(azureSourceLanguage("명동에서 쿠폰을 썼어요"), null);
+  assert.equal(azureSourceLanguage("명동 カフェ"), "ja");
+  assert.equal(azureSourceLanguage("Great coffee"), null);
+});
+
+test("content: an Azure reply is matched to the texts in the order they were sent", () => {
+  const sources = ["焼肉", "カフェ", "明洞"];
+  const body = [
+    { translations: [{ text: "BBQ", to: "en" }] },
+    { translations: [] },
+    { detectedLanguage: { language: "ja" }, translations: [{ text: "Myeongdong", to: "en" }] },
+  ];
+  assert.deepEqual([...parseAzureTranslations(body, sources)], [["焼肉", "BBQ"], ["明洞", "Myeongdong"]]);
+  assert.equal(parseAzureTranslations({ error: { code: 403000 } }, sources).size, 0);
+  assert.equal(parseAzureTranslations([{ translations: [{ text: " " }] }], sources).size, 0);
 });
 
 test("content: same text gives the same hash, and every language has a prompt", () => {

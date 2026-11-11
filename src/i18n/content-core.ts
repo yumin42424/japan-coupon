@@ -17,6 +17,45 @@ export const LANGUAGE_NAMES: Record<Exclude<Locale, "ja">, string> = {
   ru: "Russian",
 };
 
+// Azure Translator 의 언어 코드 (pt 는 브라질 포르투갈어)
+export const AZURE_LANGUAGE_CODES: Record<Exclude<Locale, "ja">, string> = {
+  ko: "ko",
+  en: "en",
+  "zh-CN": "zh-Hans",
+  "zh-TW": "zh-Hant",
+  th: "th",
+  vi: "vi",
+  id: "id",
+  es: "es",
+  fr: "fr",
+  de: "de",
+  pt: "pt",
+  ru: "ru",
+};
+
+// 원문 언어. 가나가 있거나 한자뿐이면(매장명 "明洞食堂" 등) 일본어로 지정하고,
+// 한글 게시글이나 영어만 있는 글은 Azure 가 직접 알아내게 한다(null).
+export function azureSourceLanguage(text: string): "ja" | null {
+  if (/[぀-ヿ]/.test(text)) return "ja";
+  if (/[가-힯]/.test(text)) return null;
+  if (/[㐀-鿿]/.test(text)) return "ja";
+  return null;
+}
+
+// Azure 응답([{ translations: [{ text, to }] }, ...])을 보낸 순서대로 원문과 짝짓는다.
+export function parseAzureTranslations(body: unknown, sources: readonly string[]): Map<string, string> {
+  const result = new Map<string, string>();
+  if (!Array.isArray(body)) return result;
+  body.forEach((item, index) => {
+    const source = sources[index];
+    const translations = isRow(item) ? item.translations : null;
+    const first = Array.isArray(translations) ? translations[0] : null;
+    const text = isRow(first) ? first.text : null;
+    if (source !== undefined && typeof text === "string" && text.trim() !== "") result.set(source, text);
+  });
+  return result;
+}
+
 // 같은 문장은 어디에 쓰이든 한 번만 번역한다. DB에는 원문 대신 이 해시를 저장한다.
 export function hashText(text: string): string {
   return createHash("sha256").update(text).digest("hex");
