@@ -4,78 +4,109 @@ import { useEffect, useRef, useState } from "react";
 import { Camera, X } from "lucide-react";
 import { useT } from "@/i18n/client";
 
-// Chrome/Edge/Android 계열에만 있는 네이티브 API — jsQR 같은 별도 라이브러리 없이
-// 돌아가고, 없는 브라우저에서는 버튼 자체를 숨겨서 기존 수동 입력으로만 쓰게 한다.
+// 카메라로 쿠폰 QR을 읽는다. 브라우저에 QR 인식 기능(BarcodeDetector: Android Chrome 등)이 있으면 그것을 쓰고,
+// 없으면(아이폰 Safari, Windows PC 등) jsQR 로 영상 프레임을 직접 읽는다. jsQR 은 이 버튼을 눌렀을 때만 내려받는다.
 type BarcodeDetectorLike = {
   detect: (source: CanvasImageSource) => Promise<Array<{ rawValue: string }>>;
 };
-type BarcodeDetectorCtor = new (opts: { formats: string[] }) => BarcodeDetectorLike;
+type BarcodeDetectorClass = {
+  new (opts: { formats: string[] }): BarcodeDetectorLike;
+  getSupportedFormats?: () => Promise<string[]>;
+};
+type Detect = (video: HTMLVideoElement) => Promise<string | null>;
+
+const SCAN_INTERVAL_MS = 120;
+const MAX_FRAME_SIDE = 720;
+
+async function createDetector(): Promise<Detect> {
+  const Native = (window as unknown as { BarcodeDetector?: BarcodeDetectorClass }).BarcodeDetector;
+  if (Native) {
+    try {
+      const formats = (await Native.getSupportedFormats?.()) ?? ["qr_code"];
+      if (formats.includes("qr_code")) {
+        const detector = new Native({ formats: ["qr_code"] });
+        return async (video) => (await detector.detect(video))[0]?.rawValue ?? null;
+      }
+    } catch {
+      // 기기가 지원하지 않으면 아래 jsQR 로 읽는다
+    }
+  }
+  const { default: jsQR } = await import("jsqr");
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  return async (video) => {
+    const { videoWidth: width, videoHeight: height } = video;
+    if (!context || !width || !height) return null;
+    const scale = Math.min(1, MAX_FRAME_SIDE / Math.max(width, height));
+    canvas.width = Math.round(width * scale);
+    canvas.height = Math.round(height * scale);
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const frame = context.getImageData(0, 0, canvas.width, canvas.height);
+    return jsQR(frame.data, frame.width, frame.height, { inversionAttempts: "dontInvert" })?.data ?? null;
+  };
+}
 
 export function QrScanner({ onScan }: { onScan: (value: string) => void }) {
   const t = useT();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const rafRef = useRef<number | null>(null);
   // 부모가 리렌더될 때마다 onScan 함수가 새로 만들어져도 카메라가 다시 켜지지 않게 최신 값만 ref로 들고 있는다.
   const onScanRef = useRef(onScan);
   useEffect(() => {
     onScanRef.current = onScan;
   }, [onScan]);
-  const supported = typeof window !== "undefined" && "BarcodeDetector" in window;
 
   useEffect(() => {
     // 카메라 API가 없는 환경(http 등)은 버튼 클릭 시점에 안내를 띄우므로(아래 onClick), 여기서는 아무것도 하지 않는다.
     if (!open || !navigator.mediaDevices?.getUserMedia) return;
 
     let cancelled = false;
-    const detector = new (window as unknown as { BarcodeDetector: BarcodeDetectorCtor }).BarcodeDetector({
-      formats: ["qr_code"],
-    });
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let stream: MediaStream | null = null;
 
-    navigator.mediaDevices
-      .getUserMedia({ video: { facingMode: "environment" } })
-      .then((stream) => {
+    (async () => {
+      try {
+        const [detect, media] = await Promise.all([
+          createDetector(),
+          navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false }),
+        ]);
+        stream = media;
         if (cancelled) {
-          stream.getTracks().forEach((t) => t.stop());
+          media.getTracks().forEach((track) => track.stop());
           return;
         }
-        streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play().catch(() => {});
-        }
+        const video = videoRef.current;
+        if (!video) return;
+        video.srcObject = media;
+        await video.play().catch(() => {});
 
         const tick = async () => {
           if (cancelled || !videoRef.current) return;
           try {
-            const results = await detector.detect(videoRef.current);
-            if (results.length > 0) {
-              onScanRef.current(results[0].rawValue);
+            const value = await detect(videoRef.current);
+            if (value && !cancelled) {
+              onScanRef.current(value);
               setOpen(false);
               return;
             }
           } catch {
             // 한 프레임 실패는 무시하고 계속 시도
           }
-          rafRef.current = requestAnimationFrame(tick);
+          timer = setTimeout(tick, SCAN_INTERVAL_MS);
         };
-        rafRef.current = requestAnimationFrame(tick);
-      })
-      .catch(() => {
-        setError("カメラを起動できませんでした。権限設定をご確認いただくか、コードを直接入力してください。");
-      });
+        tick();
+      } catch {
+        if (!cancelled) setError("カメラを起動できませんでした。権限設定をご確認いただくか、コードを直接入力してください。");
+      }
+    })();
 
     return () => {
       cancelled = true;
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      streamRef.current?.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
+      if (timer) clearTimeout(timer);
+      stream?.getTracks().forEach((track) => track.stop());
     };
   }, [open]);
-
-  if (!supported) return null;
 
   return (
     <>
@@ -86,7 +117,7 @@ export function QrScanner({ onScan }: { onScan: (value: string) => void }) {
           setError(
             typeof navigator.mediaDevices?.getUserMedia === "function"
               ? null
-              : t("このブラウザではカメラを使用できません。コードを直接入力してください。")
+              : "このブラウザではカメラを使用できません。コードを直接入力してください。"
           );
           setOpen(true);
         }}
@@ -110,7 +141,7 @@ export function QrScanner({ onScan }: { onScan: (value: string) => void }) {
             <p className="text-body text-white">{t(error)}</p>
           ) : (
             <>
-              <video ref={videoRef} muted playsInline className="w-full max-w-sm rounded-2xl" />
+              <video ref={videoRef} muted playsInline autoPlay className="w-full max-w-sm rounded-2xl" />
               <p className="mt-4 text-body text-white/80">{t("QRコードを画面内に収めてください")}</p>
             </>
           )}

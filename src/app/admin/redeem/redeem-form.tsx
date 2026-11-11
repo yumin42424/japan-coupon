@@ -1,10 +1,12 @@
 "use client";
 
 import { useActionState, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { CheckCircle2, AlertCircle, Search, TicketCheck } from "lucide-react";
 import type { RedeemState } from "./actions";
 import { QrScanner } from "@/components/qr-scanner";
 import { useT } from "@/i18n/client";
+import { extractCouponCode } from "@/lib/coupon-code";
 
 const initialState: RedeemState = { step: "input" };
 
@@ -19,12 +21,16 @@ export function RedeemForm({
   const t = useT();
   const [state, formAction, pending] = useActionState(action, initialState);
   const [code, setCode] = useState("");
+  // QR로 읽은 코드는 확인 단계 없이 바로 사용 처리한다(직원이 손으로 입력한 코드는 오타가 있을 수 있어 확인 단계를 거친다).
+  const [instant, setInstant] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
   const handleScan = (value: string) => {
-    setCode(value);
-    // state 반영 후 제출되도록 다음 tick에 submit
-    requestAnimationFrame(() => formRef.current?.requestSubmit());
+    flushSync(() => {
+      setCode(extractCouponCode(value));
+      setInstant(true);
+    });
+    formRef.current?.requestSubmit();
   };
 
   if (state.step === "done") {
@@ -34,6 +40,16 @@ export function RedeemForm({
         <p className="mt-2 text-h3 text-success">
           {t("使用処理が完了しました")}
         </p>
+        {state.couponTitle && (
+          <div className="mt-3 rounded-lg bg-card px-4 py-3 text-left">
+            <p className="text-caption text-muted">{state.storeName}</p>
+            <p className="text-body font-bold text-primary">{state.couponTitle}</p>
+            <p className="mt-1 text-body">
+              <span className="text-muted">{t("会員:")} </span>
+              {state.nickname}
+            </p>
+          </div>
+        )}
         <p className="mt-1 text-body text-muted">
           {t("10ポイントが付与されました。")}
         </p>
@@ -79,12 +95,16 @@ export function RedeemForm({
 
   return (
     <form ref={formRef} action={formAction} className="flex flex-col gap-3">
+      <input type="hidden" name="instant" value={instant ? "true" : ""} />
       <input
         type="text"
         name="code"
         required
         value={code}
-        onChange={(e) => setCode(e.target.value)}
+        onChange={(e) => {
+          setCode(e.target.value);
+          setInstant(false);
+        }}
         placeholder={t("クーポンコード")}
         className="rounded-lg border border-border bg-card px-3.5 py-2.5 font-mono text-body outline-none focus:border-primary"
       />

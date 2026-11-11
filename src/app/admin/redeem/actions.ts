@@ -7,6 +7,7 @@ import { isMissingColumnError } from "@/lib/audit";
 import { canRedeemForStore, isOwnCoupon, type RedeemActor } from "@/lib/redeem-access";
 import { getRedeemActor } from "@/lib/staff";
 import { todayKST } from "@/lib/date";
+import { extractCouponCode } from "@/lib/coupon-code";
 import { POINTS_PER_USE } from "@/lib/point-policy";
 
 export type RedeemState = {
@@ -68,94 +69,104 @@ async function runRedeem(
 ): Promise<RedeemState> {
   const { userId: processedBy, actor } = who;
 
-  const confirm = formData.get("confirm") === "true";
-
-  if (confirm) {
-    // 화면에서 넘어온 hidden 값(couponId/userId/reissueKey)은 믿지 않고, 발급 이벤트 ID 하나만 받아서
-    // 나머지는 DB에서 다시 읽는다 — 서로 다른 쿠폰/회원 값이 섞여 들어와도 엉뚱한 사용 처리가 되지 않게.
-    const issueEventId = String(formData.get("issueEventId") ?? "");
-    if (!UUID_RE.test(issueEventId)) return { step: "invalid" };
-
-    const { data: issueRow } = await supabaseAdmin
-      .from("coupon_events")
-      .select("id, coupon_id, user_id, reissue_key, coupons(store_id, valid_to, is_active, stores(is_active))")
-      .eq("id", issueEventId)
-      .eq("event_type", "issue")
-      .maybeSingle();
-    if (!issueRow || !issueRow.user_id) return { step: "invalid" };
-
-    // 직원은 자기 매장의 쿠폰만 — 다른 사용 처리 검사보다 먼저, 그리고 쿠폰 정보는 하나도 돌려주지 않고 거절한다.
-    const confirmCoupon = issueRow.coupons as unknown as {
-      store_id: string | null;
-      valid_to: string;
-      is_active: boolean;
-      stores: { is_active: boolean } | null;
-    } | null;
-    if (!canRedeemForStore(actor, confirmCoupon?.store_id)) return { step: "forbidden" };
-    if (isOwnCoupon(actor, processedBy, issueRow.user_id)) return { step: "own" };
-
-    const couponId = issueRow.coupon_id;
-    const userId = issueRow.user_id;
-    const reissueKey = issueRow.reissue_key || "0";
-
-    // 재확인: 그 사이 다른 관리자가 먼저 처리했을 수도 있으니 마지막에 한 번 더 체크
-    // (재사용 가능 쿠폰은 같은 period 안에서만 "이미 사용됨"으로 본다)
-    const { data: existingUse } = await supabaseAdmin
-      .from("coupon_events")
-      .select("id")
-      .eq("coupon_id", couponId)
-      .eq("user_id", userId)
-      .eq("event_type", "use")
-      .eq("reissue_key", reissueKey)
-      .maybeSingle();
-    if (existingUse) return { step: "used" };
-
-    // 재확인: 대기하는 사이 유효기간이 지났거나 일시중지됐을 수도 있으니 마지막에 한 번 더 체크
-    const couponRow = confirmCoupon;
-    if (couponRow && couponRow.valid_to < todayKST()) {
-      return { step: "expired" };
-    }
-    if (couponRow && (!couponRow.is_active || !couponRow.stores?.is_active)) {
-      return { step: "unavailable" };
-    }
-
-    // 사용 기록은 (회원, 쿠폰, 사이클) 부분 유니크 인덱스가 최종 방어선이다. 동시에 두 번 처리되면
-    // 한쪽 insert가 실패하는데, 그때는 포인트도 주지 않아야 한다(이전엔 insert 결과를 무시해서 포인트가 두 번 적립될 수 있었음).
-    const useRow = {
-      coupon_id: couponId,
-      user_id: userId,
-      event_type: "use",
-      reissue_key: reissueKey,
-    };
-    // redeemed_by(처리한 관리자)는 db/migrations/20261028_redeem_audit.sql 로 추가되는 컬럼이다.
-    // 아직 운영 DB에 적용되지 않았으면(컬럼 없음 오류일 때만) 컬럼 없이 다시 시도해서 사용 처리 자체는 멈추지 않게 한다.
-    let { error: useError } = await supabaseAdmin.from("coupon_events").insert({ ...useRow, redeemed_by: processedBy });
-    if (isMissingColumnError(useError, "redeemed_by")) {
-      warnMissingAuditColumn();
-      ({ error: useError } = await supabaseAdmin.from("coupon_events").insert(useRow));
-    }
-    if (useError) {
-      if (useError.code === "23505") return { step: "used" };
-      Sentry.captureException(new Error(`redeem: use event insert failed (${useError.code})`));
-      return { step: "invalid" };
-    }
-
-    // 쿠폰 사용 시 포인트 적립
-    const { error: pointError } = await supabaseAdmin.from("point_events").insert({
-      user_id: userId,
-      points: POINTS_PER_USE,
-      reason: "クーポン利用",
-      coupon_id: couponId,
-    });
-    if (pointError) {
-      // 사용 처리 자체는 이미 끝났으므로 실패로 돌려보내지 않고, 운영자가 알 수 있게 기록만 남긴다.
-      Sentry.captureException(new Error(`redeem: point award failed (${pointError.code}) for issue ${issueEventId}`));
-    }
-
-    return { step: "done" };
+  if (formData.get("confirm") === "true") {
+    return confirmRedeem(processedBy, actor, String(formData.get("issueEventId") ?? ""));
   }
 
-  const code = (formData.get("code") as string)?.trim();
+  const found = await lookupRedeem(processedBy, actor, extractCouponCode(String(formData.get("code") ?? "")));
+  // QR 스캔으로 들어온 요청은 조회에 성공하면 그 자리에서 바로 사용 처리한다(모든 검사는 confirmRedeem 이 다시 한다).
+  if (found.step === "found" && found.issueEventId && formData.get("instant") === "true") {
+    const result = await confirmRedeem(processedBy, actor, found.issueEventId);
+    return { ...result, storeName: found.storeName, couponTitle: found.couponTitle, nickname: found.nickname };
+  }
+  return found;
+}
+
+async function confirmRedeem(processedBy: string, actor: RedeemActor, issueEventId: string): Promise<RedeemState> {
+  // 화면에서 넘어온 hidden 값(couponId/userId/reissueKey)은 믿지 않고, 발급 이벤트 ID 하나만 받아서
+  // 나머지는 DB에서 다시 읽는다 — 서로 다른 쿠폰/회원 값이 섞여 들어와도 엉뚱한 사용 처리가 되지 않게.
+  if (!UUID_RE.test(issueEventId)) return { step: "invalid" };
+
+  const { data: issueRow } = await supabaseAdmin
+    .from("coupon_events")
+    .select("id, coupon_id, user_id, reissue_key, coupons(store_id, valid_to, is_active, stores(is_active))")
+    .eq("id", issueEventId)
+    .eq("event_type", "issue")
+    .maybeSingle();
+  if (!issueRow || !issueRow.user_id) return { step: "invalid" };
+
+  // 직원은 자기 매장의 쿠폰만 — 다른 사용 처리 검사보다 먼저, 그리고 쿠폰 정보는 하나도 돌려주지 않고 거절한다.
+  const confirmCoupon = issueRow.coupons as unknown as {
+    store_id: string | null;
+    valid_to: string;
+    is_active: boolean;
+    stores: { is_active: boolean } | null;
+  } | null;
+  if (!canRedeemForStore(actor, confirmCoupon?.store_id)) return { step: "forbidden" };
+  if (isOwnCoupon(actor, processedBy, issueRow.user_id)) return { step: "own" };
+
+  const couponId = issueRow.coupon_id;
+  const userId = issueRow.user_id;
+  const reissueKey = issueRow.reissue_key || "0";
+
+  // 재확인: 그 사이 다른 관리자가 먼저 처리했을 수도 있으니 마지막에 한 번 더 체크
+  // (재사용 가능 쿠폰은 같은 period 안에서만 "이미 사용됨"으로 본다)
+  const { data: existingUse } = await supabaseAdmin
+    .from("coupon_events")
+    .select("id")
+    .eq("coupon_id", couponId)
+    .eq("user_id", userId)
+    .eq("event_type", "use")
+    .eq("reissue_key", reissueKey)
+    .maybeSingle();
+  if (existingUse) return { step: "used" };
+
+  // 재확인: 대기하는 사이 유효기간이 지났거나 일시중지됐을 수도 있으니 마지막에 한 번 더 체크
+  const couponRow = confirmCoupon;
+  if (couponRow && couponRow.valid_to < todayKST()) {
+    return { step: "expired" };
+  }
+  if (couponRow && (!couponRow.is_active || !couponRow.stores?.is_active)) {
+    return { step: "unavailable" };
+  }
+
+  // 사용 기록은 (회원, 쿠폰, 사이클) 부분 유니크 인덱스가 최종 방어선이다. 동시에 두 번 처리되면
+  // 한쪽 insert가 실패하는데, 그때는 포인트도 주지 않아야 한다(이전엔 insert 결과를 무시해서 포인트가 두 번 적립될 수 있었음).
+  const useRow = {
+    coupon_id: couponId,
+    user_id: userId,
+    event_type: "use",
+    reissue_key: reissueKey,
+  };
+  // redeemed_by(처리한 관리자)는 db/migrations/20261028_redeem_audit.sql 로 추가되는 컬럼이다.
+  // 아직 운영 DB에 적용되지 않았으면(컬럼 없음 오류일 때만) 컬럼 없이 다시 시도해서 사용 처리 자체는 멈추지 않게 한다.
+  let { error: useError } = await supabaseAdmin.from("coupon_events").insert({ ...useRow, redeemed_by: processedBy });
+  if (isMissingColumnError(useError, "redeemed_by")) {
+    warnMissingAuditColumn();
+    ({ error: useError } = await supabaseAdmin.from("coupon_events").insert(useRow));
+  }
+  if (useError) {
+    if (useError.code === "23505") return { step: "used" };
+    Sentry.captureException(new Error(`redeem: use event insert failed (${useError.code})`));
+    return { step: "invalid" };
+  }
+
+  // 쿠폰 사용 시 포인트 적립
+  const { error: pointError } = await supabaseAdmin.from("point_events").insert({
+    user_id: userId,
+    points: POINTS_PER_USE,
+    reason: "クーポン利用",
+    coupon_id: couponId,
+  });
+  if (pointError) {
+    // 사용 처리 자체는 이미 끝났으므로 실패로 돌려보내지 않고, 운영자가 알 수 있게 기록만 남긴다.
+    Sentry.captureException(new Error(`redeem: point award failed (${pointError.code}) for issue ${issueEventId}`));
+  }
+
+  return { step: "done" };
+}
+
+async function lookupRedeem(processedBy: string, actor: RedeemActor, code: string): Promise<RedeemState> {
   if (!code) return { step: "input" };
   if (!UUID_RE.test(code)) return { step: "invalid" };
 
