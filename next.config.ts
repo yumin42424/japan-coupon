@@ -9,13 +9,15 @@ const isDev = process.env.NODE_ENV !== "production";
 const supabaseHostname = process.env.NEXT_PUBLIC_SUPABASE_URL
   ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
   : undefined;
+// Kakao Maps: dapi.kakao.com의 sdk.js는 로더일 뿐이고, kakao.maps.load()가 지도 본체를
+// t1.kakaocdn.net(2026-11 확인, 예전엔 daumcdn)에서 불러온다. 여기서 막히면 지도가 빈 칸이 된다.
 const CSP = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval' " : ""}https://dapi.kakao.com https://va.vercel-scripts.com`,
+  `script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval' " : ""}https://dapi.kakao.com https://t1.kakaocdn.net https://t1.daumcdn.net https://va.vercel-scripts.com`,
   "style-src 'self' 'unsafe-inline'",
-  `img-src 'self' data: blob: https://*.daumcdn.net${supabaseHostname ? ` https://${supabaseHostname}` : ""}`,
+  `img-src 'self' data: blob: https://*.daumcdn.net https://*.kakaocdn.net${supabaseHostname ? ` https://${supabaseHostname}` : ""}`,
   "font-src 'self' data:",
-  "connect-src 'self' https://dapi.kakao.com https://*.daumcdn.net https://*.ingest.us.sentry.io https://va.vercel-scripts.com https://vitals.vercel-insights.com",
+  "connect-src 'self' https://dapi.kakao.com https://*.daumcdn.net https://*.kakaocdn.net https://*.ingest.us.sentry.io https://va.vercel-scripts.com https://vitals.vercel-insights.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
