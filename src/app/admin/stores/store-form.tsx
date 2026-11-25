@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useRef, useEffect } from "react";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { createStore, type StoreFormState } from "./actions";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 
@@ -135,6 +135,25 @@ export function StoreForm() {
         <input type="checkbox" name="popularWithJapanese" />
         日本人に人気の店舗
       </label>
+
+      <label className="flex items-start gap-2 text-body font-medium">
+        <input type="checkbox" name="isActive" className="mt-1.5" />
+        <span>
+          登録と同時に掲載する
+          <span className="block text-caption font-normal text-muted">
+            チェックしない場合は非公開で登録されます。内容を確認してから、編集画面の「掲載を有効にする」で公開できます。公開した時点で、このエリアに関心のある会員（LINE通知に同意した方）へお知らせが届きます。
+          </span>
+        </span>
+      </label>
+
+      {state.saved && !pending && (
+        <p className="flex items-center gap-1.5 text-body text-success" role="status">
+          <CheckCircle2 className="h-4 w-4 shrink-0" />
+          {state.saved === "hidden"
+            ? "非公開で登録しました。内容を確認したら、一覧の編集から公開してください。"
+            : "登録して掲載しました。"}
+        </p>
+      )}
 
       {state.error && (
         <p className="flex items-center gap-1.5 text-body text-primary" role="alert">

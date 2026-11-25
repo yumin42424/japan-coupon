@@ -74,7 +74,7 @@ export default async function AdminCouponsPage() {
                   )}
                   {!coupon.is_active && (
                     <span className="shrink-0 rounded-full bg-border px-1.5 py-0.5 text-label font-normal text-muted">
-                      停止中
+                      非公開
                     </span>
                   )}
                 </p>

@@ -53,7 +53,7 @@ export default async function AdminStaffPage() {
         <>
           <section className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-card">
             <h2 className="text-h3">スタッフを追加</h2>
-            <StaffForm stores={stores.map((s) => ({ id: s.id, name: s.is_active ? s.name : `${s.name}（停止中）` }))} />
+            <StaffForm stores={stores.map((s) => ({ id: s.id, name: s.is_active ? s.name : `${s.name}（非公開）` }))} />
           </section>
 
           <section className="mt-8">

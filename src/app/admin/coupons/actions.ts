@@ -6,7 +6,8 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import { requireAdmin } from "@/lib/admin";
 import { pretranslate } from "@/i18n/content";
 
-export type CouponFormState = { error?: string };
+// saved: 방금 등록한 쿠폰이 공개인지 비공개인지 (등록 화면에 안내를 띄우는 데 쓴다)
+export type CouponFormState = { error?: string; saved?: "public" | "hidden" };
 
 // 가격은 전부 한국 원화(KRW) 정수로 저장·표시한다 (공개 화면은 ₩ 표기 + 실시간 환율 기반 엔화 환산).
 const MAX_PRICE_KRW = 100_000_000;
@@ -108,6 +109,8 @@ export async function createCoupon(
   const parsed = parseCouponForm(formData);
   if ("error" in parsed) return { error: parsed.error };
   const v = parsed.value;
+  // 체크하지 않으면 비공개로 등록한다(DB 기본값은 공개라서 항상 값을 직접 넣는다).
+  const isActive = formData.get("isActive") === "on";
 
   const { error } = await supabaseAdmin.from("coupons").insert({
     store_id: v.storeId,
@@ -121,6 +124,7 @@ export async function createCoupon(
     discounted_price: v.discountedPrice,
     quantity_limit: v.quantityLimit,
     reusable_after_days: v.reusableAfterDays,
+    is_active: isActive,
   });
 
   if (error) {
@@ -130,7 +134,7 @@ export async function createCoupon(
   pretranslate([v.title, v.discountInfo, v.usageCondition]);
   revalidatePath("/admin/coupons");
   revalidatePath("/coupons");
-  return {};
+  return { saved: isActive ? "public" : "hidden" };
 }
 
 export async function updateCoupon(

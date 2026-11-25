@@ -2,7 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import * as Sentry from "@sentry/nextjs";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { shouldAnnounceStore } from "@/lib/store-publish";
 import { CATEGORIES, AREAS } from "@/lib/taxonomy";
 import { requireAdmin } from "@/lib/admin";
 import { sendLinePush, textMessage } from "@/lib/line-push";
@@ -33,7 +35,39 @@ async function notifyInterestedUsersOfNewStore(area: string, storeName: string) 
   }
 }
 
-export type StoreFormState = { error?: string };
+// 손님이 이 매장 쿠폰을 보거나 받은 기록, 또는 후기가 있는지. 잠시 내렸다가 다시 공개할 때
+// "새 매장" 알림을 또 보내지 않기 위해 쓴다. 확인에 실패하면 알림을 보내지 않는 쪽(true)으로 둔다.
+async function storeHasCustomerActivity(storeId: string): Promise<boolean> {
+  const { data: coupons, error: couponError } = await supabaseAdmin.from("coupons").select("id").eq("store_id", storeId);
+  if (couponError) {
+    Sentry.captureException(new Error(`store activity check failed (${couponError.code ?? "no-code"})`));
+    return true;
+  }
+  const couponIds = (coupons ?? []).map((c) => c.id);
+  if (couponIds.length > 0) {
+    const { count, error } = await supabaseAdmin
+      .from("coupon_events")
+      .select("id", { count: "exact", head: true })
+      .in("coupon_id", couponIds);
+    if (error) {
+      Sentry.captureException(new Error(`store activity check failed (${error.code ?? "no-code"})`));
+      return true;
+    }
+    if ((count ?? 0) > 0) return true;
+  }
+  const { count, error } = await supabaseAdmin
+    .from("reviews")
+    .select("id", { count: "exact", head: true })
+    .eq("store_id", storeId);
+  if (error) {
+    Sentry.captureException(new Error(`store activity check failed (${error.code ?? "no-code"})`));
+    return true;
+  }
+  return (count ?? 0) > 0;
+}
+
+// saved: 방금 등록한 매장이 공개인지 비공개인지 (등록 화면에 안내를 띄우는 데 쓴다)
+export type StoreFormState = { error?: string; saved?: "public" | "hidden" };
 
 // 한국 안에 있는 매장만 등록하므로 좌표도 한국 범위로 검증한다 (위도/경도를 뒤바꿔 넣는 실수 방지).
 const KOREA_LAT = { min: 33, max: 39 };
@@ -93,6 +127,8 @@ export async function createStore(
   const area = formData.get("area") as string;
   const lineAvailable = formData.get("lineAvailable") === "on";
   const popularWithJapanese = formData.get("popularWithJapanese") === "on";
+  // 체크하지 않으면 비공개로 등록한다(DB 기본값은 공개라서 항상 값을 직접 넣는다).
+  const isActive = formData.get("isActive") === "on";
   const address = (formData.get("address") as string)?.trim();
   const businessHours = (formData.get("businessHours") as string)?.trim();
   const reservationInfo = (formData.get("reservationInfo") as string)?.trim();
@@ -118,6 +154,7 @@ export async function createStore(
     area,
     line_available: lineAvailable,
     popular_with_japanese: popularWithJapanese,
+    is_active: isActive,
     address: address || null,
     business_hours: businessHours || null,
     reservation_info: reservationInfo || null,
@@ -129,12 +166,14 @@ export async function createStore(
     return { error: "登録に失敗しました。" };
   }
 
-  await notifyInterestedUsersOfNewStore(area, name);
+  if (shouldAnnounceStore({ wasPublic: false, isPublic: isActive, isDemo: false, hasCustomerActivity: false })) {
+    await notifyInterestedUsersOfNewStore(area, name);
+  }
 
   pretranslate([name, address, businessHours, reservationInfo]);
   revalidatePath("/admin/stores");
   revalidatePath("/admin/coupons");
-  return {};
+  return { saved: isActive ? "public" : "hidden" };
 }
 
 export async function updateStore(
@@ -169,6 +208,13 @@ export async function updateStore(
     return { error: "エリアを選択してください。" };
   }
 
+  // 공개 여부가 바뀌는지 보려고 저장 전 상태를 읽는다 (비공개 → 공개가 되는 순간에 "새 매장" 알림)
+  const { data: before } = await supabaseAdmin
+    .from("stores")
+    .select("is_active, is_demo")
+    .eq("id", storeId)
+    .maybeSingle();
+
   const { error } = await supabaseAdmin
     .from("stores")
     .update({
@@ -188,6 +234,16 @@ export async function updateStore(
 
   if (error) {
     return { error: "更新に失敗しました。" };
+  }
+
+  // 저장 전 상태를 못 읽었으면(before 없음) 이미 공개였던 것으로 보고 알리지 않는다.
+  const wasPublic = before ? before.is_active : true;
+  const isDemo = before?.is_demo ?? false;
+  if (!wasPublic && isActive && !isDemo) {
+    const hasCustomerActivity = await storeHasCustomerActivity(storeId);
+    if (shouldAnnounceStore({ wasPublic, isPublic: isActive, isDemo, hasCustomerActivity })) {
+      await notifyInterestedUsersOfNewStore(area, name);
+    }
   }
 
   pretranslate([name, address, businessHours, reservationInfo]);
